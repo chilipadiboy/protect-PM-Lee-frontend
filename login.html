@@ -94,16 +94,10 @@ html,body,h1,h2,h3,h4,h5 {font-family: "Raleway", sans-serif}
 <div>
     <div class="login-page">
   <div class="form">
-    <form class="login-form" action="" method="post">
-      <input name="email" type="text" placeholder="Email"/>
+    <form action="http://localhost:8080/graphql" method="post">
+      <input name="nric" type="text" placeholder="NRIC"/>
       <input name="password" type="password" placeholder="Password"/>
-      <?php
-      	if (!empty($message)) {
-      		echo $message;
-      	}
-      ?>
-      <input name="action" type="hidden" value="login" />
       <input type="submit" value="Log In"/>
-      <p class="message">Not registered? <a href="Code_Signup.php">Create an account</a></p>
+      <p class="message">Not registered? <a href="register.html">Create an account</a></p>
     </form>
 </div>
