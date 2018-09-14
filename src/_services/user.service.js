@@ -6,8 +6,6 @@ export const userService = {
     logout,
     register,
     getAll,
-    getById,
-    update,
 };
 
 function login(username, password) {
@@ -44,15 +42,6 @@ function getAll() {
     return fetch(`${config.apiUrl}/users`, requestOptions).then(handleResponse);
 }
 
-function getById(id) {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${config.apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-
 function register(user) {
     const requestOptions = {
         method: 'POST',
@@ -61,16 +50,6 @@ function register(user) {
     };
 
     return fetch(`${config.apiUrl}/users/register`, requestOptions).then(handleResponse);
-}
-
-function update(user) {
-    const requestOptions = {
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    };
-
-    return fetch(`${config.apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);;
 }
 
 function handleResponse(response) {
