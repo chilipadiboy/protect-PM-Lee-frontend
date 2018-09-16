@@ -15,7 +15,6 @@ import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
 import Profile from '../user/profile/Profile';
 import AppHeader from '../common/AppHeader';
-import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
 
@@ -38,7 +37,7 @@ class App extends Component {
       placement: 'topRight',
       top: 70,
       duration: 3,
-    });    
+    });
   }
 
   loadCurrentUser() {
@@ -55,7 +54,7 @@ class App extends Component {
     }).catch(error => {
       this.setState({
         isLoading: false
-      });  
+      });
     });
   }
 
@@ -72,7 +71,7 @@ class App extends Component {
     });
 
     this.props.history.push(redirectTo);
-    
+
     notification[notificationType]({
       message: 'Polling App',
       description: description,
@@ -94,25 +93,24 @@ class App extends Component {
     }
     return (
         <Layout className="app-container">
-          <AppHeader isAuthenticated={this.state.isAuthenticated} 
-            currentUser={this.state.currentUser} 
+          <AppHeader isAuthenticated={this.state.isAuthenticated}
+            currentUser={this.state.currentUser}
             onLogout={this.handleLogout} />
 
           <Content className="app-content">
             <div className="container">
-              <Switch>      
-                <Route exact path="/" 
-                  render={(props) => <PollList isAuthenticated={this.state.isAuthenticated} 
+              <Switch>
+                <Route exact path="/"
+                  render={(props) => <PollList isAuthenticated={this.state.isAuthenticated}
                       currentUser={this.state.currentUser} handleLogout={this.handleLogout} {...props} />}>
                 </Route>
-                <Route path="/login" 
+                <Route path="/login"
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
-                <Route path="/users/:username" 
+                <Route path="/users/:username"
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
                 </Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
-                <Route component={NotFound}></Route>
               </Switch>
             </div>
           </Content>
