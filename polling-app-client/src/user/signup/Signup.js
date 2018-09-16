@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { register, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
-import './Register.css';
+import { signup, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
+import './Signup.css';
 import { Link } from 'react-router-dom';
-import { 
-    NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
+import {
+    NAME_MIN_LENGTH, NAME_MAX_LENGTH,
     USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH,
     EMAIL_MAX_LENGTH,
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH
@@ -12,7 +12,7 @@ import {
 import { Form, Input, Button, notification } from 'antd';
 const FormItem = Form.Item;
 
-class Register extends Component {
+class Signup extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -38,7 +38,7 @@ class Register extends Component {
 
     handleInputChange(event, validationFun) {
         const target = event.target;
-        const inputName = target.name;        
+        const inputName = target.name;
         const inputValue = target.value;
 
         this.setState({
@@ -51,19 +51,19 @@ class Register extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-    
+
         const signupRequest = {
             name: this.state.name.value,
             email: this.state.email.value,
             username: this.state.username.value,
             password: this.state.password.value
         };
-        register(signupRequest)
+        signup(signupRequest)
         .then(response => {
             notification.success({
                 message: 'Healthcare App',
                 description: "Thank you! You're successfully registered. Please Login to continue!",
-            });          
+            });
             this.props.history.push("/login");
         }).catch(error => {
             notification.error({
@@ -83,68 +83,68 @@ class Register extends Component {
 
     render() {
         return (
-            <div className="register-container">
-                <h1 className="page-title">Register</h1>
-                <div className="register-content">
-                    <Form onSubmit={this.handleSubmit} className="register-form">
-                        <FormItem 
+            <div className="signup-container">
+                <h1 className="page-title">Sign Up</h1>
+                <div className="signup-content">
+                    <Form onSubmit={this.handleSubmit} className="signup-form">
+                        <FormItem
                             label="Full Name"
                             validateStatus={this.state.name.validateStatus}
                             help={this.state.name.errorMsg}>
-                            <Input 
+                            <Input
                                 size="large"
                                 name="name"
                                 autoComplete="off"
                                 placeholder="Your full name"
-                                value={this.state.name.value} 
-                                onChange={(event) => this.handleInputChange(event, this.validateName)} />    
+                                value={this.state.name.value}
+                                onChange={(event) => this.handleInputChange(event, this.validateName)} />
                         </FormItem>
                         <FormItem label="Username"
                             hasFeedback
                             validateStatus={this.state.username.validateStatus}
                             help={this.state.username.errorMsg}>
-                            <Input 
+                            <Input
                                 size="large"
-                                name="username" 
+                                name="username"
                                 autoComplete="off"
                                 placeholder="A unique username"
-                                value={this.state.username.value} 
+                                value={this.state.username.value}
                                 onBlur={this.validateUsernameAvailability}
-                                onChange={(event) => this.handleInputChange(event, this.validateUsername)} />    
+                                onChange={(event) => this.handleInputChange(event, this.validateUsername)} />
                         </FormItem>
-                        <FormItem 
+                        <FormItem
                             label="Email"
                             hasFeedback
                             validateStatus={this.state.email.validateStatus}
                             help={this.state.email.errorMsg}>
-                            <Input 
+                            <Input
                                 size="large"
-                                name="email" 
-                                type="email" 
+                                name="email"
+                                type="email"
                                 autoComplete="off"
                                 placeholder="Your email"
-                                value={this.state.email.value} 
+                                value={this.state.email.value}
                                 onBlur={this.validateEmailAvailability}
-                                onChange={(event) => this.handleInputChange(event, this.validateEmail)} />    
+                                onChange={(event) => this.handleInputChange(event, this.validateEmail)} />
                         </FormItem>
-                        <FormItem 
+                        <FormItem
                             label="Password"
                             validateStatus={this.state.password.validateStatus}
                             help={this.state.password.errorMsg}>
-                            <Input 
+                            <Input
                                 size="large"
-                                name="password" 
+                                name="password"
                                 type="password"
                                 autoComplete="off"
-                                placeholder="A password between 6 to 20 characters" 
-                                value={this.state.password.value} 
-                                onChange={(event) => this.handleInputChange(event, this.validatePassword)} />    
+                                placeholder="A password between 6 to 20 characters"
+                                value={this.state.password.value}
+                                onChange={(event) => this.handleInputChange(event, this.validatePassword)} />
                         </FormItem>
                         <FormItem>
-                            <Button type="primary" 
-                                htmlType="submit" 
-                                size="large" 
-                                className="register-form-button"
+                            <Button type="primary"
+                                htmlType="submit"
+                                size="large"
+                                className="signup-form-button"
                                 disabled={this.isFormInvalid()}>Sign up</Button>
                             Already registered? <Link to="/login">Login now!</Link>
                         </FormItem>
@@ -171,7 +171,7 @@ class Register extends Component {
             return {
                 validateStatus: 'success',
                 errorMsg: null,
-              };            
+              };
         }
     }
 
@@ -179,7 +179,7 @@ class Register extends Component {
         if(!email) {
             return {
                 validateStatus: 'error',
-                errorMsg: 'Email may not be empty'                
+                errorMsg: 'Email may not be empty'
             }
         }
 
@@ -288,7 +288,7 @@ class Register extends Component {
                     value: emailValue,
                     ...emailValidation
                 }
-            });    
+            });
             return;
         }
 
@@ -346,10 +346,10 @@ class Register extends Component {
             return {
                 validateStatus: 'success',
                 errorMsg: null,
-            };            
+            };
         }
     }
 
 }
 
-export default Register;
+export default Signup;
