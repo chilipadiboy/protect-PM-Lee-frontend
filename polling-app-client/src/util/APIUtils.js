@@ -57,9 +57,9 @@ export function login(loginRequest) {
     });
 }
 
-export function signup(signupRequest) {
+export function register(signupRequest) {
     return request({
-        url: API_BASE_URL + "/auth/signup",
+        url: API_BASE_URL + "/auth/register",
         method: 'POST',
         body: JSON.stringify(signupRequest)
     });

@@ -12,7 +12,7 @@ import { ACCESS_TOKEN } from '../constants';
 import PollList from '../poll/PollList';
 import NewPoll from '../poll/NewPoll';
 import Login from '../user/login/Login';
-import Signup from '../user/signup/Signup';
+import Register from '../user/register/Register';
 import Profile from '../user/profile/Profile';
 import AppHeader from '../common/AppHeader';
 import LoadingIndicator from '../common/LoadingIndicator';
@@ -73,14 +73,14 @@ class App extends Component {
     this.props.history.push(redirectTo);
 
     notification[notificationType]({
-      message: 'Polling App',
+      message: 'Healthcare App',
       description: description,
     });
   }
 
   handleLogin() {
     notification.success({
-      message: 'Polling App',
+      message: 'Healthcare App',
       description: "You're successfully logged in.",
     });
     this.loadCurrentUser();
@@ -106,7 +106,7 @@ class App extends Component {
                 </Route>
                 <Route path="/login"
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
-                <Route path="/signup" component={Signup}></Route>
+                <Route path="/register" component={Register}></Route>
                 <Route path="/users/:username"
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
                 </Route>

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { signup, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
-import './Signup.css';
+import { register, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
+import './Register.css';
 import { Link } from 'react-router-dom';
 import { 
     NAME_MIN_LENGTH, NAME_MAX_LENGTH, 
@@ -12,7 +12,7 @@ import {
 import { Form, Input, Button, notification } from 'antd';
 const FormItem = Form.Item;
 
-class Signup extends Component {
+class Register extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -58,16 +58,16 @@ class Signup extends Component {
             username: this.state.username.value,
             password: this.state.password.value
         };
-        signup(signupRequest)
+        register(signupRequest)
         .then(response => {
             notification.success({
-                message: 'Polling App',
+                message: 'Healthcare App',
                 description: "Thank you! You're successfully registered. Please Login to continue!",
             });          
             this.props.history.push("/login");
         }).catch(error => {
             notification.error({
-                message: 'Polling App',
+                message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
             });
         });
@@ -83,10 +83,10 @@ class Signup extends Component {
 
     render() {
         return (
-            <div className="signup-container">
-                <h1 className="page-title">Sign Up</h1>
-                <div className="signup-content">
-                    <Form onSubmit={this.handleSubmit} className="signup-form">
+            <div className="register-container">
+                <h1 className="page-title">Register</h1>
+                <div className="register-content">
+                    <Form onSubmit={this.handleSubmit} className="register-form">
                         <FormItem 
                             label="Full Name"
                             validateStatus={this.state.name.validateStatus}
@@ -144,9 +144,9 @@ class Signup extends Component {
                             <Button type="primary" 
                                 htmlType="submit" 
                                 size="large" 
-                                className="signup-form-button"
+                                className="register-form-button"
                                 disabled={this.isFormInvalid()}>Sign up</Button>
-                            Already registed? <Link to="/login">Login now!</Link>
+                            Already registered? <Link to="/login">Login now!</Link>
                         </FormItem>
                     </Form>
                 </div>
@@ -352,4 +352,4 @@ class Signup extends Component {
 
 }
 
-export default Signup;
+export default Register;
