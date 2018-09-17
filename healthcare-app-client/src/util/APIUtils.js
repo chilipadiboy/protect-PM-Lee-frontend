@@ -24,9 +24,13 @@ const request = (options) => {
 };
 
 export function login(loginRequest) {
-    return request({
+    return request/*fetch*/({
         url: API_BASE_URL + "/auth/signin",
         method: 'POST',
+        // url: https://localhost:8080/graphql
+        // method: 'POST'
+        // headers: { 'Content-Type': 'application/json' },
+        // body: JSON.stringify({query: '{login(nric:\u0022\u0022,password:\u0022\u0022)'})
         body: JSON.stringify(loginRequest)
     });
 }

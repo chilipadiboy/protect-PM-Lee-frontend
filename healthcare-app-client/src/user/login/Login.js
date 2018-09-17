@@ -28,10 +28,12 @@ class LoginForm extends Component {
     }
 
     handleSubmit(event) {
-        event.preventDefault();   
+        event.preventDefault();
         this.props.form.validateFields((err, values) => {
             if (!err) {
                 const loginRequest = Object.assign({}, values);
+                // console.log(values);
+                // {usernameOrEmail: "harrypotter", password: "harrypotter"}
                 login(loginRequest)
                 .then(response => {
                     localStorage.setItem(ACCESS_TOKEN, response.accessToken);
@@ -41,12 +43,12 @@ class LoginForm extends Component {
                         notification.error({
                             message: 'Healthcare App',
                             description: 'Your Username or Password is incorrect. Please try again!'
-                        });                    
+                        });
                     } else {
                         notification.error({
                             message: 'Healthcare App',
                             description: error.message || 'Sorry! Something went wrong. Please try again!'
-                        });                                            
+                        });
                     }
                 });
             }
@@ -58,26 +60,26 @@ class LoginForm extends Component {
         return (
             <Form onSubmit={this.handleSubmit} className="login-form">
                 <FormItem>
-                    {getFieldDecorator('usernameOrEmail', {
+                    {getFieldDecorator('usernameOrEmail'/*'nric'*/, {
                         rules: [{ required: true, message: 'Please input your username or email!' }],
                     })(
-                    <Input 
+                    <Input
                         prefix={<Icon type="user" />}
                         size="large"
-                        name="usernameOrEmail" 
-                        placeholder="Username or Email" />    
+                        name="usernameOrEmail"
+                        placeholder="Username or Email" />
                     )}
                 </FormItem>
                 <FormItem>
                 {getFieldDecorator('password', {
                     rules: [{ required: true, message: 'Please input your Password!' }],
                 })(
-                    <Input 
+                    <Input
                         prefix={<Icon type="lock" />}
                         size="large"
-                        name="password" 
-                        type="password" 
-                        placeholder="Password"  />                        
+                        name="password"
+                        type="password"
+                        placeholder="Password"  />
                 )}
                 </FormItem>
                 <FormItem>
