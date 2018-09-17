@@ -95,7 +95,6 @@ class Signup extends Component {
                                 size="large"
                                 name="name"
                                 autoComplete="off"
-                                placeholder="Your full name"
                                 value={this.state.name.value}
                                 onChange={(event) => this.handleInputChange(event, this.validateName)} />
                         </FormItem>
@@ -107,7 +106,6 @@ class Signup extends Component {
                                 size="large"
                                 name="username"
                                 autoComplete="off"
-                                placeholder="A unique username"
                                 value={this.state.username.value}
                                 onBlur={this.validateUsernameAvailability}
                                 onChange={(event) => this.handleInputChange(event, this.validateUsername)} />
@@ -122,7 +120,6 @@ class Signup extends Component {
                                 name="email"
                                 type="email"
                                 autoComplete="off"
-                                placeholder="Your email"
                                 value={this.state.email.value}
                                 onBlur={this.validateEmailAvailability}
                                 onChange={(event) => this.handleInputChange(event, this.validateEmail)} />
@@ -136,7 +133,7 @@ class Signup extends Component {
                                 name="password"
                                 type="password"
                                 autoComplete="off"
-                                placeholder="A password between 6 to 20 characters"
+                                placeholder="Between 6 to 20 characters"
                                 value={this.state.password.value}
                                 onChange={(event) => this.handleInputChange(event, this.validatePassword)} />
                         </FormItem>
