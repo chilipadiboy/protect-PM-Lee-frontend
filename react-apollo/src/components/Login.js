@@ -1,33 +1,31 @@
 import React, { Component } from 'react'
 import { AUTH_TOKEN } from '../constants'
+import { Mutation } from 'react-apollo'
+import gql from 'graphql-tag'
+
+const LOGIN_MUTATION = gql`
+  mutation($nric: String!, $password: String!) {
+    login(nric: $nric, password: $password)
+  }
+`
 
 class Login extends Component {
   state = {
-    login: true, // switch between Login and SignUp
-    email: '',
-    password: '',
-    name: '',
+    nric: '',
+    password: ''
   }
 
   render() {
-    const { login, email, password, name } = this.state
+    const { login, nric, name, email, phone, address, age, gender, password } = this.state
     return (
       <div>
-        <h4 className="mv3">{login ? 'Login' : 'Sign Up'}</h4>
+        <h4 className="mv3">{'Login'}</h4>
         <div className="flex flex-column">
-          {!login && (
-            <input
-              value={name}
-              onChange={e => this.setState({ name: e.target.value })}
-              type="text"
-              placeholder="Your name"
-            />
-          )}
           <input
-            value={email}
-            onChange={e => this.setState({ email: e.target.value })}
+            value={nric}
+            onChange={e => this.setState({ nric: e.target.value })}
             type="text"
-            placeholder="Your email address"
+            placeholder="Your nric"
           />
           <input
             value={password}
@@ -37,24 +35,32 @@ class Login extends Component {
           />
         </div>
         <div className="flex mt3">
-          <div className="pointer mr2 button" onClick={() => this._confirm()}>
-            {login ? 'login' : 'create account'}
-          </div>
+        <Mutation
+          mutation={LOGIN_MUTATION}
+          variables={{ nric, password }}
+          onCompleted={data => this._confirm(data)}
+        >
+          {mutation => (
+            <div className="pointer mr2 button" onClick={mutation}>
+              login
+            </div>
+          )}
+        </Mutation>
           <div
             className="pointer button"
             onClick={() => this.setState({ login: !login })}
           >
-            {login
-              ? 'need to create an account?'
-              : 'already have an account?'}
+            need to create an account?
           </div>
         </div>
       </div>
     )
   }
 
-  _confirm = async () => {
-    // ... you'll implement this 🔜
+  _confirm = async data => {
+    const { token } = data.login
+    this._saveUserData(token)
+    this.props.history.push(`/signup`)
   }
 
   _saveUserData = token => {
