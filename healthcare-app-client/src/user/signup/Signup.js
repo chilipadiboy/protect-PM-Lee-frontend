@@ -27,30 +27,14 @@ class Signup extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            nric: {
-                value: ''
-            },
-            name: {
-                value: ''
-            },
-            email: {
-                value: ''
-            },
-            phone: {
-                value: ''
-            },
-            address: {
-                value: ''
-            },
-            age: {
-                value: ''
-            },
-            gender: {
-                value: ''
-            },
-            password: {
-                value: ''
-            }
+          nric: '',
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          age: '',
+          gender: '',
+          password: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
@@ -363,7 +347,9 @@ class Signup extends Component {
               }
         }
 
-        if (gender == MALE || gender == FEMALE) {
+        if (gender === MALE || gender === FEMALE ||
+        gender === MALE.toLowerCase() || gender === FEMALE.toLowerCase() ||
+      gender === MALE.toUpperCase() || gender === FEMALE.toUpperCase()) {
           return {
             validateStatus: 'success',
             errorMsg: null,
@@ -371,7 +357,7 @@ class Signup extends Component {
         } else {
             return {
               validateStatus: 'error',
-              errorMsg: 'Must be \'male\' or \'female\''
+              errorMsg: 'Must be male or female'
               };
         }
     }
