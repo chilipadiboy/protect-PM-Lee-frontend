@@ -1,28 +1,51 @@
 import React, { Component } from 'react';
-import { signup, checkUsernameAvailability, checkEmailAvailability } from '../../util/APIUtils';
 import './Signup.css';
 import { Link } from 'react-router-dom';
 import {
     NAME_MIN_LENGTH, NAME_MAX_LENGTH,
-    USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH,
+    NRIC_LENGTH,
     EMAIL_MAX_LENGTH,
-    PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH
+    PHONE_LENGTH,
+    MALE, FEMALE,
+    PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH,
 } from '../../constants';
 
-import { Form, Input, Button, notification } from 'antd';
+import { Form, Input, Button } from 'antd';
+import { Mutation } from 'react-apollo';
+import gql from 'graphql-tag';
+
 const FormItem = Form.Item;
+
+const SIGNUP_MUTATION = gql`
+  mutation($nric: String!, $name: String!, $email: String!,
+    $phone: String!, $address: String!, $age: Int!, $gender: String!, $password: String!) {
+    register(nric: $nric, name: $name, email: $email, phone: $phone, address: $address, age: $age, gender: $gender, password: $password)
+  }
+`
 
 class Signup extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            nric: {
+                value: ''
+            },
             name: {
                 value: ''
             },
-            username: {
+            email: {
                 value: ''
             },
-            email: {
+            phone: {
+                value: ''
+            },
+            address: {
+                value: ''
+            },
+            age: {
+                value: ''
+            },
+            gender: {
                 value: ''
             },
             password: {
@@ -30,9 +53,6 @@ class Signup extends Component {
             }
         }
         this.handleInputChange = this.handleInputChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-        this.validateUsernameAvailability = this.validateUsernameAvailability.bind(this);
-        this.validateEmailAvailability = this.validateEmailAvailability.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
     }
 
@@ -49,46 +69,40 @@ class Signup extends Component {
         });
     }
 
-    handleSubmit(event) {
-        event.preventDefault();
-
-        const signupRequest = {
-            name: this.state.name.value,
-            email: this.state.email.value,
-            username: this.state.username.value,
-            password: this.state.password.value
-        };
-        signup(signupRequest)
-        .then(response => {
-            notification.success({
-                message: 'Healthcare App',
-                description: "Thank you! You're successfully registered. Please Login to continue!",
-            });
-            this.props.history.push("/login");
-        }).catch(error => {
-            notification.error({
-                message: 'Healthcare App',
-                description: error.message || 'Sorry! Something went wrong. Please try again!'
-            });
-        });
-    }
-
     isFormInvalid() {
-        return !(this.state.name.validateStatus === 'success' &&
-            this.state.username.validateStatus === 'success' &&
+        return !(this.state.nric.validateStatus === 'success' &&
+            this.state.name.validateStatus === 'success' &&
             this.state.email.validateStatus === 'success' &&
+            this.state.phone.validateStatus === 'success' &&
+            this.state.address.validateStatus === 'success' &&
+            this.state.age.validateStatus === 'success' &&
+            this.state.gender.validateStatus === 'success' &&
             this.state.password.validateStatus === 'success'
         );
     }
 
     render() {
+        const { nric, name, email, phone, address, age, gender, password } = this.state
         return (
             <div className="signup-container">
                 <h1 className="page-title">Sign Up</h1>
                 <div className="signup-content">
                     <Form onSubmit={this.handleSubmit} className="signup-form">
                         <FormItem
+                          label="NRIC"
+                          hasFeedback
+                          validateStatus={this.state.nric.validateStatus}
+                          help={this.state.nric.errorMsg}>
+                          <Input
+                              size="large"
+                              name="nric"
+                              autoComplete="off"
+                              value={this.state.nric.value}
+                              onChange={(event) => this.handleInputChange(event, this.validateNric)} />
+                        </FormItem>
+                        <FormItem
                             label="Full Name"
+                            hasFeedback
                             validateStatus={this.state.name.validateStatus}
                             help={this.state.name.errorMsg}>
                             <Input
@@ -97,18 +111,6 @@ class Signup extends Component {
                                 autoComplete="off"
                                 value={this.state.name.value}
                                 onChange={(event) => this.handleInputChange(event, this.validateName)} />
-                        </FormItem>
-                        <FormItem label="Username"
-                            hasFeedback
-                            validateStatus={this.state.username.validateStatus}
-                            help={this.state.username.errorMsg}>
-                            <Input
-                                size="large"
-                                name="username"
-                                autoComplete="off"
-                                value={this.state.username.value}
-                                onBlur={this.validateUsernameAvailability}
-                                onChange={(event) => this.handleInputChange(event, this.validateUsername)} />
                         </FormItem>
                         <FormItem
                             label="Email"
@@ -125,7 +127,56 @@ class Signup extends Component {
                                 onChange={(event) => this.handleInputChange(event, this.validateEmail)} />
                         </FormItem>
                         <FormItem
+                            label="Phone"
+                            hasFeedback
+                            validateStatus={this.state.phone.validateStatus}
+                            help={this.state.phone.errorMsg}>
+                            <Input
+                                size="large"
+                                name="phone"
+                                autoComplete="off"
+                                value={this.state.phone.value}
+                                onChange={(event) => this.handleInputChange(event, this.validatePhone)} />
+                        </FormItem>
+                        <FormItem
+                            label="Address"
+                            hasFeedback
+                            validateStatus={this.state.address.validateStatus}
+                            help={this.state.address.errorMsg}>
+                            <Input
+                                size="large"
+                                name="address"
+                                autoComplete="off"
+                                value={this.state.address.value}
+                                onChange={(event) => this.handleInputChange(event, this.validateAddress)} />
+                        </FormItem>
+                        <FormItem
+                            label="Age"
+                            hasFeedback
+                            validateStatus={this.state.age.validateStatus}
+                            help={this.state.age.errorMsg}>
+                            <Input
+                                size="large"
+                                name="age"
+                                autoComplete="off"
+                                value={this.state.age.value}
+                                onChange={(event) => this.handleInputChange(event, this.validateAge)} />
+                        </FormItem>
+                        <FormItem
+                            label="Gender"
+                            hasFeedback
+                            validateStatus={this.state.gender.validateStatus}
+                            help={this.state.gender.errorMsg}>
+                            <Input
+                                size="large"
+                                name="gender"
+                                autoComplete="off"
+                                value={this.state.gender.value}
+                                onChange={(event) => this.handleInputChange(event, this.validateGender)} />
+                        </FormItem>
+                        <FormItem
                             label="Password"
+                            hasFeedback
                             validateStatus={this.state.password.validateStatus}
                             help={this.state.password.errorMsg}>
                             <Input
@@ -138,11 +189,18 @@ class Signup extends Component {
                                 onChange={(event) => this.handleInputChange(event, this.validatePassword)} />
                         </FormItem>
                         <FormItem>
+                        <Mutation
+                          mutation={SIGNUP_MUTATION}
+                          variables={{ nric, name, email, phone, address, age, gender, password }}
+                        >
+                          {mutation => (
                             <Button type="primary"
-                                htmlType="submit"
+                                onClick={mutation}
                                 size="large"
                                 className="signup-form-button"
                                 disabled={this.isFormInvalid()}>Sign up</Button>
+                            )}
+                            </Mutation>
                             Already registered? <Link to="/login">Login now!</Link>
                         </FormItem>
                     </Form>
@@ -153,7 +211,33 @@ class Signup extends Component {
 
     // Validation Functions
 
+    validateNric = (nric) => {
+        if(nric.length < NRIC_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `NRIC is too short (${NRIC_LENGTH} characters needed.)`
+            }
+        } else if (nric.length > NRIC_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `NRIC is too long (${NRIC_LENGTH} characters allowed.)`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null
+            }
+        }
+    }
+
     validateName = (name) => {
+        if(!name) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Name may not be empty'
+              }
+        }
+
         if(name.length < NAME_MIN_LENGTH) {
             return {
                 validateStatus: 'error',
@@ -196,136 +280,100 @@ class Signup extends Component {
         }
 
         return {
-            validateStatus: null,
+            validateStatus: 'success',
             errorMsg: null
         }
     }
 
-    validateUsername = (username) => {
-        if(username.length < USERNAME_MIN_LENGTH) {
+    validatePhone = (phone) => {
+        if(!phone) {
             return {
                 validateStatus: 'error',
-                errorMsg: `Username is too short (Minimum ${USERNAME_MIN_LENGTH} characters needed.)`
+                errorMsg: 'Phone may not be empty'
             }
-        } else if (username.length > USERNAME_MAX_LENGTH) {
+        }
+
+        const PHONE_REGEX = RegExp('^[0-9]*$');
+        if(!PHONE_REGEX.test(phone)) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Phone not valid'
+            }
+        }
+
+        if(phone.length < PHONE_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `Phone is too short (${PHONE_LENGTH} characters needed.)`
+            }
+        } else if (phone.length > PHONE_LENGTH) {
             return {
                 validationStatus: 'error',
-                errorMsg: `Username is too long (Maximum ${USERNAME_MAX_LENGTH} characters allowed.)`
+                errorMsg: `Phone is too long (${PHONE_LENGTH} characters allowed.)`
             }
         } else {
             return {
-                validateStatus: null,
+                validateStatus: 'success',
                 errorMsg: null
             }
         }
     }
 
-    validateUsernameAvailability() {
-        // First check for client side errors in username
-        const usernameValue = this.state.username.value;
-        const usernameValidation = this.validateUsername(usernameValue);
-
-        if(usernameValidation.validateStatus === 'error') {
-            this.setState({
-                username: {
-                    value: usernameValue,
-                    ...usernameValidation
-                }
-            });
-            return;
+    validateAddress = (address) => {
+        if(!address) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Address may not be empty'
+              }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };
         }
-
-        this.setState({
-            username: {
-                value: usernameValue,
-                validateStatus: 'validating',
-                errorMsg: null
-            }
-        });
-
-        checkUsernameAvailability(usernameValue)
-        .then(response => {
-            if(response.available) {
-                this.setState({
-                    username: {
-                        value: usernameValue,
-                        validateStatus: 'success',
-                        errorMsg: null
-                    }
-                });
-            } else {
-                this.setState({
-                    username: {
-                        value: usernameValue,
-                        validateStatus: 'error',
-                        errorMsg: 'This username is already taken'
-                    }
-                });
-            }
-        }).catch(error => {
-            // Marking validateStatus as success, Form will be recchecked at server
-            this.setState({
-                username: {
-                    value: usernameValue,
-                    validateStatus: 'success',
-                    errorMsg: null
-                }
-            });
-        });
     }
 
-    validateEmailAvailability() {
-        // First check for client side errors in email
-        const emailValue = this.state.email.value;
-        const emailValidation = this.validateEmail(emailValue);
-
-        if(emailValidation.validateStatus === 'error') {
-            this.setState({
-                email: {
-                    value: emailValue,
-                    ...emailValidation
-                }
-            });
-            return;
+    validateAge = (age) => {
+        if(!age) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Age may not be empty'
+              }
         }
 
-        this.setState({
-            email: {
-                value: emailValue,
-                validateStatus: 'validating',
-                errorMsg: null
+        const AGE_REGEX = RegExp('^[0-9]*$');
+        if(!AGE_REGEX.test(age)) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Age not valid'
             }
-        });
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };
+        }
+    }
 
-        checkEmailAvailability(emailValue)
-        .then(response => {
-            if(response.available) {
-                this.setState({
-                    email: {
-                        value: emailValue,
-                        validateStatus: 'success',
-                        errorMsg: null
-                    }
-                });
-            } else {
-                this.setState({
-                    email: {
-                        value: emailValue,
-                        validateStatus: 'error',
-                        errorMsg: 'This Email is already registered'
-                    }
-                });
+    validateGender = (gender) => {
+        if(!gender) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Gender may not be empty'
+              }
+        }
+
+        if (gender == MALE || gender == FEMALE) {
+          return {
+            validateStatus: 'success',
+            errorMsg: null,
             }
-        }).catch(error => {
-            // Marking validateStatus as success, Form will be recchecked at server
-            this.setState({
-                email: {
-                    value: emailValue,
-                    validateStatus: 'success',
-                    errorMsg: null
-                }
-            });
-        });
+        } else {
+            return {
+              validateStatus: 'error',
+              errorMsg: 'Must be \'male\' or \'female\''
+              };
+        }
     }
 
     validatePassword = (password) => {
