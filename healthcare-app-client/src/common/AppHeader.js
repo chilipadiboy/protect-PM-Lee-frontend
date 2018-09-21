@@ -6,6 +6,8 @@ import {
 import './AppHeader.css';
 import dataIcon from '../data.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
+import { AUTH_TOKEN } from '../constants';
+
 const Header = Layout.Header;
 
 class AppHeader extends Component {
@@ -21,23 +23,18 @@ class AppHeader extends Component {
     }
 
     render() {
+        const authToken = localStorage.getItem(AUTH_TOKEN)
         let menuItems;
-        if(this.props.currentUser) {
+        if(authToken) {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
                 <Icon type="home" className="nav-icon" />
               </Link>
             </Menu.Item>,
-            <Menu.Item key="/data/new">
-            <Link to="/data/new">
-              <img src={dataIcon} alt="data" className="data-icon" />
-            </Link>
-          </Menu.Item>,
-          <Menu.Item key="/profile" className="profile-menu">
-                <ProfileDropdownMenu
-                  currentUser={this.props.currentUser}
-                  handleMenuClick={this.handleMenuClick}/>
+            <Menu.Item key="/profile" className="profile-menu">
+              <ProfileDropdownMenu
+                handleMenuClick={this.handleMenuClick}/>
             </Menu.Item>
           ];
         } else {
@@ -68,23 +65,11 @@ class AppHeader extends Component {
           </Header>
         );
     }
-}
+  }
 
-function ProfileDropdownMenu(props) {
+  function ProfileDropdownMenu(props) {
   const dropdownMenu = (
     <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
-      <Menu.Item key="user-info" className="dropdown-item" disabled>
-        <div className="user-full-name-info">
-          {props.currentUser.name}
-        </div>
-        <div className="username-info">
-          @{props.currentUser.username}
-        </div>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="profile" className="dropdown-item">
-        <Link to={`/users/${props.currentUser.username}`}>Profile</Link>
-      </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
         Logout
       </Menu.Item>
@@ -102,6 +87,5 @@ function ProfileDropdownMenu(props) {
     </Dropdown>
   );
 }
-
 
 export default withRouter(AppHeader);

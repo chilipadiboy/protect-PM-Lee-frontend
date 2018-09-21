@@ -1,11 +1,18 @@
 import React, { Component } from 'react';
-import { login } from '../../util/APIUtils';
 import './Login.css';
 import { Link } from 'react-router-dom';
-import { ACCESS_TOKEN } from '../../constants';
+import { AUTH_TOKEN } from '../../constants';
+import { Mutation } from 'react-apollo';
+import gql from 'graphql-tag';
 
-import { Form, Input, Button, Icon, notification } from 'antd';
+import { Form, Input, Button, Icon } from 'antd';
 const FormItem = Form.Item;
+
+const LOGIN_MUTATION = gql`
+  mutation($nric: String!, $password: String!) {
+    login(nric: $nric, password: $password)
+  }
+`
 
 class Login extends Component {
     render() {
@@ -22,52 +29,26 @@ class Login extends Component {
 }
 
 class LoginForm extends Component {
-    constructor(props) {
-        super(props);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    handleSubmit(event) {
-        event.preventDefault();
-        this.props.form.validateFields((err, values) => {
-            if (!err) {
-                const loginRequest = Object.assign({}, values);
-                // console.log(values);
-                // {usernameOrEmail: "harrypotter", password: "harrypotter"}
-                login(loginRequest)
-                .then(response => {
-                    localStorage.setItem(ACCESS_TOKEN, response.accessToken);
-                    this.props.onLogin();
-                }).catch(error => {
-                    if(error.status === 401) {
-                        notification.error({
-                            message: 'Healthcare App',
-                            description: 'Your Username or Password is incorrect. Please try again!'
-                        });
-                    } else {
-                        notification.error({
-                            message: 'Healthcare App',
-                            description: error.message || 'Sorry! Something went wrong. Please try again!'
-                        });
-                    }
-                });
-            }
-        });
+    state = {
+      nric: '',
+      password: '',
     }
 
     render() {
+        const { nric, password } = this.state
         const { getFieldDecorator } = this.props.form;
         return (
             <Form onSubmit={this.handleSubmit} className="login-form">
                 <FormItem>
-                    {getFieldDecorator('usernameOrEmail'/*'nric'*/, {
-                        rules: [{ required: true, message: 'Please input your username or email!' }],
+                    {getFieldDecorator('nric', {
+                        rules: [{ required: true, message: 'Please input your nric!' }],
                     })(
                     <Input
                         prefix={<Icon type="user" />}
                         size="large"
-                        name="usernameOrEmail"
-                        placeholder="Username or Email" />
+                        onChange={e => this.setState({ nric: e.target.value })}
+                        name="nric"
+                        placeholder="NRIC" />
                     )}
                 </FormItem>
                 <FormItem>
@@ -77,17 +58,36 @@ class LoginForm extends Component {
                     <Input
                         prefix={<Icon type="lock" />}
                         size="large"
+                        onChange={e => this.setState({ password: e.target.value })}
                         name="password"
                         type="password"
                         placeholder="Password"  />
                 )}
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
+                <Mutation
+                  mutation={LOGIN_MUTATION}
+                  variables={{ nric, password }}
+                  onCompleted={data => this._confirm(data)}
+                >
+                {mutation => (
+                    <Button type="primary" onClick={mutation} size="large" className="login-form-button">Login</Button>
+                )}
+                </Mutation>
                     Or <Link to="/signup">register now!</Link>
                 </FormItem>
             </Form>
         );
+    }
+
+    _confirm = async data => {
+      const { token } = data.login
+      this._saveUserData(token)
+      this.props.onLogin()
+    }
+
+    _saveUserData = token => {
+      localStorage.setItem(AUTH_TOKEN, token)
     }
 }
 

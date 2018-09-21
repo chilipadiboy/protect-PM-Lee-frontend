@@ -16,7 +16,7 @@ class Login extends Component {
   }
 
   render() {
-    const { login, nric, name, email, phone, address, age, gender, password } = this.state
+    const { nric, password } = this.state
     return (
       <div>
         <h4 className="mv3">{'Login'}</h4>
