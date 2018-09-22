@@ -23,7 +23,7 @@ class Signup extends Component {
   }
 
   render() {
-    const { login, nric, name, email, phone, address, age, gender, password } = this.state
+    const { nric, name, email, phone, address, age, gender, password } = this.state
     return (
       <div>
         <h4 className="mv3">{'Sign Up'}</h4>
