@@ -17,40 +17,24 @@ import gql from 'graphql-tag';
 const FormItem = Form.Item;
 
 const SIGNUP_MUTATION = gql`
-  mutation($nric: String!, $name: String!, $email: String!,
-    $phone: String!, $address: String!, $age: Int!, $gender: String!, $password: String!) {
+  mutation($nric: String!, $name: String!, $email: String!, $phone: String!, $address: String!, $age: String!, $gender: String!, $password: String!) {
     register(nric: $nric, name: $name, email: $email, phone: $phone, address: $address, age: $age, gender: $gender, password: $password)
   }
 `
+var { nric, name, email, phone, address, age, gender, password } = ''
 
 class Signup extends Component {
-    constructor(props) {
+  constructor(props) {
         super(props);
         this.state = {
-            nric: {
-                value: ''
-            },
-            name: {
-                value: ''
-            },
-            email: {
-                value: ''
-            },
-            phone: {
-                value: ''
-            },
-            address: {
-                value: ''
-            },
-            age: {
-                value: ''
-            },
-            gender: {
-                value: ''
-            },
-            password: {
-                value: ''
-            }
+            nric: '',
+          name: '',
+          email: '',
+          phone: '',
+          address: '',
+          age: '',
+          gender: '',
+          password: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
@@ -82,7 +66,6 @@ class Signup extends Component {
     }
 
     render() {
-        const { nric, name, email, phone, address, age, gender, password } = this.state
         return (
             <div className="signup-container">
                 <h1 className="page-title">Sign Up</h1>
@@ -97,8 +80,7 @@ class Signup extends Component {
                               size="large"
                               name="nric"
                               autoComplete="off"
-                              value={this.state.nric.value}
-                              onChange={(event) => this.handleInputChange(event, this.validateNric)} />
+                              onChange={(event) => {nric = event.target.value; this.handleInputChange(event, this.validateNric)}}  />
                         </FormItem>
                         <FormItem
                             label="Full Name"
@@ -109,8 +91,7 @@ class Signup extends Component {
                                 size="large"
                                 name="name"
                                 autoComplete="off"
-                                value={this.state.name.value}
-                                onChange={(event) => this.handleInputChange(event, this.validateName)} />
+                                onChange={(event) => {name = event.target.value; this.handleInputChange(event, this.validateName)}}  />
                         </FormItem>
                         <FormItem
                             label="Email"
@@ -122,9 +103,8 @@ class Signup extends Component {
                                 name="email"
                                 type="email"
                                 autoComplete="off"
-                                value={this.state.email.value}
                                 onBlur={this.validateEmailAvailability}
-                                onChange={(event) => this.handleInputChange(event, this.validateEmail)} />
+                                onChange={(event) => {email = event.target.value; this.handleInputChange(event, this.validateEmail)}} />
                         </FormItem>
                         <FormItem
                             label="Phone"
@@ -135,8 +115,7 @@ class Signup extends Component {
                                 size="large"
                                 name="phone"
                                 autoComplete="off"
-                                value={this.state.phone.value}
-                                onChange={(event) => this.handleInputChange(event, this.validatePhone)} />
+                                onChange={(event) => {phone = event.target.value; this.handleInputChange(event, this.validatePhone)}} />
                         </FormItem>
                         <FormItem
                             label="Address"
@@ -147,8 +126,7 @@ class Signup extends Component {
                                 size="large"
                                 name="address"
                                 autoComplete="off"
-                                value={this.state.address.value}
-                                onChange={(event) => this.handleInputChange(event, this.validateAddress)} />
+                                onChange={(event) => {address = event.target.value; this.handleInputChange(event, this.validateAddress)}} />
                         </FormItem>
                         <FormItem
                             label="Age"
@@ -159,8 +137,7 @@ class Signup extends Component {
                                 size="large"
                                 name="age"
                                 autoComplete="off"
-                                value={this.state.age.value}
-                                onChange={(event) => this.handleInputChange(event, this.validateAge)} />
+                                onChange={(event) => {age = event.target.value; this.handleInputChange(event, this.validateAge)}} />
                         </FormItem>
                         <FormItem
                             label="Gender"
@@ -171,8 +148,7 @@ class Signup extends Component {
                                 size="large"
                                 name="gender"
                                 autoComplete="off"
-                                value={this.state.gender.value}
-                                onChange={(event) => this.handleInputChange(event, this.validateGender)} />
+                                onChange={(event) => {gender = event.target.value; this.handleInputChange(event, this.validateGender)}} />
                         </FormItem>
                         <FormItem
                             label="Password"
@@ -185,20 +161,20 @@ class Signup extends Component {
                                 type="password"
                                 autoComplete="off"
                                 placeholder="Between 6 to 20 characters"
-                                value={this.state.password.value}
-                                onChange={(event) => this.handleInputChange(event, this.validatePassword)} />
+                                onChange={(event) => {password = event.target.value; this.handleInputChange(event, this.validatePassword)}} />
                         </FormItem>
                         <FormItem>
                         <Mutation
                           mutation={SIGNUP_MUTATION}
                           variables={{ nric, name, email, phone, address, age, gender, password }}
+                          onCompleted={data => this._confirm(data)}
                         >
                           {mutation => (
                             <Button type="primary"
                                 onClick={mutation}
                                 size="large"
                                 className="signup-form-button"
-                                disabled={this.isFormInvalid()}>Sign up</Button>
+                                >Sign up</Button>
                             )}
                             </Mutation>
                             Already registered? <Link to="/login">Login now!</Link>
@@ -207,6 +183,10 @@ class Signup extends Component {
                 </div>
             </div>
         );
+    }
+
+    _confirm = async data => {
+      this.props.history.push("/login");
     }
 
     // Validation Functions
@@ -363,7 +343,9 @@ class Signup extends Component {
               }
         }
 
-        if (gender == MALE || gender == FEMALE) {
+        if (gender === MALE || gender === FEMALE ||
+        gender === MALE.toLowerCase() || gender === FEMALE.toLowerCase() ||
+      gender === MALE.toUpperCase() || gender === FEMALE.toUpperCase()) {
           return {
             validateStatus: 'success',
             errorMsg: null,
@@ -371,7 +353,7 @@ class Signup extends Component {
         } else {
             return {
               validateStatus: 'error',
-              errorMsg: 'Must be \'male\' or \'female\''
+              errorMsg: 'Must be male or female'
               };
         }
     }
