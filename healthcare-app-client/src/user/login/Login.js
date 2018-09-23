@@ -5,7 +5,7 @@ import { AUTH_TOKEN } from '../../constants';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
-import { Form, Input, Button, Icon } from 'antd';
+import { Form, Input, Button, Icon, notification } from 'antd';
 const FormItem = Form.Item;
 
 const LOGIN_MUTATION = gql`
@@ -69,6 +69,10 @@ class LoginForm extends Component {
                   mutation={LOGIN_MUTATION}
                   variables={{ nric, password }}
                   onCompleted={data => this._confirm(data)}
+                  onError= {error => notification.error({
+                      message: 'Healthcare App',
+                      description: 'Your NRIC or Password is incorrect. Please try again!'
+                  })}
                 >
                 {mutation => (
                     <Button type="primary" onClick={mutation} size="large" className="login-form-button">Login</Button>

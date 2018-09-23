@@ -187,7 +187,7 @@ class Signup extends Component {
 
     _confirm = async data => {
       notification.success({
-          message: 'Polling App',
+          message: 'Healthcare App',
           description: "Thank you! You're successfully registered. Please Login to continue!",
       });
       this.props.history.push("/login");
