@@ -10,7 +10,7 @@ import {
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH,
 } from '../../constants';
 
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, notification } from 'antd';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
@@ -174,7 +174,7 @@ class Signup extends Component {
                                 onClick={mutation}
                                 size="large"
                                 className="signup-form-button"
-                                >Sign up</Button>
+                                disabled={this.isFormInvalid()}>Sign up</Button>
                             )}
                             </Mutation>
                             Already registered? <Link to="/login">Login now!</Link>
@@ -186,6 +186,10 @@ class Signup extends Component {
     }
 
     _confirm = async data => {
+      notification.success({
+          message: 'Polling App',
+          description: "Thank you! You're successfully registered. Please Login to continue!",
+      });
       this.props.history.push("/login");
     }
 
