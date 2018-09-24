@@ -6,15 +6,15 @@ import {
     NRIC_LENGTH,
     EMAIL_MAX_LENGTH,
     PHONE_LENGTH,
-    MALE, FEMALE,
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH,
 } from '../../constants';
 
-import { Form, Input, Button, notification } from 'antd';
+import { Form, Input, Button, Select, notification } from 'antd';
 import { Mutation } from 'react-apollo';
 import gql from 'graphql-tag';
 
 const FormItem = Form.Item;
+const Option = Select.Option;
 
 const SIGNUP_MUTATION = gql`
   mutation($nric: String!, $name: String!, $email: String!, $phone: String!, $address: String!, $age: String!, $gender: String!, $password: String!) {
@@ -33,7 +33,6 @@ class Signup extends Component {
           phone: '',
           address: '',
           age: '',
-          gender: '',
           password: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -60,7 +59,6 @@ class Signup extends Component {
             this.state.phone.validateStatus === 'success' &&
             this.state.address.validateStatus === 'success' &&
             this.state.age.validateStatus === 'success' &&
-            this.state.gender.validateStatus === 'success' &&
             this.state.password.validateStatus === 'success'
         );
     }
@@ -140,15 +138,15 @@ class Signup extends Component {
                                 onChange={(event) => {age = event.target.value; this.handleInputChange(event, this.validateAge)}} />
                         </FormItem>
                         <FormItem
-                            label="Gender"
-                            hasFeedback
-                            validateStatus={this.state.gender.validateStatus}
-                            help={this.state.gender.errorMsg}>
-                            <Input
+                            label="Gender">
+                            <Select
                                 size="large"
                                 name="gender"
                                 autoComplete="off"
-                                onChange={(event) => {gender = event.target.value; this.handleInputChange(event, this.validateGender)}} />
+                                onChange={(value) => {gender = value}}>
+                                <Option value="male">Male</Option>
+                                <Option value="female">Female</Option>
+                            </Select>
                         </FormItem>
                         <FormItem
                             label="Password"
@@ -335,29 +333,6 @@ class Signup extends Component {
             return {
                 validateStatus: 'success',
                 errorMsg: null,
-              };
-        }
-    }
-
-    validateGender = (gender) => {
-        if(!gender) {
-            return {
-                validateStatus: 'error',
-                errorMsg: 'Gender may not be empty'
-              }
-        }
-
-        if (gender === MALE || gender === FEMALE ||
-        gender === MALE.toLowerCase() || gender === FEMALE.toLowerCase() ||
-      gender === MALE.toUpperCase() || gender === FEMALE.toUpperCase()) {
-          return {
-            validateStatus: 'success',
-            errorMsg: null,
-            }
-        } else {
-            return {
-              validateStatus: 'error',
-              errorMsg: 'Must be male or female'
               };
         }
     }
