@@ -26,7 +26,8 @@ class Signup extends Component {
           address: '',
           age: '',
           gender: '',
-          password: ''
+          password: '',
+          roles: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -48,7 +49,6 @@ class Signup extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-
         const signupRequest = {
             nric: this.state.nric.value,
             name: this.state.name.value,
@@ -57,7 +57,8 @@ class Signup extends Component {
             address: this.state.address.value,
             age: this.state.age.value,
             gender: this.state.gender.value,
-            password: this.state.password.value
+            password: this.state.password.value,
+            roles: this.state.roles.value
         };
         signup(signupRequest)
         .then(response => {
@@ -192,6 +193,20 @@ class Signup extends Component {
                                 placeholder="Between 6 to 20 characters"
                                 value={this.state.password.value}
                                 onChange={(event) => {this.handleInputChange(event, this.validatePassword)}} />
+                        </FormItem>
+                        <FormItem
+                            label="Roles">
+                            <Select mode="multiple" placeholder="Select the relevant roles"
+                                size="large"
+                                name="roles"
+                                autoComplete="off"
+                                onChange={(value) => this.setState({
+                                    roles : {
+                                        value: value
+                                    }})}>
+                                <Option value="patient">Patient</Option>
+                                <Option value="therapist">Therapist</Option>
+                            </Select>
                         </FormItem>
                         <FormItem>
                             <Button type="primary"
