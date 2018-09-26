@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
+import { login } from '../../util/APIUtils';
 import './Login.css';
 import { Link } from 'react-router-dom';
 import { AUTH_TOKEN } from '../../constants';
-import { Mutation } from 'react-apollo';
-import gql from 'graphql-tag';
 
 import { Form, Input, Button, Icon, notification } from 'antd';
 const FormItem = Form.Item;
-
-const LOGIN_MUTATION = gql`
-  mutation($nric: String!, $password: String!) {
-    login(nric: $nric, password: $password)
-  }
-`
 
 class Login extends Component {
     render() {
@@ -34,8 +27,38 @@ class LoginForm extends Component {
       password: '',
     }
 
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+        this.props.form.validateFields((err, values) => {
+            if (!err) {
+                const loginRequest = Object.assign({}, values);
+                login(loginRequest)
+                .then(response => {
+                    localStorage.setItem(AUTH_TOKEN, response.accessToken);
+                    this.props.onLogin();
+                }).catch(error => {
+                    if(error.status === 401) {
+                        notification.error({
+                            message: 'Healthcare App',
+                            description: 'Your NRIC or Password is incorrect. Please try again!'
+                        });
+                    } else {
+                        notification.error({
+                            message: 'Healthcare App',
+                            description: error.message || 'Sorry! Something went wrong. Please try again!'
+                        });
+                    }
+                });
+            }
+        });
+    }
+
     render() {
-        const { nric, password } = this.state
         const { getFieldDecorator } = this.props.form;
         return (
             <Form onSubmit={this.handleSubmit} className="login-form">
@@ -65,35 +88,12 @@ class LoginForm extends Component {
                 )}
                 </FormItem>
                 <FormItem>
-                <Mutation
-                  mutation={LOGIN_MUTATION}
-                  variables={{ nric, password }}
-                  onCompleted={data => this._confirm(data)}
-                  onError= {error => notification.error({
-                      message: 'Healthcare App',
-                      description: 'Your NRIC or Password is incorrect. Please try again!'
-                  })}
-                >
-                {mutation => (
-                    <Button type="primary" onClick={mutation} size="large" className="login-form-button">Login</Button>
-                )}
-                </Mutation>
+                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
                     Or <Link to="/signup">register now!</Link>
                 </FormItem>
             </Form>
         );
     }
-
-    _confirm = async data => {
-      const { token } = data.login
-      this._saveUserData(token)
-      this.props.onLogin()
-    }
-
-    _saveUserData = token => {
-      localStorage.setItem(AUTH_TOKEN, token)
-    }
 }
-
 
 export default Login;

@@ -1,4 +1,4 @@
-export const API_BASE_URL = 'https://localhost:8080/graphql';
+export const API_BASE_URL = 'http://localhost:5000/api';
 export const AUTH_TOKEN = 'auth-token'
 
 export const NAME_MIN_LENGTH = 4;
