@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { signup } from '../../util/APIUtils';
 import './Signup.css';
 import { Link } from 'react-router-dom';
 import {
@@ -10,32 +11,25 @@ import {
 } from '../../constants';
 
 import { Form, Input, Button, Select, notification } from 'antd';
-import { Mutation } from 'react-apollo';
-import gql from 'graphql-tag';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
-
-const SIGNUP_MUTATION = gql`
-  mutation($nric: String!, $name: String!, $email: String!, $phone: String!, $address: String!, $age: String!, $gender: String!, $password: String!) {
-    register(nric: $nric, name: $name, email: $email, phone: $phone, address: $address, age: $age, gender: $gender, password: $password)
-  }
-`
-var { nric, name, email, phone, address, age, gender, password } = ''
 
 class Signup extends Component {
   constructor(props) {
         super(props);
         this.state = {
-            nric: '',
+          nric: '',
           name: '',
           email: '',
           phone: '',
           address: '',
           age: '',
+          gender: '',
           password: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
     }
 
@@ -49,6 +43,34 @@ class Signup extends Component {
                 value: inputValue,
                 ...validationFun(inputValue)
             }
+        });
+    }
+
+    handleSubmit(event) {
+        event.preventDefault();
+
+        const signupRequest = {
+            nric: this.state.nric.value,
+            name: this.state.name.value,
+            email: this.state.email.value,
+            phone: this.state.phone.value,
+            address: this.state.address.value,
+            age: this.state.age.value,
+            gender: this.state.gender.value,
+            password: this.state.password.value
+        };
+        signup(signupRequest)
+        .then(response => {
+            notification.success({
+                message: 'Healthcare App',
+                description: "Thank you! You're successfully registered. Please login to continue!",
+            });
+            this.props.history.push("/login");
+        }).catch(error => {
+            notification.error({
+                message: 'Healthcare App',
+                description: error.message || 'Sorry! Something went wrong. Please try again!'
+            });
         });
     }
 
@@ -78,7 +100,8 @@ class Signup extends Component {
                               size="large"
                               name="nric"
                               autoComplete="off"
-                              onChange={(event) => {nric = event.target.value; this.handleInputChange(event, this.validateNric)}}  />
+                              value={this.state.nric.value}
+                              onChange={(event) => {this.handleInputChange(event, this.validateNric)}}  />
                         </FormItem>
                         <FormItem
                             label="Full Name"
@@ -89,7 +112,8 @@ class Signup extends Component {
                                 size="large"
                                 name="name"
                                 autoComplete="off"
-                                onChange={(event) => {name = event.target.value; this.handleInputChange(event, this.validateName)}}  />
+                                value={this.state.name.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validateName)}}  />
                         </FormItem>
                         <FormItem
                             label="Email"
@@ -102,7 +126,8 @@ class Signup extends Component {
                                 type="email"
                                 autoComplete="off"
                                 onBlur={this.validateEmailAvailability}
-                                onChange={(event) => {email = event.target.value; this.handleInputChange(event, this.validateEmail)}} />
+                                value={this.state.email.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validateEmail)}} />
                         </FormItem>
                         <FormItem
                             label="Phone"
@@ -113,7 +138,8 @@ class Signup extends Component {
                                 size="large"
                                 name="phone"
                                 autoComplete="off"
-                                onChange={(event) => {phone = event.target.value; this.handleInputChange(event, this.validatePhone)}} />
+                                value={this.state.phone.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validatePhone)}} />
                         </FormItem>
                         <FormItem
                             label="Address"
@@ -124,7 +150,8 @@ class Signup extends Component {
                                 size="large"
                                 name="address"
                                 autoComplete="off"
-                                onChange={(event) => {address = event.target.value; this.handleInputChange(event, this.validateAddress)}} />
+                                value={this.state.address.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validateAddress)}} />
                         </FormItem>
                         <FormItem
                             label="Age"
@@ -135,7 +162,8 @@ class Signup extends Component {
                                 size="large"
                                 name="age"
                                 autoComplete="off"
-                                onChange={(event) => {age = event.target.value; this.handleInputChange(event, this.validateAge)}} />
+                                value={this.state.age.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validateAge)}} />
                         </FormItem>
                         <FormItem
                             label="Gender">
@@ -143,7 +171,10 @@ class Signup extends Component {
                                 size="large"
                                 name="gender"
                                 autoComplete="off"
-                                onChange={(value) => {gender = value}}>
+                                onChange={(value) => this.setState({
+                                    gender : {
+                                        value: value
+                                    }})}>
                                 <Option value="male">Male</Option>
                                 <Option value="female">Female</Option>
                             </Select>
@@ -159,22 +190,15 @@ class Signup extends Component {
                                 type="password"
                                 autoComplete="off"
                                 placeholder="Between 6 to 20 characters"
-                                onChange={(event) => {password = event.target.value; this.handleInputChange(event, this.validatePassword)}} />
+                                value={this.state.password.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validatePassword)}} />
                         </FormItem>
                         <FormItem>
-                        <Mutation
-                          mutation={SIGNUP_MUTATION}
-                          variables={{ nric, name, email, phone, address, age, gender, password }}
-                          onCompleted={data => this._confirm(data)}
-                        >
-                          {mutation => (
                             <Button type="primary"
-                                onClick={mutation}
+                                htmlType="submit"
                                 size="large"
                                 className="signup-form-button"
                                 disabled={this.isFormInvalid()}>Sign up</Button>
-                            )}
-                            </Mutation>
                             Already registered? <Link to="/login">Login now!</Link>
                         </FormItem>
                     </Form>
@@ -355,7 +379,6 @@ class Signup extends Component {
             };
         }
     }
-
 }
 
 export default Signup;

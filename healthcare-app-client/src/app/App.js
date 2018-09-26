@@ -13,9 +13,21 @@ import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
 import AppHeader from '../common/AppHeader';
 import LoadingIndicator from '../common/LoadingIndicator';
+import PrivateRoute from '../common/PrivateRoute';
+import NotFound from '../common/NotFound';
 
 import { Layout, notification } from 'antd';
 const { Content } = Layout;
+
+const Home = () => (
+  <div>
+    <h1>Welcome to the Healthcare App Webpage!</h1>
+  </div>
+)
+
+const Data = () => (
+  <img src="https://raw.githubusercontent.com/IFS4205-2018-Sem1-Team1/first-report/master/images/pre_anonymisation.png" alt="homepage"></img>
+)
 
 class App extends Component {
   constructor(props) {
@@ -55,6 +67,7 @@ class App extends Component {
       message: 'Healthcare App',
       description: "You're successfully logged in.",
     });
+
     this.props.history.push("/");
   }
 
@@ -70,9 +83,13 @@ class App extends Component {
           <Content className="app-content">
             <div className="container">
               <Switch>
+                <Route exact path="/" component={Home}>
+                </Route>
                 <Route path="/login"
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/data" component={Data} handleLogout={this.handleLogout}></PrivateRoute>
+                <Route component={NotFound}></Route>
               </Switch>
             </div>
           </Content>

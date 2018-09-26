@@ -23,6 +23,22 @@ const request = (options) => {
     );
 };
 
+export function login(loginRequest) {
+    return request({
+        url: API_BASE_URL + "/auth/signin",
+        method: 'POST',
+        body: JSON.stringify(loginRequest)
+    });
+}
+
+export function signup(signupRequest) {
+    return request({
+        url: API_BASE_URL + "/auth/signup",
+        method: 'POST',
+        body: JSON.stringify(signupRequest)
+    });
+}
+
 export function getCurrentUser() {
     if(!localStorage.getItem(AUTH_TOKEN)) {
         return Promise.reject("No access token set.");
