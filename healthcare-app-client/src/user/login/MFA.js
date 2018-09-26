@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 import './MFA.css';
 import { Button } from 'antd';
-import {sign} from 'tweetnacl';
+import {sign, hash} from 'tweetnacl';
 
 const connectMessage = "Please connect your bluetooth tag for multi-factor authentication!";
 const connectButton = "Connect";
 const absentButton = "No Tag";
 const keyPair = sign.keyPair();
 //this should be retrieved from the server as
-// {publicKey: Uint8Array(32), secretKey: Uint8Array(64)}
+// {publicKey: Uint8Array(32), secretKey: Uint8Array(32)}
 
 class MFA extends Component {
   constructor(props) {
@@ -16,6 +16,7 @@ class MFA extends Component {
   }
 
   startConnection() {
+    let writeChar, readChar, disconnectChar;
     navigator.bluetooth.requestDevice({
       filters: [ {services:[0x2220]} ]
     })
@@ -31,7 +32,6 @@ class MFA extends Component {
         return service.getCharacteristics();
       })
       .then(charArray => {
-        let writeChar, readChar;
         for (let char of charArray) {
           if (char.properties.write === true && char.uuid.startsWith("00002222")) {
             writeChar = char;
@@ -39,30 +39,35 @@ class MFA extends Component {
           if (char.properties.read === true && char.uuid.startsWith("00002221")) {
             readChar = char;
           }
+          if (char.uuid.startsWith("00002223")) {
+            disconnectChar = char;
+          }
         }
         let encoder = new TextEncoder('utf-8');
         let randomNumGen = encoder.encode(Math.random().toString()); //to convert it into a UInt8Array for nacl to sign
-        console.log(randomNumGen);
-        let sendMsg = sign(randomNumGen, keyPair.secretKey);
+        let messageHash = hash(randomNumGen);
+        let signature = sign.detached(messageHash, keyPair.secretKey);
+        let stringEnder = encoder.encode("//");
+        let sendMsg = concatenate(Uint8Array, messageHash, signature, keyPair.publicKey, stringEnder);
         let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
         var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
-        let promise = writeChar.writeValue(msgChunks[0]);
-        for (let i=1; i<numOfChunks; i++) {
-          promise = promise.then(() => new Promise((resolve, reject) => {
-          // Reject promise if the device has been disconnected.
-          // Write chunk to the characteristic and resolve the promise.
-           writeChar.writeValue(msgChunks[i]).
-              then(resolve).
-              catch(reject);
-          }));
-       }
-     })
-      .then(value => {
-        console.log(value);
-      })
-  }
+
+        var prevPromise = Promise.resolve();
+        for (let i=0; i< numOfChunks; i++) {
+           prevPromise = prevPromise.then(function() {
+             return writeChar.writeValue(msgChunks[i]).then(function() {
+               if (i == numOfChunks-1) {
+                 dis(disconnectChar);
+               }
+             })
+           })
+         }
 
 
+  }).catch(error => {
+    console.log("this is err" + error);
+  })
+}
 
   skipConnection() {
     this.props.history.push('/');
@@ -89,8 +94,24 @@ function splitByMaxLength(sendMsg, numOfChunks) {
       }
     }
     return chunks;
-    //console.log(chunks);
-  }
+}
 
+function dis(disconnectChar) {
+    disconnectChar.writeValue(new Uint8Array([1]));
+}
+
+function concatenate(resultConstructor, ...arrays) {
+    let totalLength = 0;
+    for (let arr of arrays) {
+        totalLength += arr.byteLength;
+    }
+    let result = new resultConstructor(totalLength);
+    let offset = 0;
+    for (let arr of arrays) {
+        result.set(arr, offset);
+        offset += arr.byteLength;
+    }
+    return result;
+}
 
 export default MFA;
