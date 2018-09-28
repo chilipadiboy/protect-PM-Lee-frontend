@@ -11,6 +11,7 @@ import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
 import Signup from '../user/signup/Signup';
+import Profile from '../user/profile/Profile';
 import AppHeader from '../common/AppHeader';
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
@@ -38,6 +39,7 @@ class App extends Component {
     }
     this.handleLogout = this.handleLogout.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
+    this.loadCurrentUser = this.loadCurrentUser.bind(this);
 
     notification.config({
       placement: 'topRight',
@@ -71,6 +73,28 @@ class App extends Component {
     this.props.history.push("/");
   }
 
+  loadCurrentUser() {
+    this.setState({
+      isLoading: true
+    });
+    getCurrentUser()
+    .then(response => {
+      this.setState({
+        currentUser: response,
+        isAuthenticated: true,
+        isLoading: false
+      });
+    }).catch(error => {
+      this.setState({
+        isLoading: false
+      });
+    });
+  }
+
+  componentWillMount() {
+    this.loadCurrentUser();
+  }
+
   render() {
     if(this.state.isLoading) {
       return <LoadingIndicator />
@@ -88,6 +112,9 @@ class App extends Component {
                 <Route path="/login"
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
+                <Route path="/users/:username"
+                  render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
+                </Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/data" component={Data} handleLogout={this.handleLogout}></PrivateRoute>
                 <Route component={NotFound}></Route>
               </Switch>
