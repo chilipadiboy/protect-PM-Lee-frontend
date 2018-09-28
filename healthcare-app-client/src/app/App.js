@@ -34,6 +34,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      currentUser: null,
       isAuthenticated: false,
       isLoading: false
     }
@@ -69,7 +70,7 @@ class App extends Component {
       message: 'Healthcare App',
       description: "You're successfully logged in.",
     });
-
+    this.loadCurrentUser();
     this.props.history.push("/");
   }
 
@@ -102,6 +103,7 @@ class App extends Component {
     return (
         <Layout className="app-container">
           <AppHeader isAuthenticated={this.state.isAuthenticated}
+            currentUser={this.state.currentUser}
             onLogout={this.handleLogout} />
 
           <Content className="app-content">

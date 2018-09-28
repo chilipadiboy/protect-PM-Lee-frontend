@@ -6,7 +6,6 @@ import {
 import './AppHeader.css';
 import dataIcon from '../data.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
-import { AUTH_TOKEN } from '../constants';
 
 const Header = Layout.Header;
 
@@ -23,9 +22,8 @@ class AppHeader extends Component {
     }
 
     render() {
-        const authToken = localStorage.getItem(AUTH_TOKEN)
         let menuItems;
-        if(authToken) {
+        if(this.props.currentUser) {
           menuItems = [
             <Menu.Item key="/">
               <Link to="/">
@@ -36,9 +34,10 @@ class AppHeader extends Component {
             <Link to="/data">
               <img src={dataIcon} alt="data" className="data-icon" />
             </Link>
-          </Menu.Item>,
+            </Menu.Item>,
             <Menu.Item key="/profile" className="profile-menu">
               <ProfileDropdownMenu
+                currentUser={this.props.currentUser}
                 handleMenuClick={this.handleMenuClick}/>
             </Menu.Item>
           ];
@@ -75,6 +74,18 @@ class AppHeader extends Component {
   function ProfileDropdownMenu(props) {
   const dropdownMenu = (
     <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
+      <Menu.Item key="user-info" className="dropdown-item" disabled>
+        <div className="user-full-name-info">
+          {props.currentUser.name}
+        </div>
+        <div className="nric-info">
+          @{props.currentUser.nric}
+        </div>
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="profile" className="dropdown-item">
+        <Link to={`/users/${props.currentUser.nric}`}>Profile</Link>
+      </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
         Logout
       </Menu.Item>
