@@ -9,7 +9,7 @@ const connectButton = "Connect";
 const absentButton = "No Tag";
 const keyPair = sign.keyPair();
 let writeChar, readChar, disconnectChar;
-let stopReading = false;
+let verified = false;
 //this should be retrieved from the server as
 // {publicKey: Uint8Array(32), secretKey: Uint8Array(32)}
 
@@ -17,9 +17,8 @@ class MFA extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      stopReadingState: stopReading,
+      verifiedState: verified,
     }
-
   }
 
   startConnection() {
@@ -50,13 +49,11 @@ class MFA extends Component {
             disconnectChar = char;
           }
         }
-        // readChar.addEventListener('characteristicvaluechanged',
-        //                        handleCharacteristicValueChanged);
+
         let encoder = new TextEncoder('utf-8');
         let randomNumGen = encoder.encode(Math.random().toString()); //to convert it into a UInt8Array for nacl to sign
         let messageHash = hash(randomNumGen);
-      //  let signature = sign.detached(messageHash, keyPair.secretKey);
-        let signature = new Uint8Array([94, 66, 51, 205, 6, 46, 244, 152, 203, 192, 223, 242, 77, 74, 207, 137, 228, 32, 180, 160, 105, 149, 54, 74, 169, 0, 233, 186, 62, 224, 90, 198, 44, 175, 142, 38, 179, 88, 39, 237, 46, 157, 204, 240, 161, 99, 162, 244, 98, 103, 25, 15, 98, 31, 158, 1, 110, 81, 156, 228, 193, 225, 62, 11]);
+        let signature = sign.detached(messageHash, keyPair.secretKey);
         let stringEnder = encoder.encode("//");
         let sendMsg = concatenate(Uint8Array, messageHash, signature, keyPair.publicKey, stringEnder);
         let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
@@ -69,24 +66,19 @@ class MFA extends Component {
                if (i === numOfChunks-1) {
                     wait(5000);
                  var prevWhilePromise = Promise.resolve();
-                  for (let j=0; j< 3; j++) {
+                 for (let j=0; j< 3; j++) {      //for now just reading 3 times for testing purposes
                     prevWhilePromise = prevWhilePromise.then(function() {
                       return readChar.readValue().then(value => {
-                        var value2 = new Uint8Array(value.buffer);
-                        let encoder = new TextEncoder('utf-8');
-                        let ack = encoder.encode("ACK");
-                        return writeChar.writeValue(ack).then(function() {
-                         if(j == 2) {
-                           context.setState({stopReadingState:true})
-                           dis(disconnectChar);
-                         }
-                        })
+                        var valueRec = new Uint8Array(value.buffer);
+                        if(valueRec[0] === 49) {
+                          context.setState({verifiedState:true})
+                        }
                        })
                     })
                   }
                 }
              })
-           })
+          })
         }
 
   }).catch(error => {
@@ -101,7 +93,7 @@ class MFA extends Component {
   render() {
     return (
       <div className="mfa-container">
-        {this.state.stopReadingState ?
+        {this.state.verifiedState ?
           <p> {successfulConnectMessage} </p>
           :
           <div>
