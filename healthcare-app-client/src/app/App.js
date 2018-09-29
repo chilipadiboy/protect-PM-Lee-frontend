@@ -10,6 +10,7 @@ import { getCurrentUser } from '../util/APIUtils';
 import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
+import MFA from '../user/login/MFA';
 import Signup from '../user/signup/Signup';
 import Profile from '../user/profile/Profile';
 import AppHeader from '../common/AppHeader';
@@ -71,7 +72,7 @@ class App extends Component {
       description: "You're successfully logged in.",
     });
     this.loadCurrentUser();
-    this.props.history.push("/");
+    this.props.history.push("/mfa");
   }
 
   loadCurrentUser() {
@@ -119,6 +120,7 @@ class App extends Component {
                 </Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/data" component={Data} handleLogout={this.handleLogout}></PrivateRoute>
                 <Route component={NotFound}></Route>
+                <Route path="/mfa" component={MFA}> </Route>
               </Switch>
             </div>
           </Content>
