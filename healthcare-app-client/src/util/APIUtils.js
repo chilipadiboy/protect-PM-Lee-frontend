@@ -50,9 +50,9 @@ export function getCurrentUser() {
     });
 }
 
-export function getUserProfile(username) {
+export function getUserProfile(nric) {
     return request({
-        url: API_BASE_URL + "/users/" + username,
+        url: API_BASE_URL + "/users/" + nric,
         method: 'GET'
     });
 }
