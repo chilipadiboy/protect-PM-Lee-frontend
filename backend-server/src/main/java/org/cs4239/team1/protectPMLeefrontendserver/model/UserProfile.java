@@ -1,6 +1,5 @@
-package org.cs4239.team1.protectPMLeefrontendserver.payload;
+package org.cs4239.team1.protectPMLeefrontendserver.model;
 
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
