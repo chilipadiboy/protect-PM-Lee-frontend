@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import './AppHeader.css';
 import dataIcon from '../data.svg';
+import Therapist_mypatients from '../user/therapist/Mypatients'
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 
 const Header = Layout.Header;
@@ -24,18 +25,90 @@ class AppHeader extends Component {
     render() {
         let menuItems;
         if(this.props.currentUser) {
-          menuItems = [
-            <Menu.Item key="/">
-              <Link to="/">
-                <Icon type="home" className="nav-icon" />
-              </Link>
-            </Menu.Item>,
-            <Menu.Item key="/profile" className="profile-menu">
-              <ProfileDropdownMenu
-                currentUser={this.props.currentUser}
-                handleMenuClick={this.handleMenuClick}/>
-            </Menu.Item>
-          ];
+          if(this.props.currentUser.role === "RESEARCHER") {
+            menuItems = [
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          } else if(this.props.currentUser.role === "EXTERNAL PARTNER") {
+            menuItems = [
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          } else if(this.props.currentUser.role === "PATIENT") {
+            menuItems = [
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          } else if(this.props.currentUser.role === "THERAPIST") {
+            menuItems = [
+              <Menu.Item key="/therapist/mypatients">
+                <Link to="/mypatients">
+                  <Icon type="medicine-box" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          } else if(this.props.currentUser.role === "ADMINISTRATOR") {
+            menuItems = [
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          } else {
+            menuItems = [
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/profile" className="profile-menu">
+                <ProfileDropdownMenu
+                  currentUser={this.props.currentUser}
+                  handleMenuClick={this.handleMenuClick}/>
+              </Menu.Item>
+            ];
+          }
         } else {
           menuItems = [
             <Menu.Item key="/login">

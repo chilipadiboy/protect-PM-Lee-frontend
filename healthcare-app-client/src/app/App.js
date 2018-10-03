@@ -14,6 +14,7 @@ import MFA from '../user/login/MFA';
 import Signup from '../user/signup/Signup';
 import Profile from '../user/profile/Profile';
 import AppHeader from '../common/AppHeader';
+import Therapist_mypatients from '../user/therapist/Mypatients'
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
 import NotFound from '../common/NotFound';
@@ -116,6 +117,7 @@ class App extends Component {
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/mypatients" component={Therapist_mypatients}></PrivateRoute>
                 <Route component={NotFound}></Route>
               </Switch>
             </div>
