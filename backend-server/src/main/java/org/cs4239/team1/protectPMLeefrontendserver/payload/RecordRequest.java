@@ -3,7 +3,6 @@ package org.cs4239.team1.protectPMLeefrontendserver.payload;
 import java.util.List;
 import java.time.Instant;
 import javax.validation.constraints.NotEmpty;
-import javax.ws.rs.core.Link;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
