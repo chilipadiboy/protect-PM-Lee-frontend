@@ -8,4 +8,5 @@ import lombok.Getter;
 public class UserSummary {
     private String nric;
     private String name;
+    private String role;
 }
