@@ -9,7 +9,7 @@ class GenerateButton extends Component {
   render() {
     return (
       <div>
-        <Button type="primary" icon="file-text" size="default">Generate</Button>
+        <Button type="primary" htmlType="submit" icon="file-text" size="default">Generate</Button>
       </div>
     );
   }
@@ -18,6 +18,11 @@ class GenerateButton extends Component {
 class GenerateDataForm extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
+    this.props.form.validateFields((err, values) => {
+      if (!err) {
+        console.log('Received values of form: ', values);
+      }
+    });
   }
 
   render() {
