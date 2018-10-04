@@ -60,28 +60,26 @@ class Therapist_mypatients extends Component {
           key: '1',
           name: 'Bobby Fisher',
           nric: 'S8854321I',
-          gender: 'Female',
+          gender: 'F',
           age: 30,
           start: '12 Aug 18',
           next_appt: '1 Dec 18',
           phone: '98144819',
           health_issues: 'Diabetes',
           allergies: 'Paracetamol',
-        }, {
-          key: '2',
-          name: 'John Doe',
-          nric: 'S7612345J',
-          gender: 'Male',
-          age: 42,
-          start: '10 Aug 17',
-          next_appt: '3 Dec 18',
-          phone: '87687654',
-          health_issues: 'Insomnia',
-          allergies: '-',
         }];
 
+        const { Header, Content } = Layout;
+
         return (
-            <Table dataSource={data} columns={columns} />
+              <Layout className="layout">
+                <Header>
+                  <div className="title">My Patients</div>
+                </Header>
+                <Content>
+                  <Table dataSource={data} columns={columns} />
+                </Content>
+              </Layout>
         );
     }
 }
