@@ -56,3 +56,10 @@ export function getUserProfile(nric) {
         method: 'GET'
     });
 }
+
+export function getUserRecords(nric) {
+    return request({
+        url: API_BASE_URL + "/users/" + nric + "/records/",
+        method: 'GET'
+    });
+}

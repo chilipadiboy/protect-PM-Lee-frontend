@@ -78,6 +78,9 @@ class AppHeader extends Component {
         </div>
       </Menu.Item>
       <Menu.Divider />
+      <Menu.Item key="profile" className="dropdown-item">
+        <Link to={`/users/${props.currentUser.nric}/records`}>Records</Link>
+      </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
         Logout
       </Menu.Item>
