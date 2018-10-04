@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { signup } from '../../util/APIUtils';
+import { signup, checkNricAvailability } from '../../util/APIUtils';
 import './Signup.css';
 import { Link } from 'react-router-dom';
 import {
@@ -31,6 +31,7 @@ class Signup extends Component {
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.validateNricAvailability = this.validateNricAvailability.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
     }
 
@@ -245,10 +246,64 @@ class Signup extends Component {
             }
         } else {
             return {
-                validateStatus: 'success',
+                validateStatus: null,
                 errorMsg: null
             }
         }
+    }
+
+    validateNricAvailability() {
+        // First check for client side errors in nric
+        const nricValue = this.state.nric.value;
+        const nricValidation = this.validateNric(nricValue);
+
+        if(nricValidation.validateStatus === 'error') {
+            this.setState({
+                nric: {
+                    value: nricValue,
+                    ...nricValidation
+                }
+            });
+            return;
+        }
+
+        this.setState({
+            nric: {
+                value: nricValue,
+                validateStatus: 'validating',
+                errorMsg: null
+            }
+        });
+
+        checkNricAvailability(nricValue)
+        .then(response => {
+            if(response.available) {
+                this.setState({
+                    nric: {
+                        value: nricValue,
+                        validateStatus: 'success',
+                        errorMsg: null
+                    }
+                });
+            } else {
+                this.setState({
+                    nric: {
+                        value: nricValue,
+                        validateStatus: 'error',
+                        errorMsg: 'This nric is already taken'
+                    }
+                });
+            }
+        }).catch(error => {
+            // Marking validateStatus as success, Form will be recchecked at server
+            this.setState({
+                nric: {
+                    value: nricValue,
+                    validateStatus: 'success',
+                    errorMsg: null
+                }
+            });
+        });
     }
 
     validateName = (name) => {

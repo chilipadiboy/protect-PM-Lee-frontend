@@ -39,6 +39,13 @@ export function signup(signupRequest) {
     });
 }
 
+export function checkNricAvailability(nric) {
+    return request({
+        url: API_BASE_URL + "/user/checkNricAvailability?nric=" + nric,
+        method: 'GET'
+    });
+}
+
 export function getCurrentUser() {
     if(!localStorage.getItem(AUTH_TOKEN)) {
         return Promise.reject("No access token set.");
