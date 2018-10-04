@@ -43,8 +43,13 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];
-          } else if(this.props.currentUser.role === "EXTERNAL PARTNER") {
+          } else if(this.props.currentUser.role === "EXTERNAL_PARTNER") {
             menuItems = [
+              <Menu.Item key="/uploaddatabase">
+                <Link to="/uploaddatabase">
+                  <Icon type="upload" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/">
                 <Link to="/">
                   <Icon type="home" className="nav-icon" />
