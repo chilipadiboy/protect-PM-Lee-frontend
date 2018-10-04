@@ -27,6 +27,11 @@ class AppHeader extends Component {
         if(this.props.currentUser) {
           if(this.props.currentUser.role === "RESEARCHER") {
             menuItems = [
+              <Menu.Item key="/generatedata">
+                <Link to="/generatedata">
+                  <Icon type="bar-chart" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/">
                 <Link to="/">
                   <Icon type="home" className="nav-icon" />

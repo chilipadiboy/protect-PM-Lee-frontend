@@ -18,6 +18,7 @@ import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_manage_users from '../user/administrator/Manageusers';
 import Administrator_add_user from '../user/administrator/Adduser';
+import Researcher_generate_data from '../user/researcher/Generatedata'
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
 import NotFound from '../common/NotFound';
@@ -124,6 +125,7 @@ class App extends Component {
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/logs" component={Administrator_logs}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/manageusers" component={Administrator_manage_users}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/adduser" component={Administrator_add_user}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/generatedata" component={Researcher_generate_data}></PrivateRoute>
                 <Route component={NotFound}></Route>
               </Switch>
             </div>
