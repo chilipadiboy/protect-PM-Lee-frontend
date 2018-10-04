@@ -38,18 +38,6 @@ public class UserController {
         return userSummary;
     }
 
-    @GetMapping("/user/checkNricAvailability")
-    public UserIdentityAvailability checkNricAvailability(@RequestParam(value = "nric") String nric) {
-        Boolean isAvailable = !userRepository.existsByNric(nric);
-        return new UserIdentityAvailability(isAvailable);
-    }
-
-    @GetMapping("/user/checkEmailAvailability")
-    public UserIdentityAvailability checkEmailAvailability(@RequestParam(value = "email") String email) {
-        Boolean isAvailable = !userRepository.existsByEmail(email);
-        return new UserIdentityAvailability(isAvailable);
-    }
-
     @GetMapping("/users/{nric}")
     public UserProfile getUserProfile(@PathVariable(value = "nric") String nric) {
         User user = userRepository.findByNric(nric)
