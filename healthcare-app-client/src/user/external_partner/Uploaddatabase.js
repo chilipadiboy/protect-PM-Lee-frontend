@@ -37,7 +37,7 @@ class UploadDataForm extends Component {
       const { Header, Content } = Layout;
       const { getFieldDecorator } = this.props.form;
       const formItemLayout = {
-        labelCol: { span: 6 },
+        labelCol: { span: 8 },
         wrapperCol: { span: 14 },
       };
 
@@ -53,7 +53,7 @@ class UploadDataForm extends Component {
                     label="Patients database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -68,7 +68,7 @@ class UploadDataForm extends Component {
                     label="Therapists database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -83,7 +83,7 @@ class UploadDataForm extends Component {
                     label="Therapist-patient relationship database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -98,7 +98,7 @@ class UploadDataForm extends Component {
                     label="Patients' records and documents database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -113,7 +113,7 @@ class UploadDataForm extends Component {
                     label="Therapists' documents database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -128,7 +128,7 @@ class UploadDataForm extends Component {
                     label="Patients' consent database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
@@ -143,7 +143,7 @@ class UploadDataForm extends Component {
                     label="Therapists' consent database file"
                     >
                     {getFieldDecorator('upload', {
-                      valuePropName: 'fileList',
+                      valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
                       <Upload name="logo" action="/upload.do" listType="picture">
