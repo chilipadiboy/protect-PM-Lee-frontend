@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { signup, checkNricAvailability } from '../../util/APIUtils';
+import { signup } from '../../util/APIUtils';
 import './Signup.css';
 import { Link } from 'react-router-dom';
 import {
@@ -31,7 +31,6 @@ class Signup extends Component {
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        // this.validateNricAvailability = this.validateNricAvailability.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
     }
 

@@ -57,9 +57,24 @@ export function getUserProfile(nric) {
     });
 }
 
-export function getUserRecords(nric) {
+export function createRecord(newRecord) {
     return request({
-        url: API_BASE_URL + "/users/" + nric + "/records/",
+        url: API_BASE_URL + "/records/",
+        method: 'POST',
+        body: JSON.stringify(newRecord)
+    });
+}
+
+export function getAllRecords() {
+    return request({
+        url: API_BASE_URL + "/records/",
+        method: 'GET'
+    });
+}
+
+export function getUserRecords(nric, role) {
+    return request({
+        url: API_BASE_URL + "/records/" + role + "/" + nric,
         method: 'GET'
     });
 }
