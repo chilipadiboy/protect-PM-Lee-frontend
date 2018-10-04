@@ -84,6 +84,16 @@ class AppHeader extends Component {
             ];
           } else if(this.props.currentUser.role === "ADMINISTRATOR") {
             menuItems = [
+              <Menu.Item key="/logs">
+                <Link to="/logs">
+                  <Icon type="database" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/manageusers">
+                <Link to="/manageusers">
+                  <Icon type="usergroup-add" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/">
                 <Link to="/">
                   <Icon type="home" className="nav-icon" />
