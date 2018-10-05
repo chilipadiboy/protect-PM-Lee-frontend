@@ -12,9 +12,11 @@ import { AUTH_TOKEN } from '../constants';
 import Login from '../user/login/Login';
 import MFA from '../user/login/MFA';
 import Signup from '../user/signup/Signup';
-import Profile from '../user/profile/Profile';
+import CreateRecord from '../user/records/CreateRecord';
+import MyRecords from '../user/records/MyRecords';
+import AllRecords from '../user/records/AllRecords';
 import AppHeader from '../common/AppHeader';
-import Therapist_mypatients from '../user/therapist/Mypatients';
+// import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_manage_users from '../user/administrator/Manageusers';
 import Administrator_add_user from '../user/administrator/Adduser';
@@ -31,10 +33,6 @@ const Home = () => (
   <div>
     <h1>Welcome to the Healthcare App Webpage!</h1>
   </div>
-)
-
-const Data = () => (
-  <img src="https://raw.githubusercontent.com/IFS4205-2018-Sem1-Team1/first-report/master/images/pre_anonymisation.png" alt="homepage"></img>
 )
 
 class App extends Component {
@@ -122,12 +120,16 @@ class App extends Component {
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
-                <PrivateRoute authenticated={this.state.isAuthenticated} path="/mypatients" component={Therapist_mypatients}></PrivateRoute>
+                // <PrivateRoute authenticated={this.state.isAuthenticated} path="/mypatients" component={Therapist_mypatients}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/logs" component={Administrator_logs}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/manageusers" component={Administrator_manage_users}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/adduser" component={Administrator_add_user}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/generatedata" component={Researcher_generate_data}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/uploaddatabase" component={External_upload_database}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/records/:role/:nric" component={MyRecords}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/create" component={CreateRecord}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/all" component={AllRecords}></PrivateRoute>
+
                 <Route component={NotFound}></Route>
               </Switch>
             </div>
