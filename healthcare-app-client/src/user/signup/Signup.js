@@ -208,7 +208,7 @@ class Signup extends Component {
                                 <Option value="therapist">Therapist</Option>
                                 <Option value="researcher">Researcher</Option>
                                 <Option value="external_partner">External Partner</Option>
-                                <Option value="administrator">Administrator</Option>  
+                                <Option value="administrator">Administrator</Option>
                             </Select>
                         </FormItem>
                         <FormItem>
@@ -236,6 +236,14 @@ class Signup extends Component {
     // Validation Functions
 
     validateNric = (nric) => {
+      const NRIC_REGEX = RegExp('^[a-zA-Z0-9]*$');
+      if(!NRIC_REGEX.test(nric)) {
+          return {
+              validateStatus: 'error',
+              errorMsg: 'NRIC contains illegal characters'
+          }
+      }
+
         if(nric.length < NRIC_LENGTH) {
             return {
                 validateStatus: 'error',
