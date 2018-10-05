@@ -1,23 +1,34 @@
 import React, { Component } from 'react';
 import './MFA.css';
-import { Button } from 'antd';
+import {Button, Spin} from 'antd';
 import {sign, hash} from 'tweetnacl';
 
 const connectMessage = "Please connect your bluetooth tag for multi-factor authentication!";
-const successfulConnectMessage = "Connection was successful! Web has been verified!";
+const successfulConnectMessage = "Connection was successful! User verified!";
+const tryAgainMessage ="Please try again!";
 const connectButton = "Connect";
 const absentButton = "No Tag";
+const messageHashLength = 64;
+const signatureLength = 64;
+const pubKeyLength = 32;
 const keyPair = sign.keyPair();
-let writeChar, readChar, disconnectChar;
-let verified = false;
 //this should be retrieved from the server as
 // {publicKey: Uint8Array(32), secretKey: Uint8Array(32)}
+var encoder = new TextEncoder('utf-8');
+var writeChar, readChar, disconnectChar, deviceConnected;
+var valueRecArray = [];
+var tagMessageHash = new Uint8Array(64);
+var tagSignature = new Uint8Array(64);
+var tagPublicKey = new Uint8Array(32);
+
 
 class MFA extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      verifiedState: verified,
+      verifiedState: false,
+      loading: false,
+      attemptBefore: false
     }
   }
 
@@ -27,6 +38,8 @@ class MFA extends Component {
       filters: [ {services:[0x2220]} ]
     })
       .then(device => {
+        deviceConnected = device;
+        context.setState({loading:true});
         return device.gatt.connect();
       })
       .then(server => {
@@ -50,7 +63,6 @@ class MFA extends Component {
           }
         }
 
-        let encoder = new TextEncoder('utf-8');
         let randomNumGen = encoder.encode(Math.random().toString()); //to convert it into a UInt8Array for nacl to sign
         let messageHash = hash(randomNumGen);
         let signature = sign.detached(messageHash, keyPair.secretKey);
@@ -62,27 +74,42 @@ class MFA extends Component {
         var prevPromise = Promise.resolve();
         for (let i=0; i< numOfChunks; i++) {
            prevPromise = prevPromise.then(function() {
+             if (!deviceConnected.gatt.connected) {
+               deviceConnected.gatt.connect();
+             }
              return writeChar.writeValue(msgChunks[i]).then(function() {
                if (i === numOfChunks-1) {
                     wait(5000);
                  var prevWhilePromise = Promise.resolve();
-                 for (let j=0; j< 3; j++) {      //for now just reading 3 times for testing purposes
+                 for (let j=0; j< 8; j++) {
                     prevWhilePromise = prevWhilePromise.then(function() {
                       return readChar.readValue().then(value => {
-                        var valueRec = new Uint8Array(value.buffer);
-                        if(valueRec[0] === 49) {
-                          context.setState({verifiedState:true})
+                        let valueRec = new Uint8Array(value.buffer);
+                        for (let i=0; i<value.buffer.byteLength; i++) {
+                          valueRecArray.push(valueRec[i]);
                         }
+                        let ack = "ACK" + j;
+                        ack = encoder.encode(ack);
+                        return writeChar.writeValue(ack).then(function() {
+                          if (j==7) {
+                            dis(disconnectChar);
+                            if (verifyTag()) {
+                              context.setState({verifiedState:true, loading:false})
+                            } else {
+                              context.setState({verifiedState:false, loading:false, attemptBefore:true})
+                            }
+                          }
                        })
                     })
-                  }
+                  })
                 }
-             })
+              }
+             }).catch(err => console.log(err));
           })
         }
 
   }).catch(error => {
-    console.log("this is err" + error);
+    console.log(error);
   })
 }
 
@@ -93,20 +120,49 @@ class MFA extends Component {
   render() {
     return (
       <div className="mfa-container">
-        {this.state.verifiedState ?
-          <p> {successfulConnectMessage} </p>
-          :
-          <div>
-          <p> {connectMessage} </p>
-          <Button type="primary" className="mfa-button" onClick={this.startConnection.bind(this)}> {connectButton} </Button>
-          <Button type="default" onClick={this.skipConnection.bind(this)}> {absentButton} </Button>
-          </div>
-        }
+         <Spin spinning={this.state.loading}>
+          {this.state.verifiedState  ?
+            <p> {successfulConnectMessage} </p>
+             :
+            <div>
+              <div>
+              {this.state.attemptBefore ?
+                <p> {tryAgainMessage}</p>
+                : <p>{connectMessage}</p>
+               }
+              </div>
+              <Button type="primary" className="mfa-button" onClick={this.startConnection.bind(this)}> {connectButton} </Button>
+              <Button type="default" onClick={this.skipConnection.bind(this)}> {absentButton} </Button>
+            </div>
+          }
+         </Spin>
       </div>
     );
   }
 }
 
+function verifyTag() {
+  let i,j;
+
+  for(i=0, j=0; i<messageHashLength && j<messageHashLength; i++, j++) {
+    tagMessageHash[j] = valueRecArray[i];
+  }
+
+  for(i=i, j=0; i<messageHashLength+signatureLength && j<signatureLength; i++, j++) {
+    tagSignature[j] = valueRecArray[i];
+  }
+
+  for(i=i, j=0; i<messageHashLength+signatureLength+pubKeyLength && j<pubKeyLength; i++, j++) {
+    tagPublicKey[j] = valueRecArray[i];
+  }
+
+  let isTagVerified = sign.detached.verify(tagMessageHash, tagSignature, tagPublicKey);
+  tagMessageHash = new Uint8Array(64);
+  tagSignature = new Uint8Array(64);
+  tagPublicKey = new Uint8Array(32);
+  return isTagVerified;
+
+}
 
 function wait(ms){
    var start = new Date().getTime();
