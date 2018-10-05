@@ -206,6 +206,9 @@ class Signup extends Component {
                                     }})}>
                                 <Option value="patient">Patient</Option>
                                 <Option value="therapist">Therapist</Option>
+                                <Option value="researcher">Researcher</Option>
+                                <Option value="external_partner">External Partner</Option>
+                                <Option value="administrator">Administrator</Option>  
                             </Select>
                         </FormItem>
                         <FormItem>
