@@ -5,8 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UserSummary {
-    private String nric;
-    private String name;
-    private String role;
+public class UserIdentityAvailability {
+    private Boolean available;
 }

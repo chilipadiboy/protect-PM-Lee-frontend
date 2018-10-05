@@ -1,6 +1,7 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,19 +26,21 @@ public class UserPrincipal implements UserDetails {
     @JsonIgnore
     private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private GrantedAuthority authority;
 
     public static UserPrincipal create(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
                 new SimpleGrantedAuthority(role.name())
         ).collect(Collectors.toList());
 
+        assert authorities.size() == 1;
+
         return new UserPrincipal(
                 user.getNric(),
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
-                authorities
+                authorities.get(0)
         );
     }
 
@@ -61,7 +64,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return Collections.singletonList(authority);
     }
 
     @Override
