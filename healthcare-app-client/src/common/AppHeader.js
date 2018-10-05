@@ -5,7 +5,6 @@ import {
 } from 'react-router-dom';
 import './AppHeader.css';
 import dataIcon from '../data.svg';
-import Therapist_mypatients from '../user/therapist/Mypatients'
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 
 const Header = Layout.Header;
