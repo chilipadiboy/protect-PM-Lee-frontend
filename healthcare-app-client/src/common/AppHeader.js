@@ -72,7 +72,7 @@ class AppHeader extends Component {
               currentUser={this.props.currentUser}
               handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
-            ];            
+            ];
             /*menuItems = [
               <Menu.Item key="/">
                 <Link to="/">
@@ -222,6 +222,23 @@ function ProfileDropdownMenu(props) {
       <Menu.Item key="records" className="dropdown-item">
       <Link to={`/all/`}>All Records</Link>
       </Menu.Item>
+      <Menu.Item key="logout" className="dropdown-item">
+      Logout
+      </Menu.Item>
+      </Menu>
+    );
+  } else {
+    dropdownMenu = (
+      <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
+      <Menu.Item key="user-info" className="dropdown-item" disabled>
+      <div className="user-full-name-info">
+      {props.currentUser.name}
+      </div>
+      <div className="nric-info">
+      @{props.currentUser.nric}
+      </div>
+      </Menu.Item>
+      <Menu.Divider />
       <Menu.Item key="logout" className="dropdown-item">
       Logout
       </Menu.Item>
