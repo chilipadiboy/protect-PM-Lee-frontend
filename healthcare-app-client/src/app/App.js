@@ -120,7 +120,6 @@ class App extends Component {
                   render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                 <Route path="/signup" component={Signup}></Route>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
-                // <PrivateRoute authenticated={this.state.isAuthenticated} path="/mypatients" component={Therapist_mypatients}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/logs" component={Administrator_logs}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/manageusers" component={Administrator_manage_users}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/adduser" component={Administrator_add_user}></PrivateRoute>
