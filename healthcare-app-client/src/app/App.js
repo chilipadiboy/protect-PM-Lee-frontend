@@ -15,6 +15,7 @@ import Signup from '../user/signup/Signup';
 import CreateRecord from '../user/records/CreateRecord';
 import MyRecords from '../user/records/MyRecords';
 import AllRecords from '../user/records/AllRecords';
+import UploadFile from '../user/upload/UploadFile';
 import AppHeader from '../common/AppHeader';
 // import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
@@ -128,6 +129,7 @@ class App extends Component {
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/records/:role/:nric" component={MyRecords}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/create" component={CreateRecord}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/all" component={AllRecords}></PrivateRoute>
+                <PrivateRoute authenticated={this.state.isAuthenticated} path="/upload" component={UploadFile}></PrivateRoute>
 
                 <Route component={NotFound}></Route>
               </Switch>
