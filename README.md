@@ -14,4 +14,10 @@ For deployment on local host (perhaps, for testing purposes), go to `local-deplo
 
 You can simply cherry-pick this commit on top of the branch that you are working on to change the database that our application uses from MySQL to H2.
 
+### Frontend
+To run the front-end, go to 'healthcare-app-client' and run:
+1. `yarn install`
+1. `yarn start`
+
+### Backend
 To run the server, go to the backend directory and run `gradle bootRun` (or `./gradlew bootRun` for Linux).
