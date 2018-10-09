@@ -24,7 +24,7 @@ class AppHeader extends Component {
     render() {
         let menuItems;
         if(this.props.currentUser) {
-          if(this.props.currentUser.role === "RESEARCHER") {
+          if(this.props.currentUser.role === "researcher") {
             menuItems = [
               <Menu.Item key="/generatedata">
                 <Link to="/generatedata">
@@ -42,7 +42,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];
-          } else if(this.props.currentUser.role === "EXTERNAL_PARTNER") {
+          } else if(this.props.currentUser.role === "external_partner") {
             menuItems = [
               <Menu.Item key="/uploaddatabase">
                 <Link to="/uploaddatabase">
@@ -60,7 +60,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];
-          } else if(this.props.currentUser.role === "PATIENT") {
+          } else if(this.props.currentUser.role === "patient") {
             menuItems = [
               <Menu.Item key="/">
               <Link to="/">
@@ -85,7 +85,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];*/
-          } else if(this.props.currentUser.role === "THERAPIST") {
+          } else if(this.props.currentUser.role === "therapist") {
             menuItems = [
               <Menu.Item key="/">
               <Link to="/">
@@ -115,7 +115,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];*/
-          } else if(this.props.currentUser.role === "ADMINISTRATOR") {
+          } else if(this.props.currentUser.role === "administrator") {
             menuItems = [
               <Menu.Item key="/logs">
                 <Link to="/logs">
@@ -184,7 +184,7 @@ class AppHeader extends Component {
 
 function ProfileDropdownMenu(props) {
   var dropdownMenu = '';
-  if (props.currentUser.role === "PATIENT") {
+  if (props.currentUser.role === "patient") {
     dropdownMenu = (
       <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
       <Menu.Item key="user-info" className="dropdown-item" disabled>
@@ -204,7 +204,7 @@ function ProfileDropdownMenu(props) {
       </Menu.Item>
       </Menu>
     );
-  } else if (props.currentUser.role === "THERAPIST") {
+  } else if (props.currentUser.role === "therapist") {
     dropdownMenu = (
       <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
       <Menu.Item key="user-info" className="dropdown-item" disabled>

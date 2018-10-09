@@ -38,7 +38,8 @@ public class UserController {
 
     @GetMapping("/user/me")
     public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {
-        return new UserSummary(currentUser.getNric(), currentUser.getName(), currentUser.getAuthority().toString());
+        return new UserSummary(currentUser.getNric(), currentUser.getName(),
+                currentUser.getAuthority().toString().toLowerCase());
     }
 
     @GetMapping("/users/{nric}")
