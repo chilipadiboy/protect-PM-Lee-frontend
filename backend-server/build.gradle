@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		springBootVersion = '2.1.0.M3'
+		springBootVersion = '2.1.0.M1'
 	}
 	repositories {
 		mavenCentral()
@@ -32,10 +32,11 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
 	compile('org.springframework.boot:spring-boot-starter-security')
 	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('com.github.ulisesbocchio:jasypt-spring-boot-starter:2.1.0')
 	compile('io.jsonwebtoken:jjwt:0.9.1')
     compile('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
 	runtime('mysql:mysql-connector-java')
-	compileOnly('org.projectlombok:lombok')
+	compileOnly('org.projectlombok:lombok:1.16.20')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.springframework.security:spring-security-test')
 }
