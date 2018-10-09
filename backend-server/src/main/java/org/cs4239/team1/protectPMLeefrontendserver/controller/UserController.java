@@ -5,7 +5,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.model.UserProfile;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.UserIdentityAvailability;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;

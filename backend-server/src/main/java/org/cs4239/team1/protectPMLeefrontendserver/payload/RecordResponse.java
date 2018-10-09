@@ -1,9 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.payload;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import java.time.Instant;
-import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

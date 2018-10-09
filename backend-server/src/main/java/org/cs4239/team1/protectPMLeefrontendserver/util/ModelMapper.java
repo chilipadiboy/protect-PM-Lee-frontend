@@ -3,12 +3,6 @@ package org.cs4239.team1.protectPMLeefrontendserver.util;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ModelMapper {
 
