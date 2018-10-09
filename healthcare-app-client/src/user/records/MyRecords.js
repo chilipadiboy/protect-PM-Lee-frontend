@@ -17,7 +17,7 @@ class MyRecords extends Component {
     }
 
     loadUserRecords(nric, role) {
-        getUserRecords(nric, role.toString)
+        getUserRecords(nric, role)
         .then(data =>
           this.setState({ data }))
         .catch(error => {
