@@ -2,9 +2,9 @@ package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.RoleNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,19 +28,17 @@ public class UserPrincipal implements UserDetails {
 
     private GrantedAuthority authority;
 
-    public static UserPrincipal create(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
-                new SimpleGrantedAuthority(role.name())
-        ).collect(Collectors.toList());
-
-        assert authorities.size() == 1;
+    public static UserPrincipal create(User user, String role) {
+        if (!user.getRoles().contains(Role.valueOf(role))) {
+            throw new RoleNotFoundException("User with NRIC " + user + " does not have role: " + role);
+        }
 
         return new UserPrincipal(
                 user.getNric(),
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
-                authorities.get(0)
+                new SimpleGrantedAuthority(role)
         );
     }
 

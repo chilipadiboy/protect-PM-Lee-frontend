@@ -19,6 +19,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
+    public static final String ROLE = "role";
 
     @Value("${app.jwtSecret}")
     private String jwtSecret;
@@ -35,6 +36,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
+                .claim(ROLE, userPrincipal.getAuthority().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -47,6 +49,14 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String getRole(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody()
+                .get(ROLE, String.class);
     }
 
     public boolean validateToken(String authToken) {

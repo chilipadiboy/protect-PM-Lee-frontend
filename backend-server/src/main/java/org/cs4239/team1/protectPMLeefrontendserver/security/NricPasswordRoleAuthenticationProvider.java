@@ -28,7 +28,7 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
         String presentedRole = auth.getRole().toString().toUpperCase();
         GrantedAuthority presentedAuthority = new SimpleGrantedAuthority(presentedRole);
 
-        UserDetails loadedUser = userDetailsService.loadUserByUsername(presentedNric);
+        UserDetails loadedUser = userDetailsService.loadUser(presentedNric, presentedRole);
 
         if (!passwordEncoder.matches(presentedPassword, loadedUser.getPassword())
                 || !loadedUser.getAuthorities().contains(presentedAuthority)) {
