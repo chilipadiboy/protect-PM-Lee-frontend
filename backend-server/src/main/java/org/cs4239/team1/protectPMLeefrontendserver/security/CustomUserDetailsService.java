@@ -15,7 +15,7 @@ public class CustomUserDetailsService {
     private UserRepository userRepository;
 
     @Transactional
-    public UserDetails loadUser(String nric, String role) throws UsernameNotFoundException {
+    public UserDetails loadUser(String nric, String role) {
         User user = userRepository.findByNric(nric)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found with nric : " + nric)
