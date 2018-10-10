@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -43,12 +42,11 @@ public class JwtTokenProvider {
     }
 
     public String getNricFromJWT(String token) {
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+                .getBody()
+                .getSubject();
     }
 
     public boolean validateToken(String authToken) {
