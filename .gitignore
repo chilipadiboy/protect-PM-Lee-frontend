@@ -2,5 +2,4 @@
 backend-server/.gradle/*
 backend-server/out/*
 backend-server/.idea
-backend-server/src/main/resources/application.properties
 backend-server/build/*
