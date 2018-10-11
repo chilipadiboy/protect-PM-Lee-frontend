@@ -42,6 +42,8 @@ class MyRecords extends Component {
           title: 'Record ID',
           dataIndex: 'recordID',
           key: 'recordID',
+          defaultSortOrder: 'ascend',
+          sorter: (a, b) => a.recordID - b.recordID
         }, {
           title: 'Type',
           dataIndex: 'type',
@@ -50,6 +52,17 @@ class MyRecords extends Component {
           title: 'Subtype',
           dataIndex: 'subtype',
           key: 'subtype',
+          filters: [{
+            text: 'Blood Pressure',
+            value: 'Blood Pressure',
+          }, {
+            text: 'Diabetes',
+            value: 'Diabetes',
+          }, {
+            text: 'Heart',
+            value: 'Heart',
+          }],
+          onFilter: (value, record) => record.subtype.indexOf(value) === 0
         }, {
           title: 'Title',
           dataIndex: 'title',
