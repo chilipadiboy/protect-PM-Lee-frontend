@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Select, Upload, Input, Button, Layout, Icon } from 'antd';
+import { AUTH_TOKEN, API_BASE_URL } from '../../constants/index.js'
 import './Uploaddatabase.css';
 
 const FormItem = Form.Item;
@@ -34,6 +35,15 @@ class UploadDataForm extends Component {
   }
 
   render() {
+    const props = {
+      action: API_BASE_URL + "/file/upload",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem(AUTH_TOKEN),
+        enctype: "multipart/form-data"
+      },
+      onChange: this.handleChange,
+      multiple: false
+    };
       const { Header, Content } = Layout;
       const { getFieldDecorator } = this.props.form;
       const formItemLayout = {
@@ -56,7 +66,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -71,7 +81,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -86,7 +96,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -101,7 +111,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -116,7 +126,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -131,7 +141,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
@@ -146,7 +156,7 @@ class UploadDataForm extends Component {
                       valuePropName: 'file',
                       getValueFromEvent: this.normFile,
                     })(
-                      <Upload name="logo" action="/upload.do" listType="picture">
+                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
                         <Button>
                           <Icon type="search" /> Click to select file
                         </Button>
