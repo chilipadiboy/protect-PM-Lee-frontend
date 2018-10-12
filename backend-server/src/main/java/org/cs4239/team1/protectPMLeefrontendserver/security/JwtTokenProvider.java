@@ -57,7 +57,8 @@ public class JwtTokenProvider {
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody()
-                .get(ROLE, String.class);
+                .get(ROLE, String.class)
+                .toUpperCase();
     }
 
     public boolean validateToken(String authToken) {

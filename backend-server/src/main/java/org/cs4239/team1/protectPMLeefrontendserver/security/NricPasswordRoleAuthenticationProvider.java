@@ -24,8 +24,7 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
 
         String presentedNric = auth.getName();
         String presentedPassword = auth.getCredentials().toString();
-        String presentedRoleStr = auth.getRole().toString().toUpperCase();
-        Role presentedRole = Role.valueOf(presentedRoleStr);
+        Role presentedRole = auth.getRole();
 
         User loadedUser = userDetailsService.loadUserByUsername(presentedNric);
 
@@ -36,7 +35,7 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
 
         loadedUser.setSelectedRole(presentedRole);
         return new UsernamePasswordAuthenticationToken(loadedUser, presentedPassword,
-                Collections.singletonList(new SimpleGrantedAuthority(presentedRoleStr)));
+                Collections.singletonList(new SimpleGrantedAuthority(presentedRole.name())));
     }
 
     @Override

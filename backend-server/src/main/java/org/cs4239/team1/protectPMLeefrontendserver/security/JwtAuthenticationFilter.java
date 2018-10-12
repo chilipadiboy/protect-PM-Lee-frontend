@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String nric = tokenProvider.getNricFromJWT(jwt);
-            Role role = Role.valueOf(tokenProvider.getRole(jwt));
+            Role role = Role.create(tokenProvider.getRole(jwt));
             User userDetails = customUserDetailsService.loadUserByUsername(nric);
 
             if (!userDetails.hasRole(role)) {
