@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.AllArgsConstructor;
@@ -27,13 +26,14 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
         String presentedRole = auth.getRole().toString().toUpperCase();
         GrantedAuthority presentedAuthority = new SimpleGrantedAuthority(presentedRole);
 
-        UserDetails loadedUser = userDetailsService.loadUser(presentedNric, presentedRole);
+        UserPrincipal loadedUser = userDetailsService.loadUserByUsername(presentedNric);
 
         if (!passwordEncoder.matches(presentedPassword, loadedUser.getPassword())
-                || !loadedUser.getAuthorities().contains(presentedAuthority)) {
-            throw new BadCredentialsException("Password or role doesn't match.");
+                || !loadedUser.hasAuthority(presentedAuthority)) {
+            throw new BadCredentialsException("Bad credentials.");
         }
 
+        loadedUser.setSelectedAuthority(presentedAuthority);
         return new UsernamePasswordAuthenticationToken(loadedUser, presentedPassword,
                 Collections.singletonList(presentedAuthority));
     }

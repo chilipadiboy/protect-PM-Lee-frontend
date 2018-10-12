@@ -2,8 +2,8 @@ package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
-import org.cs4239.team1.protectPMLeefrontendserver.exception.RoleNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,34 +12,63 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
-@Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserPrincipal implements UserDetails {
+    @NonNull
+    @Getter
     private String nric;
+
+    @NonNull
+    @Getter
     private String name;
 
     @JsonIgnore
+    @NonNull
+    @Getter
     private String email;
+
     @JsonIgnore
+    @NonNull
+    @Getter
     private String password;
 
-    private GrantedAuthority authority;
+    @NonNull
+    private Collection<GrantedAuthority> authorities;
 
-    public static UserPrincipal create(User user, String role) {
-        if (!user.getRoles().contains(Role.valueOf(role))) {
-            throw new RoleNotFoundException("User with NRIC " + user + " does not have role: " + role);
-        }
+    @Getter
+    private GrantedAuthority selectedAuthority;
 
+    public static UserPrincipal create(User user) {
         return new UserPrincipal(
                 user.getNric(),
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
-                new SimpleGrantedAuthority(role)
+                user.getRoles().stream()
+                        .map(Role::toString)
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList())
         );
+    }
+
+    public void setSelectedAuthority(GrantedAuthority selectedAuthority) {
+        if (this.selectedAuthority != null) {
+            throw new AssertionError("This method should not be called when selectedAuthority already has a value");
+        }
+
+        if (!authorities.contains(selectedAuthority)) {
+            throw new IllegalArgumentException();
+        }
+
+        this.selectedAuthority = selectedAuthority;
+    }
+
+    public boolean hasAuthority(GrantedAuthority selectedAuthority) {
+        return authorities.contains(selectedAuthority);
     }
 
     public String getName() {
@@ -62,7 +91,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(authority);
+        return Collections.singletonList(selectedAuthority);
     }
 
     @Override
