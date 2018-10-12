@@ -108,12 +108,11 @@ class LoginForm extends Component {
                         <Option value="therapist">Therapist</Option>
                         <Option value="researcher">Researcher</Option>
                         <Option value="external_partner">External Partner</Option>
-                        <Option value="administrator">Administrator</Option>                        
+                        <Option value="administrator">Administrator</Option>
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
-                    Or <Link to="/signup">register now!</Link>
+                <Button type="primary" htmlType="submit" size="large" className="login-form-button">Login</Button>
                 </FormItem>
             </Form>
         );
