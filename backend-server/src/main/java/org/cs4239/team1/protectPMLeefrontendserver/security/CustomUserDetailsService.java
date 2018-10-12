@@ -20,4 +20,9 @@ public class CustomUserDetailsService {
                         new UsernameNotFoundException("User not found with nric : " + nric)
                 );
     }
+
+    @Transactional
+    public void deleteUserByUsername(String nric) {
+        userRepository.deleteByNric(nric);
+    }
 }

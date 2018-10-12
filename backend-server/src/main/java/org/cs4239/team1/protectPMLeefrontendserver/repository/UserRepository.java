@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByNricIn(List<String> nric);
     Boolean existsByNric(String nric);
     Boolean existsByEmail(String email);
+    Integer deleteByNric(String nric);
 }
