@@ -66,6 +66,7 @@ class Administrator_add_user extends Component {
                 message: 'Healthcare App',
                 description: "You've successfully registered a new user!",
             });
+            this.props.history.push("/manageusers");
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
@@ -221,13 +222,6 @@ class Administrator_add_user extends Component {
                 </div>
             </div>
         );
-    }
-
-    _confirm = async data => {
-      notification.success({
-          message: 'Healthcare App',
-          description: "You're successfully registered a new user!",
-      });
     }
 
     // Validation Functions
