@@ -14,12 +14,10 @@ public class CustomUserDetailsService {
     private UserRepository userRepository;
 
     @Transactional
-    public UserPrincipal loadUserByUsername(String nric) {
-        User user = userRepository.findByNric(nric)
+    public User loadUserByUsername(String nric) {
+        return userRepository.findByNric(nric)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found with nric : " + nric)
-        );
-
-        return UserPrincipal.create(user);
+                );
     }
 }

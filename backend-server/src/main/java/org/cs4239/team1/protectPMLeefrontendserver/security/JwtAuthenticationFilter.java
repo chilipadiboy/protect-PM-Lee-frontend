@@ -7,12 +7,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
@@ -41,14 +41,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String nric = tokenProvider.getNricFromJWT(jwt);
-            GrantedAuthority authority = new SimpleGrantedAuthority(tokenProvider.getRole(jwt));
-            UserPrincipal userDetails = customUserDetailsService.loadUserByUsername(nric);
+            Role role = Role.valueOf(tokenProvider.getRole(jwt));
+            User userDetails = customUserDetailsService.loadUserByUsername(nric);
 
-            if (!userDetails.hasAuthority(authority)) {
-                throw new JwtException("Invalid authority.");
+            if (!userDetails.hasRole(role)) {
+                throw new JwtException("Invalid role.");
             }
 
-            userDetails.setSelectedAuthority(authority);
+            userDetails.setSelectedRole(role);
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

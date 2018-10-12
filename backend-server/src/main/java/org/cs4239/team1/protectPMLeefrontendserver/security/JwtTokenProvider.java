@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.util.Date;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,14 +30,14 @@ public class JwtTokenProvider {
 
     public String generateToken(Authentication authentication) {
 
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        User user = (User) authentication.getPrincipal();
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
-                .setSubject(userPrincipal.getUsername())
-                .claim(ROLE, userPrincipal.getSelectedAuthority().toString())
+                .setSubject(user.getUsername())
+                .claim(ROLE, user.getSelectedRole().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)

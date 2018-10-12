@@ -2,11 +2,12 @@ package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.util.Collections;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -23,19 +24,19 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
 
         String presentedNric = auth.getName();
         String presentedPassword = auth.getCredentials().toString();
-        String presentedRole = auth.getRole().toString().toUpperCase();
-        GrantedAuthority presentedAuthority = new SimpleGrantedAuthority(presentedRole);
+        String presentedRoleStr = auth.getRole().toString().toUpperCase();
+        Role presentedRole = Role.valueOf(presentedRoleStr);
 
-        UserPrincipal loadedUser = userDetailsService.loadUserByUsername(presentedNric);
+        User loadedUser = userDetailsService.loadUserByUsername(presentedNric);
 
         if (!passwordEncoder.matches(presentedPassword, loadedUser.getPassword())
-                || !loadedUser.hasAuthority(presentedAuthority)) {
+                || !loadedUser.hasRole(presentedRole)) {
             throw new BadCredentialsException("Bad credentials.");
         }
 
-        loadedUser.setSelectedAuthority(presentedAuthority);
+        loadedUser.setSelectedRole(presentedRole);
         return new UsernamePasswordAuthenticationToken(loadedUser, presentedPassword,
-                Collections.singletonList(presentedAuthority));
+                Collections.singletonList(new SimpleGrantedAuthority(presentedRoleStr)));
     }
 
     @Override

@@ -6,24 +6,20 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.*;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.security.UserPrincipal;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +38,7 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-    public PagedResponse<RecordResponse> getAllRecords(UserPrincipal currentUser, int page, int size) {
+    public PagedResponse<RecordResponse> getAllRecords(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
         // Retrieve Records
@@ -67,7 +63,7 @@ public class RecordService {
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsCreatedBy(String nric, UserPrincipal currentUser, int page, int size) {
+    public PagedResponse<RecordResponse> getRecordsCreatedBy(String nric, User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
         User user = userRepository.findByNric(nric)
@@ -93,7 +89,7 @@ public class RecordService {
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsBelongingTo(String nric, UserPrincipal currentUser, int page, int size) {
+    public PagedResponse<RecordResponse> getRecordsBelongingTo(String nric, User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
         User user = userRepository.findByNric(nric)
@@ -135,7 +131,7 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    public RecordResponse getRecordByRecordID(String recordId, UserPrincipal currentUser) {
+    public RecordResponse getRecordByRecordID(String recordId, User currentUser) {
         Record record = recordRepository.findByRecordID(recordId).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", recordId));
 

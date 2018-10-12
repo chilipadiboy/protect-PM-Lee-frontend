@@ -6,6 +6,7 @@ import java.net.URI;
 import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
@@ -13,7 +14,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
-import org.cs4239.team1.protectPMLeefrontendserver.security.UserPrincipal;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class RecordController {
 
     //Get all records
     @GetMapping
-    public PagedResponse<RecordResponse> getRecords(@CurrentUser UserPrincipal currentUser,
+    public PagedResponse<RecordResponse> getRecords(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getAllRecords(currentUser, page, size);
@@ -68,14 +68,14 @@ public class RecordController {
 
     //Get specific records by RecordID
     @GetMapping("/recordid/{recordId}")
-    public RecordResponse getRecordByRecordID(@CurrentUser UserPrincipal currentUser,
+    public RecordResponse getRecordByRecordID(@CurrentUser User currentUser,
                                               @PathVariable String recordId) {
         return recordService.getRecordByRecordID(recordId, currentUser);
     }
 
     //@PreAuthorize("checkownership")
     @GetMapping("/therapist/{therapist}")
-    public PagedResponse<RecordResponse> getRecordByTherapist(@CurrentUser UserPrincipal currentUser,
+    public PagedResponse<RecordResponse> getRecordByTherapist(@CurrentUser User currentUser,
                                               @PathVariable String therapist,
                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
@@ -84,7 +84,7 @@ public class RecordController {
 
     //@PreAuthorize("checkpatient")
     @GetMapping("/patient/{patient}")
-    public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser UserPrincipal currentUser,
+    public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser User currentUser,
                                                               @PathVariable String patient,
                                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
