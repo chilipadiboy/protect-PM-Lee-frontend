@@ -1,4 +1,5 @@
 import React from 'react';
+import './CSVtoGraph.css';
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries} from 'react-vis';
 
 const Chart = (props) => {

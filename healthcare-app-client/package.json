@@ -18,6 +18,8 @@
   },
   "devDependencies": {
     "babel-plugin-import": "^1.6.5",
+    "css-loader": "^1.0.0",
+    "node-sass": "^4.9.3",
     "react-app-rewire-less": "^2.1.0",
     "react-app-rewired": "^1.6.2"
   }
