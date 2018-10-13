@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface RecordRepository extends JpaRepository<Record, String> {
-    Optional<Record> findByRecordID(String recordID);
+    Optional<Record> findByRecordID(Long recordID);
 
     Page<Record> findByCreatedBy(String nric, Pageable pageable);
 

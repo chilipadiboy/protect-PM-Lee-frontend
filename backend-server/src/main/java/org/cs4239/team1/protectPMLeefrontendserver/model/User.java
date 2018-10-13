@@ -44,6 +44,7 @@ import lombok.RequiredArgsConstructor;
 })
 public class User extends DateAudit implements UserDetails {
     @Id
+    @NonNull
     @NotBlank
     @Size(min = 9, max = 9)
     private String nric;

@@ -2,10 +2,14 @@ package org.cs4239.team1.protectPMLeefrontendserver.service;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
-import org.cs4239.team1.protectPMLeefrontendserver.model.*;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
@@ -20,6 +24,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +43,9 @@ public class RecordService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PermissionRepository permissionRepository;
+
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
     public PagedResponse<RecordResponse> getAllRecords(User currentUser, int page, int size) {
@@ -49,8 +60,6 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        // Map Records to RecordResponses containing vote counts and record creator details
-        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
         Map<String, User> creatorMap = getRecordCreatorMap(records.getContent());
 
         List<RecordResponse> recordResponses = records.map(record -> {
@@ -77,9 +86,6 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        // Map Records to RecordResponses containing vote counts and record creator details
-        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
-
         List<RecordResponse> recordResponses = records.map(record -> {
             return ModelMapper.mapRecordToRecordResponse(record, user);
         }).getContent();
@@ -103,9 +109,6 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        // Map Records to RecordResponses containing vote counts and record creator details
-        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
-
         List<RecordResponse> recordResponses = records.map(record -> {
             return ModelMapper.mapRecordToRecordResponse(record, user);
         }).getContent();
@@ -126,7 +129,9 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    public RecordResponse getRecordByRecordID(String recordId, User currentUser) {
+
+    public RecordResponse getRecordByRecordID(Long recordId, User currentUser) {
+
         Record record = recordRepository.findByRecordID(recordId).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", recordId));
 
@@ -136,6 +141,105 @@ public class RecordService {
 
         return ModelMapper.mapRecordToRecordResponse(record, creator);
     }
+
+
+    public Permission grantPermission(PermissionRequest permissionRequest, User currentUser){
+
+        Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
+                () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
+        User user = userRepository.findByNric(permissionRequest.getNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
+        String patientIC = currentUser.getNric();
+
+        if(!record.getPatientIC().equals(patientIC)){
+            throw new BadRequestException("You do not have permission to grant record " + record.getRecordID());
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Period months = Period.ofMonths(permissionRequest.getMonths());
+        Period days = Period.ofDays(permissionRequest.getDays());
+        Instant expirationDateTime = now.plus(months).plus(days).toInstant(ZoneOffset.UTC);
+
+        Permission permission = new Permission(record,user, expirationDateTime, patientIC);
+
+        return permissionRepository.save(permission);
+    }
+
+    public Permission revokePermission(PermissionRequest permissionRequest, User currentUser){
+
+        Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
+                () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
+        User user = userRepository.findByNric(permissionRequest.getNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
+        Instant now = Instant.now();
+        String patientIC = currentUser.getNric();
+
+        if(!record.getPatientIC().equals(patientIC)){
+            throw new BadRequestException("You do not have permission to revoke record " + record.getRecordID());
+        }
+
+        Permission permission = new Permission(record,user, now, patientIC);
+
+        if (permissionRepository.findByPermissionID(permission.getPermissionID()) == null){
+            throw new BadRequestException(record.getRecordID() + " has not been granted");
+        }
+
+        permissionRepository.delete(permission);
+        return permission;
+    }
+
+    public PagedResponse<RecordResponse> getAllowedRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(page, size);
+
+        String nric = currentUser.getNric();
+
+        User user = userRepository.findByNric(nric)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+
+        // Retrieve all records belong to the given nric
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByUser(user, pageable);
+
+        if (permission.getNumberOfElements() == 0) {
+            return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
+                    permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+        }
+
+        // Map Records to RecordResponses
+        List<RecordResponse> recordResponses = permission.map(permissions -> {
+            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
+        }).getContent();
+
+        return new PagedResponse<>(recordResponses, permission.getNumber(),
+                permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+    }
+
+    public PagedResponse<RecordResponse> getGivenRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(page, size);
+
+        String nric = currentUser.getNric();
+
+        User user = userRepository.findByNric(nric)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+
+        // Retrieve all records belong to the given nric
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByPatientNric(nric, pageable);
+
+        if (permission.getNumberOfElements() == 0) {
+            return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
+                    permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+        }
+
+        // Map Records to RecordResponses
+        List<RecordResponse> recordResponses = permission.map(permissions -> {
+            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
+        }).getContent();
+
+        return new PagedResponse<>(recordResponses, permission.getNumber(),
+                permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+    }
+
 
     private void validatePageNumberAndSize(int page, int size) {
         if(page < 0) {
