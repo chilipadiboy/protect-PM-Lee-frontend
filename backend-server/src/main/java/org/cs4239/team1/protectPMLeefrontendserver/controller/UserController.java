@@ -41,22 +41,4 @@ public class UserController {
                 currentUser.getSelectedRole().toString(),
                 currentUser.getPhone(), currentUser.getEmail());
     }
-
-    @GetMapping("/users/{nric}")
-    public UserProfile getUserProfile(@PathVariable(value = "nric") String nric) {
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
-
-        UserProfile userProfile = new UserProfile(user.getNric(), user.getName(), user.getPhone());
-
-        return userProfile;
-    }
-
-    @GetMapping("/users/{nric}/records")
-    public PagedResponse<RecordResponse> getRecordsCreatedBy(@PathVariable(value = "nric") String nric,
-                                                             @CurrentUser User currentUser,
-                                                             @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                             @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsCreatedBy(nric, currentUser, page, size);
-    }
 }
