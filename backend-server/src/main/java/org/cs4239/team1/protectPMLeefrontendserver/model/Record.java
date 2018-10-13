@@ -46,4 +46,5 @@ public class Record extends UserDateAudit {
     @NotBlank
     @Size(max = 140)
     private String patientIC;
+
 }

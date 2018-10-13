@@ -1,10 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -16,6 +15,7 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import javax.persistence.ElementCollection;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.DateAudit;
 import org.hibernate.annotations.NaturalId;
@@ -27,6 +27,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
+
 
 @Getter
 @NoArgsConstructor
@@ -42,7 +44,6 @@ import lombok.RequiredArgsConstructor;
 })
 public class User extends DateAudit implements UserDetails {
     @Id
-    @NonNull
     @NotBlank
     @Size(min = 9, max = 9)
     private String nric;
