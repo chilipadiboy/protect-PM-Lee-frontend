@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,7 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses containing vote counts and record creator details
-        List<String> recordIDs = records.map(Record::getRecordID).getContent();
+        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
         Map<String, User> creatorMap = getRecordCreatorMap(records.getContent());
 
         List<RecordResponse> recordResponses = records.map(record -> {
@@ -79,7 +78,7 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses containing vote counts and record creator details
-        List<String> recordIDs = records.map(Record::getRecordID).getContent();
+        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
 
         List<RecordResponse> recordResponses = records.map(record -> {
             return ModelMapper.mapRecordToRecordResponse(record, user);
@@ -105,7 +104,7 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses containing vote counts and record creator details
-        List<String> recordIDs = records.map(Record::getRecordID).getContent();
+        List<Long> recordIDs = records.map(Record::getRecordID).getContent();
 
         List<RecordResponse> recordResponses = records.map(record -> {
             return ModelMapper.mapRecordToRecordResponse(record, user);
@@ -118,15 +117,11 @@ public class RecordService {
     public Record createRecord(RecordRequest recordRequest) {
         Record record = new Record();
 
-        record.setRecordID(recordRequest.getRecordID());
         record.setType(recordRequest.getType());
         record.setSubtype(recordRequest.getSubtype());
         record.setTitle(recordRequest.getTitle());
         record.setDocument(recordRequest.getDocument());
         record.setPatientIC(recordRequest.getPatientIC());
-
-        Instant now = Instant.now();
-        record.setDate_time(now);
 
         return recordRepository.save(record);
     }

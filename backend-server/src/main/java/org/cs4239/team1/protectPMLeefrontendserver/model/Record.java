@@ -1,8 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
-import java.time.Instant;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -23,8 +24,8 @@ import lombok.Setter;
 @Table(name = "Records")
 public class Record extends UserDateAudit {
     @Id
-    //@GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String recordID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long recordID;
 
     @NotBlank
     @Size(max = 140)
@@ -37,10 +38,6 @@ public class Record extends UserDateAudit {
     @NotBlank
     @Size(max = 140)
     private String title;
-
-    //@NotEmpty
-    //@Size(max = 140)
-    private Instant date_time;
 
     @NotBlank
     @Size(max = 140)

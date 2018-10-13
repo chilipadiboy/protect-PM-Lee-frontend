@@ -14,7 +14,6 @@ public class ModelMapper {
         recordResponse.setType(record.getType());
         recordResponse.setSubtype(record.getSubtype());
         recordResponse.setTitle(record.getTitle());
-        recordResponse.setDate_time(record.getDate_time());
         recordResponse.setDocument(record.getDocument());
         recordResponse.setPatientIC(record.getPatientIC());
 
