@@ -64,7 +64,7 @@ class Administrator_add_user extends Component {
         .then(response => {
             notification.success({
                 message: 'Healthcare App',
-                description: "You're successfully registered a new user!",
+                description: "You've successfully registered a new user!",
             });
         }).catch(error => {
             notification.error({
