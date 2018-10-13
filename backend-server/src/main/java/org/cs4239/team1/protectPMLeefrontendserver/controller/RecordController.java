@@ -68,8 +68,9 @@ public class RecordController {
 
     //Get specific records by RecordID
     @GetMapping("/recordid/{recordId}")
+
     public RecordResponse getRecordByRecordID(@CurrentUser User currentUser,
-                                              @PathVariable String recordId) {
+                                              @PathVariable Long recordId) {
         return recordService.getRecordByRecordID(recordId, currentUser);
     }
 
