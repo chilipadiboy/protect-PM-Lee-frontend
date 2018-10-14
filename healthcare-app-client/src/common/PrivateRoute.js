@@ -3,24 +3,20 @@ import {
     Route,
     Redirect
   } from "react-router-dom";
+import NotFound from '../common/NotFound';
 
 
-const PrivateRoute = ({ component: Component, authenticated, ...rest }) => (
+const PrivateRoute = ({ component: Component, authenticated, path }) => (
     <Route
-      {...rest}
+      path
       render={props =>
         authenticated ? (
-          <Component {...rest} {...props} />
+          <Component path {...props} />
         ) : (
-          <Redirect
-            to={{
-              pathname: '/',
-              state: { from: props.location }
-            }}
-          />
+          <NotFound />
         )
       }
     />
 );
 
-export default PrivateRoute
+export default PrivateRoute;
