@@ -13,7 +13,7 @@ class NotFound extends Component {
                 <div className="desc">
                     The Page you're looking for was not found.
                 </div>
-                <Link to="/"><Button className="go-back-btn" type="primary" size="large">Go Back</Button></Link>
+                <Link to="/"><Button className="go-back-btn" type="primary" size="large">Go Back To Home</Button></Link>
             </div>
         );
     }

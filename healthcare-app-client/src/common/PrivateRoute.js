@@ -5,12 +5,12 @@ import {
   } from "react-router-dom";
 
 
-const PrivateRoute = ({ component: Component, authenticated, ...rest }) => (
+const PrivateRoute = ({ component: Component, authenticated, path }) => (
     <Route
-      {...rest}
+      path
       render={props =>
         authenticated ? (
-          <Component {...rest} {...props} />
+          <Component path {...props} />
         ) : (
           <Redirect
             to={{
@@ -23,4 +23,4 @@ const PrivateRoute = ({ component: Component, authenticated, ...rest }) => (
     />
 );
 
-export default PrivateRoute
+export default PrivateRoute;
