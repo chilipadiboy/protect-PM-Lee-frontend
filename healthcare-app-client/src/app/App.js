@@ -26,6 +26,7 @@ import External_upload_database from '../user/external_partner/Uploaddatabase';
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
 import NotFound from '../common/NotFound';
+import Chart from '../util/CSVtoGraph'
 
 import { Layout, notification } from 'antd';
 const { Content } = Layout;
@@ -130,6 +131,7 @@ class App extends Component {
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/create" component={CreateRecord}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/all" component={AllRecords}></PrivateRoute>
                 <PrivateRoute authenticated={this.state.isAuthenticated} path="/upload" component={UploadFile}></PrivateRoute>
+                <Route path="/chart" component={Chart}></Route>
 
                 <Route component={NotFound}></Route>
               </Switch>
