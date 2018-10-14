@@ -3,6 +3,7 @@ import {
     Route,
     Redirect
   } from "react-router-dom";
+import NotFound from '../common/NotFound';
 
 
 const PrivateRoute = ({ component: Component, authenticated, path }) => (
@@ -12,12 +13,7 @@ const PrivateRoute = ({ component: Component, authenticated, path }) => (
         authenticated ? (
           <Component path {...props} />
         ) : (
-          <Redirect
-            to={{
-              pathname: '/',
-              state: { from: props.location }
-            }}
-          />
+          <NotFound />
         )
       }
     />

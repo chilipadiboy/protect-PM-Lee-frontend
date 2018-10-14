@@ -3,6 +3,7 @@ import {
     Route,
     Redirect
   } from "react-router-dom";
+import NotFound from '../common/NotFound';
 
 
 const ResearcherRoute = ({ component: Component, authenticated, role, path }) => (
@@ -12,12 +13,7 @@ const ResearcherRoute = ({ component: Component, authenticated, role, path }) =>
         (authenticated && role === "researcher") ? (
           <Component path {...props} />
         ) : (
-          <Redirect
-            to={{
-              pathname: '/',
-              state: { from: props.location }
-            }}
-          />
+          <NotFound />
         )
       }
     />
