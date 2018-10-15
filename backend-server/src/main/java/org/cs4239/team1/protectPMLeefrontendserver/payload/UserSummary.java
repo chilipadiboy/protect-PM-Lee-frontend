@@ -9,4 +9,6 @@ public class UserSummary {
     private String nric;
     private String name;
     private String role;
+    private String phone;
+    private String email;
 }

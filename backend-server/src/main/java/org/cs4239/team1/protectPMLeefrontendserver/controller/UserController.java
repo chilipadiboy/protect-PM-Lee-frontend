@@ -9,7 +9,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
-import org.cs4239.team1.protectPMLeefrontendserver.security.UserPrincipal;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
@@ -37,9 +36,10 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/user/me")
-    public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+    public UserSummary getCurrentUser(@CurrentUser User currentUser) {
         return new UserSummary(currentUser.getNric(), currentUser.getName(),
-                currentUser.getAuthority().toString().toLowerCase());
+                currentUser.getSelectedRole().toString(),
+                currentUser.getPhone(), currentUser.getEmail());
     }
 
     @GetMapping("/users/{nric}")
@@ -54,7 +54,7 @@ public class UserController {
 
     @GetMapping("/users/{nric}/records")
     public PagedResponse<RecordResponse> getRecordsCreatedBy(@PathVariable(value = "nric") String nric,
-                                                             @CurrentUser UserPrincipal currentUser,
+                                                             @CurrentUser User currentUser,
                                                              @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                              @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getRecordsCreatedBy(nric, currentUser, page, size);

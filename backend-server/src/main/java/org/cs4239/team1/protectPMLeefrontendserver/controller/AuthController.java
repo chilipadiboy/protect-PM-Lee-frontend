@@ -52,7 +52,7 @@ public class AuthController {
                 new NricPasswordRoleAuthenticationToken(
                         loginRequest.getNric(),
                         loginRequest.getPassword(),
-                        loginRequest.getRole()
+                        Role.create(loginRequest.getRole())
                 )
         );
 
@@ -85,8 +85,7 @@ public class AuthController {
                 Gender.valueOf(signUpRequest.getGender().toUpperCase()),
                 passwordEncoder.encode(signUpRequest.getPassword()),
                 new HashSet<>(signUpRequest.getRoles().stream()
-                        .map(String::toUpperCase)
-                        .map(Role::valueOf)
+                        .map(Role::create)
                         .collect(Collectors.toList()))
         );
 

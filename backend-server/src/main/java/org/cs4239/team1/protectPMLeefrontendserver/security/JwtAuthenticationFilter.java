@@ -7,15 +7,18 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.JwtException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -38,8 +41,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             String nric = tokenProvider.getNricFromJWT(jwt);
-            String role = tokenProvider.getRole(jwt);
-            UserDetails userDetails = customUserDetailsService.loadUser(nric, role);
+            Role role = Role.create(tokenProvider.getRole(jwt));
+            User userDetails = customUserDetailsService.loadUserByUsername(nric);
+
+            if (!userDetails.hasRole(role)) {
+                throw new JwtException("Invalid role.");
+            }
+
+            userDetails.setSelectedRole(role);
+
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
