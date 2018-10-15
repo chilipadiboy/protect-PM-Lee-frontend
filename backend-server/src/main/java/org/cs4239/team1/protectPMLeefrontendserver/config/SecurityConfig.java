@@ -80,14 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .permitAll()
                     .antMatchers("/api/admin/**")
                         .hasRole("ADMINISTRATOR")
-                    .antMatchers("/api/permissions/permit/**")
-                        .hasRole("PATIENT")
-                    .antMatchers("/api/permissions/revoke/**")
-                        .hasRole("PATIENT")
-                    .antMatchers("/api/permissions/therapist/allowed/")
-                        .hasRole("THERAPIST")
-                    .antMatchers("/api/permissions/patient/given/")
-                        .hasRole("PATIENT")
+
                     .anyRequest()
                         .authenticated();
 
