@@ -1,3 +1,6 @@
+healthcare-app-client/package-lock.json
+healthcare-app-client/yarn.lock
+
 .DS_Store
 backend-server/.gradle/*
 backend-server/out/*
