@@ -11,7 +11,6 @@ import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
 import MFA from '../user/login/MFA';
-import Signup from '../user/signup/Signup';
 import CreateRecord from '../user/records/CreateRecord';
 import MyRecords from '../user/records/MyRecords';
 import AllRecords from '../user/records/AllRecords';
@@ -127,7 +126,6 @@ class App extends Component {
                   </Route>
                   <Route path="/login"
                     render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
-                  <Route path="/signup" component={Signup}></Route>
                   <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
                   <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/logs" component={Administrator_logs}></AdministratorRoute>
                   <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={Administrator_manage_users}></AdministratorRoute>
@@ -160,7 +158,6 @@ class App extends Component {
                   </Route>
                   <Route path="/login"
                     render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
-                  <Route path="/signup" component={Signup}></Route>
                   <Route component={NotFound}></Route>
                 </Switch>
               </div>
