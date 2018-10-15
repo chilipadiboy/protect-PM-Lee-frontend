@@ -78,3 +78,17 @@ export function getUserRecords(nric, role) {
         method: 'GET'
     });
 }
+
+export function getAllUsers() {
+    return request({
+        url: API_BASE_URL + "/admin/showAllUsers",
+        method: 'GET'
+    });
+}
+
+export function deleteUser(nric) {
+    return request({
+        url: API_BASE_URL + "/admin/delete/" + nric,
+        method: 'GET'
+    });
+}
