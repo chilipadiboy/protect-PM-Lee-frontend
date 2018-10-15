@@ -14,16 +14,14 @@ class UploadFile extends Component {
     fileList = fileList.map((file) => {
       if (file.response) {
         // Component will show file.url as link
-        file.url = file.response.url;
+        file.url = file.response.message;
       }
       return file;
     });
 
     // 3. Filter successfully uploaded files according to response from server
     fileList = fileList.filter((file) => {
-      if (file.response) {
-        return file.response.status === 'success';
-      } else {
+      if (!file.success==="true") {
         console.log("error")
       }
       return true;
