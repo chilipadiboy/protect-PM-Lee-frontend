@@ -3,8 +3,9 @@ import {
     Link,
     withRouter
 } from 'react-router-dom';
-import { Button, Layout, Table, Icon } from 'antd';
+import { Button, Layout, Table, Icon, notification } from 'antd';
 import './Manageusers.css';
+import { getAllUsers, deleteUser } from '../../util/APIUtils';
 
 class AddUserButton extends Component {
   render() {
@@ -20,22 +21,60 @@ class Administrator_manage_users extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: this.props.currentUser,
-            isLoading: false
+            data: []
         }
+        this.loadAllUsers = this.loadAllUsers.bind(this);
+        this.onDelete = this.onDelete.bind(this);
+    }
+
+    loadAllUsers() {
+        getAllUsers()
+        .then(data =>
+          this.setState({ data }))
+        .catch(error => {
+            if(error.status === 404) {
+                this.setState({
+                    notFound: true,
+                });
+            } else {
+                this.setState({
+                    serverError: true,
+                });
+            }
+        });
+    }
+
+    onDelete(index) {
+      deleteUser(index.nric)
+      .then(response => {
+          notification.success({
+              message: 'Healthcare App',
+              description: "You've successfully deleted a user!",
+          });
+          window.location.reload();
+      }).catch(error => {
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+      });
+    }
+
+    componentDidMount() {
+        this.loadAllUsers();
     }
 
     render() {
         const { Header, Content } = Layout;
 
         const users_columns = [{
-          title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
-        }, {
           title: 'NRIC',
           dataIndex: 'nric',
           key: 'nric',
+        }, {
+          title: 'Name',
+          dataIndex: 'name',
+          key: 'name',
         }, {
           title: 'Role',
           dataIndex: 'role',
@@ -51,43 +90,11 @@ class Administrator_manage_users extends Component {
         }, {
           title: 'Remove?',
           key: 'remove',
-          render: text => <a href="#">
-                            <Icon type="user-delete" />
-                          </a>
-        }];
-
-        const requests_columns = [{
-          title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
-        }, {
-          title: 'NRIC',
-          dataIndex: 'nric',
-          key: 'nric',
-        }, {
-          title: 'Role',
-          dataIndex: 'role',
-          key: 'role',
-        }, {
-          title: 'Phone number',
-          dataIndex: 'phone',
-          key: 'phone',
-        }, {
-          title: 'Email',
-          dataIndex: 'email',
-          key: 'email',
-        }, {
-          title: 'Action',
-          key: 'action',
-          render: text =>
-            <span>
-              <a href="#">
-                <Icon type="check-circle-o" />
-              </a>
-              <a href="#">
-                <Icon type="close-circle" />
-              </a>
-            </span>
+          render: (index) => {
+            return (
+              <Button onClick={(e) => { e.stopPropagation(); this.onDelete(index); } } icon="user-delete"></Button>
+            )
+          }
         }];
 
         return (
@@ -96,9 +103,7 @@ class Administrator_manage_users extends Component {
                   <div className="usertitle">
                     Users&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<AddUserButton />
                   </div>
-                  <Table columns={users_columns} />
-                  <div className="requesttitle">Requests</div>
-                  <Table columns={requests_columns} />
+                  <Table dataSource={this.state.data} columns={users_columns}/>
                 </Content>
               </Layout>
         );
