@@ -18,17 +18,4 @@ public class PermissionId implements Serializable {
     @Column(name = "nric")
     public String nric;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PermissionId that = (PermissionId) o;
-        return Objects.equals(recordId, that.recordId) &&
-                Objects.equals(nric, that.nric);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(recordId, nric);
-    }
 }

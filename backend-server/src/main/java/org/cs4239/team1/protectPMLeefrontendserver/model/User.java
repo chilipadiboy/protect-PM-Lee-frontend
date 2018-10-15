@@ -1,6 +1,5 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -10,6 +9,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
@@ -27,8 +27,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-
-
 
 @Getter
 @NoArgsConstructor

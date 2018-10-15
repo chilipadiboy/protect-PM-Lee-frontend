@@ -18,7 +18,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "Permission")
+@Entity
 @Table(name = "permissions")
 public class Permission extends UserDateAudit {
 

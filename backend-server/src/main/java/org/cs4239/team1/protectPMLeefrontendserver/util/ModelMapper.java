@@ -8,14 +8,12 @@ public class ModelMapper {
 
     public static RecordResponse mapRecordToRecordResponse(Record record, User therapist) {
 
-        RecordResponse recordResponse = new RecordResponse();
-
-        recordResponse.setRecordID(record.getRecordID());
-        recordResponse.setType(record.getType());
-        recordResponse.setSubtype(record.getSubtype());
-        recordResponse.setTitle(record.getTitle());
-        recordResponse.setDocument(record.getDocument());
-        recordResponse.setPatientIC(record.getPatientIC());
+        RecordResponse recordResponse = new RecordResponse(record.getRecordID(),
+                record.getType(),
+                record.getSubtype(),
+                record.getTitle(),
+                record.getDocument(),
+                record.getPatientIC());
 
         return recordResponse;
     }

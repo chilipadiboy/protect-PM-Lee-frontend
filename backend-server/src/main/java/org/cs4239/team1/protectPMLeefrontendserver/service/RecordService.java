@@ -28,11 +28,16 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.time.ZoneOffset.UTC;
 
 @Service
 public class RecordService {
@@ -118,13 +123,12 @@ public class RecordService {
     }
 
     public Record createRecord(RecordRequest recordRequest) {
-        Record record = new Record();
-
-        record.setType(recordRequest.getType());
-        record.setSubtype(recordRequest.getSubtype());
-        record.setTitle(recordRequest.getTitle());
-        record.setDocument(recordRequest.getDocument());
-        record.setPatientIC(recordRequest.getPatientIC());
+        Record record = new Record(recordRequest.getType(),
+                recordRequest.getSubtype(),
+                recordRequest.getTitle(),
+                recordRequest.getDocument(),
+                recordRequest.getPatientIC()
+        );
 
         return recordRepository.save(record);
     }
@@ -155,10 +159,14 @@ public class RecordService {
             throw new BadRequestException("You do not have permission to grant record " + record.getRecordID());
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        Period months = Period.ofMonths(permissionRequest.getMonths());
-        Period days = Period.ofDays(permissionRequest.getDays());
-        Instant expirationDateTime = now.plus(months).plus(days).toInstant(ZoneOffset.UTC);
+        String date = permissionRequest.getDate() + " 23:59:59";
+System.out.println(date);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        TemporalAccessor temporalAccessor = formatter.parse(date);
+System.out.println(1);
+        LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC);
+        Instant expirationDateTime = Instant.from(zonedDateTime);
 
         Permission permission = new Permission(record,user, expirationDateTime, patientIC);
 

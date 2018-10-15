@@ -11,7 +11,5 @@ public class PermissionRequest {
 
     private String nric;
 
-    private int months;
-
-    private int days;
+    private String date;
 }
