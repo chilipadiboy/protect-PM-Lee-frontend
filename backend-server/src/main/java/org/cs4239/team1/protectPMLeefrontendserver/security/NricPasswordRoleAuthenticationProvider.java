@@ -1,41 +1,35 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
+import java.security.GeneralSecurityException;
 import java.util.Collections;
 
-import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class NricPasswordRoleAuthenticationProvider implements AuthenticationProvider {
-    private PasswordEncoder passwordEncoder;
-    private CustomUserDetailsService userDetailsService;
+    private UserAuthentication userAuthentication;
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        NricPasswordRoleAuthenticationToken auth = (NricPasswordRoleAuthenticationToken) authentication;
+        NricPasswordRoleAuthenticationToken authToken = (NricPasswordRoleAuthenticationToken) authentication;
 
-        String presentedNric = auth.getName();
-        String presentedPassword = auth.getCredentials().toString();
-        Role presentedRole = auth.getRole();
+        try {
+            User loadedUser = userAuthentication.authenticate(authToken.getName(),
+                    authToken.getCredentials().toString(),
+                    authToken.getRole());
 
-        User loadedUser = userDetailsService.loadUserByUsername(presentedNric);
-
-        if (!passwordEncoder.matches(presentedPassword, loadedUser.getPassword())
-                || !loadedUser.hasRole(presentedRole)) {
+            return new UsernamePasswordAuthenticationToken(loadedUser, loadedUser.getPassword(),
+                    Collections.singletonList(new SimpleGrantedAuthority(loadedUser.getSelectedRole().name())));
+        } catch (GeneralSecurityException gse) {
             throw new BadCredentialsException("Bad credentials.");
         }
-
-        loadedUser.setSelectedRole(presentedRole);
-        return new UsernamePasswordAuthenticationToken(loadedUser, presentedPassword,
-                Collections.singletonList(new SimpleGrantedAuthority(presentedRole.name())));
     }
 
     @Override
