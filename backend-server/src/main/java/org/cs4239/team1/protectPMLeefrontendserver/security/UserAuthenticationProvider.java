@@ -17,12 +17,12 @@ import com.google.crypto.tink.subtle.Ed25519Verify;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class NricPasswordRoleAuthenticationProvider implements AuthenticationProvider {
+public class UserAuthenticationProvider implements AuthenticationProvider {
     private UserAuthentication userAuthentication;
 
     @Override
     public Authentication authenticate(Authentication authentication) {
-        NricPasswordRoleAuthenticationToken authToken = (NricPasswordRoleAuthenticationToken) authentication;
+        UserAuthenticationToken authToken = (UserAuthenticationToken) authentication;
         User loadedUser = authenticate(authToken);
 
         return new UsernamePasswordAuthenticationToken(loadedUser, loadedUser.getPassword(),
@@ -31,14 +31,14 @@ public class NricPasswordRoleAuthenticationProvider implements AuthenticationPro
 
     @Override
     public boolean supports(Class<?> auth) {
-        return auth.equals(NricPasswordRoleAuthenticationToken.class);
+        return auth.equals(UserAuthenticationToken.class);
     }
 
     /**
      * Returns the {@code User} with the credentials of {@code authToken} if such a user exists.
      * Throws {@code BadCredentialsException} otherwise.
      */
-    private User authenticate(NricPasswordRoleAuthenticationToken authToken) {
+    private User authenticate(UserAuthenticationToken authToken) {
         String presentedNric = authToken.getName();
         String presentedPassword = authToken.getCredentials().toString();
         Role presentedRole = authToken.getRole();

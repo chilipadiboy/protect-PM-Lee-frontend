@@ -20,8 +20,8 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRespon
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
-import org.cs4239.team1.protectPMLeefrontendserver.security.NricPasswordRoleAuthenticationToken;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
+import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -88,7 +88,7 @@ public class AuthController {
     @PostMapping("/secondAuthorization")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new NricPasswordRoleAuthenticationToken(
+                new UserAuthenticationToken(
                         loginRequest.getNric(),
                         loginRequest.getPassword(),
                         Role.create(loginRequest.getRole()),

@@ -7,12 +7,12 @@ import lombok.Getter;
 
 @Getter
 //TODO: Dangerous as some super methods aren't overwritten.
-public class NricPasswordRoleAuthenticationToken extends UsernamePasswordAuthenticationToken {
+public class UserAuthenticationToken extends UsernamePasswordAuthenticationToken {
     private Role role;
     private byte[] signature;
     private byte[] data;
 
-    public NricPasswordRoleAuthenticationToken(Object principal, Object credentials, Role role,
+    public UserAuthenticationToken(Object principal, Object credentials, Role role,
             byte[] signature, byte[] data) {
         super(principal, credentials);
         this.role = role;
