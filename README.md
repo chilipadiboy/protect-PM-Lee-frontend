@@ -12,4 +12,7 @@ To run with HTTPS:
 1. `HTTPS=true npm start`
 
 ### Backend
-To run the server, go to the backend directory and run `gradlew.bat bootRun` (or `./gradlew bootRun` for Mac/Linux).
+To run the server, go to the backend directory and run: 
+1. `gradlew.bat build` (or `./gradlew build` for Mac/Linux).
+1. Navigate to `build/libs` directory.
+1. Execute the command in our secret place :>
