@@ -92,3 +92,10 @@ export function deleteUser(nric) {
         method: 'GET'
     });
 }
+
+export function downloadFile(filename) {
+    return request({
+        url: API_BASE_URL + "/file/download/" + filename,
+        method: 'GET'
+    });
+}
