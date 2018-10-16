@@ -4,6 +4,7 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.google.crypto.tink.subtle.Ed25519Sign;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -60,6 +64,38 @@ public class AuthController {
 
     @Value("${app.privateKey}")
     private String privateKey;
+
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
+
+    @Value("${app.jwtExpirationInMs}")
+    private int jwtExpirationInMs;
+
+    @PostMapping("/signin")
+    @Deprecated
+    //TODO: Remove this method in release
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request) {
+        try {
+            User user = userAuthentication.authenticate(request.getNric(),
+                    request.getPassword(),
+                    Role.create(request.getRole()));
+
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+            String jwt = Jwts.builder()
+                    .setSubject(user.getUsername())
+                    .claim("role", user.getSelectedRole().toString())
+                    .setIssuedAt(new Date())
+                    .setExpiration(expiryDate)
+                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                    .compact();
+
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        } catch (GeneralSecurityException gse) {
+            throw new BadCredentialsException("Bad credentials.");
+        }
+    }
 
     @PostMapping("/firstAuthorization")
     public ServerSignatureResponse getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
@@ -86,7 +122,7 @@ public class AuthController {
     }
 
     @PostMapping("/secondAuthorization")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UserAuthenticationToken(
                         loginRequest.getNric(),
