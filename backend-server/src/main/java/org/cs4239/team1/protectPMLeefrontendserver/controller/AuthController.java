@@ -61,22 +61,6 @@ public class AuthController {
     @Value("${app.privateKey}")
     private String privateKey;
 
-    @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new NricPasswordRoleAuthenticationToken(
-                        loginRequest.getNric(),
-                        loginRequest.getPassword(),
-                        Role.create(loginRequest.getRole())
-                )
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
-    }
-
     @PostMapping("/firstAuthorization")
     public ServerSignatureResponse getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
         try {
@@ -101,6 +85,23 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/secondAuthorization")
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new NricPasswordRoleAuthenticationToken(
+                        loginRequest.getNric(),
+                        loginRequest.getPassword(),
+                        Role.create(loginRequest.getRole()),
+                        Base64.getDecoder().decode(loginRequest.getSignature()),
+                        Base64.getDecoder().decode(loginRequest.getData())
+                )
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
