@@ -1,17 +1,21 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,6 +58,20 @@ public class FileController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @GetMapping("/downloadBytes/{fileName:.+}")
+    public ResponseEntity<byte[]> downloadFileBytes(@PathVariable String fileName) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            InputStream in = fileStorageService.loadFileAsResource(fileName).getInputStream();
+            byte[] media = IOUtils.toByteArray(in);
+            headers.setCacheControl(CacheControl.noCache().getHeaderValue());
+
+            return new ResponseEntity<>(media, headers, HttpStatus.OK);
+        } catch (IOException ioe) {
+            throw new AssertionError("Should not happen.");
+        }
     }
 
     @GetMapping("/downloadAllPaths")
