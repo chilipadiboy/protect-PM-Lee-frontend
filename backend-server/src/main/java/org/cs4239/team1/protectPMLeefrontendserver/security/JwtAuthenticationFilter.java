@@ -42,17 +42,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String nric = tokenProvider.getNricFromJWT(jwt);
+            String nric = tokenProvider.getNric(jwt);
             Role role = Role.create(tokenProvider.getRole(jwt));
-            User userDetails = customUserDetailsService.loadUserByUsername(nric);
+            int sessionId = tokenProvider.getSessionId(jwt);
+            User user = customUserDetailsService.loadUserByUsername(nric);
 
-            if (!userDetails.hasRole(role)) {
-                throw new JwtException("Invalid role.");
+            if (!user.hasRole(role) || sessionId != request.getIntHeader("Session-Id")) {
+                throw new JwtException("Invalid JWT.");
             }
 
-            userDetails.setSelectedRole(role);
+            user.setSelectedRole(role);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -46,7 +46,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getNricFromJWT(String token) {
+    public String getNric(String token) {
         return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
@@ -61,6 +61,14 @@ public class JwtTokenProvider {
                 .getBody()
                 .get(ROLE, String.class)
                 .toUpperCase();
+    }
+
+    public int getSessionId(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody()
+                .get(SESSION_ID, Integer.class);
     }
 
     public boolean validateToken(String authToken) {
