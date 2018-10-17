@@ -1,8 +1,59 @@
 import React, { Component } from 'react';
 import './CSVtoGraph.css';
+import Papa from 'papaparse';
+import c3 from 'c3';
+import * from 'd3';
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries} from 'react-vis';
 
-const API_URL = "";
+const DATA_URL = "../sample-data/sample.csv";
+
+function createGraph(data) {
+  	var years = [];
+  	var silverMinted = ["Silver Minted"];
+
+  	for (var i = 1; i < data.length; i++) {
+  		years.push(data[i][0]);
+  		silverMinted.push(data[i][2]);
+  	}
+
+  	console.log(years);
+  	console.log(silverMinted);
+
+  	var chart = c3.generate({
+  	    data: {
+  	        columns: [
+  	        	silverMinted
+  	        ]
+  	    },
+  	    axis: {
+  	        x: {
+  	            type: 'category',
+  	            categories: years,
+  	            tick: {
+  	            	multiline: false,
+                  	culling: {
+                      	max: 15
+                  	}
+              	}
+  	        }
+  	    },
+  	    zoom: {
+          	enabled: true
+      	},
+  	    legend: {
+  	        position: 'right'
+  	    }
+  	});
+}
+
+function parseData() {
+	  Papa.parse(DATA_URL, {
+		    download: true,
+		    complete: function(results) {
+			       createGraph(results.data);
+		    }
+	  });
+}
 
 class Chart extends Component {
     constructor(props) {
@@ -32,20 +83,21 @@ class Chart extends Component {
     render() {
       const {results} = this.state;
       return (
-            <XYPlot
-                width={1000}
-                height={500}>
-                <VerticalGridLines />
-                <HorizontalGridLines />
-                <XAxis />
-                <YAxis />
-                <LineSeries
-                    data={[
-                        {x: 1, y: 4},
-                        {x: 5, y: 2},
-                        {x: 15, y: 6}
-                    ]}/>
-            </XYPlot>
+            <parseData />
+            // <XYPlot
+            //     width={1000}
+            //     height={500}>
+            //     <VerticalGridLines />
+            //     <HorizontalGridLines />
+            //     <XAxis />
+            //     <YAxis />
+            //     <LineSeries
+            //         data={[
+            //             {x: 1, y: 4},
+            //             {x: 5, y: 2},
+            //             {x: 15, y: 6}
+            //         ]}/>
+            // </XYPlot>
         );
       /* const Chart = (props) => {
 
@@ -69,7 +121,7 @@ class Chart extends Component {
                     </XYPlot>
                   );
                 } */
-          }
       }
+}
 
 export default Chart;
