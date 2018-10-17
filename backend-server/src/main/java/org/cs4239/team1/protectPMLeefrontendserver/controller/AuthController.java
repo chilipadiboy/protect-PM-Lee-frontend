@@ -3,6 +3,8 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
@@ -76,7 +78,7 @@ public class AuthController {
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
-    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request) {
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, HttpServletResponse response) {
         try {
             User user = userAuthentication.authenticate(request.getNric(),
                     request.getPassword(),
@@ -85,8 +87,11 @@ public class AuthController {
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
+            int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
+
             String jwt = Jwts.builder()
                     .setSubject(user.getUsername())
+                    .claim("session_id", sessionId)
                     .claim("role", user.getSelectedRole().toString())
                     .setIssuedAt(new Date())
                     .setExpiration(expiryDate)
@@ -96,6 +101,11 @@ public class AuthController {
             Cookie newCookie = new Cookie("testCookie", jwt);
             newCookie.setPath("/api");
             newCookie.setHttpOnly(true);
+            response.addCookie(newCookie);
+
+            //TODO: set cookie to secure for production when we have https up
+            //newCookie.setSecure(true);
+
             response.addCookie(newCookie);
 
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
@@ -142,16 +152,24 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = tokenProvider.generateToken(authentication);
-        Cookie newCookie = new Cookie("testCookie", jwt);
-        newCookie.setPath("/api");
-        newCookie.setHttpOnly(true);
+        try {
+            int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
+            String jwt = tokenProvider.generateToken(sessionId, authentication);
 
-        //TODO: set cookie to secure for production when we have https up
-        //newCookie.setSecure(true);
-        response.addCookie(newCookie);
+            Cookie newCookie = new Cookie("testCookie", jwt);
+            newCookie.setPath("/api");
+            newCookie.setHttpOnly(true);
+            response.addCookie(newCookie);
 
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            //TODO: set cookie to secure for production when we have https up
+            //newCookie.setSecure(true);
+
+            response.addCookie(newCookie);
+
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        } catch (NoSuchAlgorithmException nsae) {
+            throw new AssertionError("Algorithm should exist.");
+        }
     }
 
     @PostMapping("/signup")

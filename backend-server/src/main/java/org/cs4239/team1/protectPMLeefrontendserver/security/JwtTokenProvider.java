@@ -20,7 +20,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-    public static final String ROLE = "role";
+    private static final String ROLE = "role";
+    private static final String SESSION_ID = "session_id";
 
     @Value("${app.jwtSecret}")
     private String jwtSecret;
@@ -28,7 +29,7 @@ public class JwtTokenProvider {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(int sessionId, Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
 
@@ -37,6 +38,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
+                .claim(SESSION_ID, sessionId)
                 .claim(ROLE, user.getSelectedRole().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
