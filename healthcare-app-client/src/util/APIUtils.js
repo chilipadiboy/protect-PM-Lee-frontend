@@ -63,9 +63,17 @@ export function login(loginRequest) {
     });
 }
 
-export function loginWithTag(loginRequest) {
+export function getServerSignature(loginRequest) {
     return request({
-        url: API_BASE_URL + "/auth/signinWithTag",
+        url: API_BASE_URL + "/auth/firstAuthorization",
+        method: 'POST',
+        body: JSON.stringify(loginRequest)
+    });
+}
+
+export function verifyTagSignature(loginRequest) {
+    return request({
+        url: API_BASE_URL + "/auth/secondAuthorization",
         method: 'POST',
         body: JSON.stringify(loginRequest)
     });

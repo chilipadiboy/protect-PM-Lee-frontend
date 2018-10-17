@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { login, loginWithTag } from '../../util/APIUtils';
+import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
 import { Link } from 'react-router-dom';
 import { AUTH_TOKEN } from '../../constants';
@@ -9,19 +9,15 @@ import {sign, hash} from 'tweetnacl';
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-/*from MFA*/
 const messageHashLength = 64;
 const signatureLength = 64;
-const pubKeyLength = 32;
-const keyPair = sign.keyPair();
-//this should be retrieved from the server as
-// {publicKey: Uint8Array(32), secretKey: Uint8Array(32)}
+const writeUid = "00002222";
+const readUid = "00002221";
+const disconUid = "00002223";
+
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
-var tagMessageHash = new Uint8Array(64);
-var tagSignature = new Uint8Array(64);
-var tagPublicKey = new Uint8Array(32);
 
 
 class Login extends Component {
@@ -72,13 +68,13 @@ class LoginForm extends Component {
          })
          .then(charArray => {
            for (let char of charArray) {
-             if (char.properties.write === true && char.uuid.startsWith("00002222")) {
+             if (char.properties.write === true && char.uuid.startsWith(writeUid)) {
                writeChar = char;
              }
-             if (char.properties.read === true && char.uuid.startsWith("00002221")) {
+             if (char.properties.read === true && char.uuid.startsWith(readUid)) {
                readChar = char;
              }
-             if (char.uuid.startsWith("00002223")) {
+             if (char.uuid.startsWith(disconUid)) {
                disconnectChar = char;
              }
            }
@@ -87,13 +83,10 @@ class LoginForm extends Component {
                password: context.state.password.value,
                role: context.state.role.value,
            };
-           loginWithTag(loginRequest)
+           getServerSignature(loginRequest)
            .then(response => {
-               //return the signature and message and nonce.
-               localStorage.setItem(AUTH_TOKEN, response.accessToken);
-               console.log(response.signature);
                let signature = convertStrToUint8Array(response.signature);
-               let messageHash = convertStrToUint8Array(response.message);
+               let messageHash = convertStrToUint8Array(response.messageHash);
                let stringEnder = encoder.encode("//");
                let sendMsg = concatenate(Uint8Array, messageHash, signature, stringEnder);
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
@@ -101,15 +94,60 @@ class LoginForm extends Component {
                var prevPromise = Promise.resolve();
                for (let i=0; i< numOfChunks; i++) {
                   prevPromise = prevPromise.then(function() {
-                    if (!deviceConnected.gatt.connected) {
-                      deviceConnected.gatt.connect();
-                    }
                     return writeChar.writeValue(msgChunks[i]).then(function() {
                       if (i === numOfChunks-1) {
-                          dis(disconnectChar);
-                          context.props.onLogin();
-                        }
+                        wait(11000);
+                          var prevWhilePromise = Promise.resolve();
+                          for (let j=0; j< 8; j++) {
+                             prevWhilePromise = prevWhilePromise.then(function() {
+                               return readChar.readValue().then(value => {
+                                 let valueRec = new Uint8Array(value.buffer);
+                                 if (valueRec[0]==48 && valueRec[1]==48 && j==0) {
+                                   context.setState({isLoading: false});
+                                   dis(disconnectChar);
+                                   openNotificationError(0);
+                                 }
+                                 if (valueRec[0]==33 && valueRec[1]==33) {
+                                   context.setState({isLoading: false});
+                                   dis(disconnectChar);
+                                   openNotificationError(1);
+                                 }
+                                 for (let i=0; i<value.buffer.byteLength; i++) {
+                                   valueRecArray.push(valueRec[i]);
+                                 }
+                                 let ack = "ACK" + j;
+                                 ack = encoder.encode(ack);
+                                 return writeChar.writeValue(ack).then(function() {
+                                   if (j==7) {
+                                     dis(disconnectChar);
+                                     let reqToSend = getTagSigAndMsg();
+                                     Object.assign(reqToSend, loginRequest);
+                                     verifyTagSignature(reqToSend)
+                                      .then(response => {
+                                        localStorage.setItem(AUTH_TOKEN, response.accessToken);
+                                        context.setState({isLoading: false});
+                                        context.props.onLogin();
+                                      }).catch(error => {
+                                        context.setState({isLoading: false});
+                                        notification.error({
+                                            message: 'Healthcare App',
+                                            description: error.message || 'Sorry! Something went wrong. Please try again!'
+                                        });
+                                      })
+                                   }
+                                 })
+                               })
+                             })
+                           }
+                         }
                       })
+                    }).catch(error => {
+                      if (!deviceConnected.gatt.connected) {
+                        notification.error({
+                            message: 'Healthcare App',
+                            description: 'Device disconnected!'
+                        });
+                      }
                     })
                   }
                 }).catch(error => {
@@ -126,6 +164,12 @@ class LoginForm extends Component {
                         });
                     }
                 })
+            }).catch(error => {
+               context.setState({isLoading: false});
+               notification.error({
+                   message: 'Healthcare App',
+                   description: error.message || 'Sorry! Something went wrong. Please try again!'
+               });
             })
          }
 
@@ -220,6 +264,20 @@ class LoginForm extends Component {
     }
 }
 
+function openNotificationError(type) {
+  if (type==0) {
+    notification["error"]({
+     message: 'Healthcare App',
+     description: 'Connection timed out',
+   });
+  } else {
+    notification["error"]({
+     message: 'Healthcare App',
+     description: 'Failed to identify you, please try again.',
+   });
+  }
+}
+
 function convertStrToUint8Array(str) {
   var binary_string =  window.atob(str);
   var len = binary_string.length;
@@ -238,18 +296,24 @@ function convertUint8ArrayToStr(arr) {
 
 function getTagSigAndMsg() {
   let i,j;
+  let tagMessageHash = new Uint8Array(64);
+  let tagSignature = new Uint8Array(64);
+  let tagPublicKey = new Uint8Array(32);
 
   for(i=0, j=0; i<messageHashLength && j<messageHashLength; i++, j++) {
     tagMessageHash[j] = valueRecArray[i];
   }
+  let messageStr = convertUint8ArrayToStr(tagMessageHash);
 
   for(i=i, j=0; i<messageHashLength+signatureLength && j<signatureLength; i++, j++) {
     tagSignature[j] = valueRecArray[i];
   }
+  let sigStr = convertUint8ArrayToStr(tagSignature);
 
-  tagMessageHash = new Uint8Array(64);
-  tagSignature = new Uint8Array(64);
-  tagPublicKey = new Uint8Array(32);
+
+
+  return {signature: sigStr, data: messageStr};
+
 }
 
 
