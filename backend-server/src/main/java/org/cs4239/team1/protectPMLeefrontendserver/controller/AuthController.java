@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
@@ -91,6 +93,11 @@ public class AuthController {
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
 
+            Cookie newCookie = new Cookie("testCookie", jwt);
+            newCookie.setPath("/api");
+            newCookie.setHttpOnly(true);
+            response.addCookie(newCookie);
+
             return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
         } catch (GeneralSecurityException gse) {
             throw new BadCredentialsException("Bad credentials.");
@@ -122,7 +129,7 @@ public class AuthController {
     }
 
     @PostMapping("/secondAuthorization")
-    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UserAuthenticationToken(
                         loginRequest.getNric(),
@@ -136,6 +143,14 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = tokenProvider.generateToken(authentication);
+        Cookie newCookie = new Cookie("testCookie", jwt);
+        newCookie.setPath("/api");
+        newCookie.setHttpOnly(true);
+
+        //TODO: set cookie to secure for production when we have https up
+        //newCookie.setSecure(true);
+        response.addCookie(newCookie);
+
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
 
