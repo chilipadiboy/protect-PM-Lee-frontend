@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class JwtAuthenticationResponse {
-    public static final String tokenType = "Bearer";
-    private String accessToken;
+public class SessionIdResponse {
+    private int sessionId;
 }

@@ -18,10 +18,10 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.JwtAuthenticationResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.LoginRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.SessionIdResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
@@ -108,7 +108,7 @@ public class AuthController {
 
             response.addCookie(newCookie);
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            return ResponseEntity.ok(new SessionIdResponse(sessionId));
         } catch (GeneralSecurityException gse) {
             throw new BadCredentialsException("Bad credentials.");
         }
@@ -166,7 +166,7 @@ public class AuthController {
 
             response.addCookie(newCookie);
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            return ResponseEntity.ok(new SessionIdResponse(sessionId));
         } catch (NoSuchAlgorithmException nsae) {
             throw new AssertionError("Algorithm should exist.");
         }
