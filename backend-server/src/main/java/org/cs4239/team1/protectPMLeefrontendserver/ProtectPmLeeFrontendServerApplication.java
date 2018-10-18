@@ -57,7 +57,7 @@ public class ProtectPmLeeFrontendServerApplication {
                     "Admin's House",
                     21,
                     Gender.MALE,
-                    passwordEncoder.encode("admin"),
+                    passwordEncoder.encode("administrator"),
                     new HashSet<>(Collections.singletonList(Role.ROLE_ADMINISTRATOR))));
 		};
 	}
