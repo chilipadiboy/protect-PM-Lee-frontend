@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,17 +39,18 @@ public class FileStorageService {
         }
     }
 
-    public String storeFile(MultipartFile file) {
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
-        Path targetLocation = fileStorageLocation.resolve(fileName);
+    public String storeFile(MultipartFile file, String nric) {
+        String cleanedFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String distinctCleanedFileName = nric + "_" + LocalDateTime.now() + "_" + cleanedFileName;
+        Path targetLocation = fileStorageLocation.resolve(distinctCleanedFileName);
 
         try {
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException ex) {
-            throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
+            throw new FileStorageException("Could not store file " + distinctCleanedFileName + ". Please try again!", ex);
         }
 
-        return fileName;
+        return distinctCleanedFileName;
     }
 
     public Resource loadFileAsResource(String fileName) {
