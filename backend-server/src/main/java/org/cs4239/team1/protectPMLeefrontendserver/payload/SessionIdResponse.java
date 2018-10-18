@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class SessionIdResponse {
-    private int sessionId;
+    private String sessionId;
 }

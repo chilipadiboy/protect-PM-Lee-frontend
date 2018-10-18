@@ -30,24 +30,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String jwt = getJwtFromRequest(request);
+            String requestId = request.getHeader("Session-Id");
+            String encryptedJwt = getEncryptedJwtFromRequest(request);
 
-            if (!StringUtils.hasText(jwt) || !tokenProvider.validateToken(jwt)) {
+            if (!StringUtils.hasText(encryptedJwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String jwt = jwtEncryptionDecryptionTool.decrypt(encryptedJwt.getBytes(), requestId);
+
+            if (!tokenProvider.validateToken(jwt)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String nric = tokenProvider.getNric(jwt);
             Role role = Role.create(tokenProvider.getRole(jwt));
-            int sessionId = tokenProvider.getSessionId(jwt);
+            String sessionId = tokenProvider.getSessionId(jwt);
             User user = customUserDetailsService.loadUserByUsername(nric);
 
-            if (!user.hasRole(role) || sessionId != request.getIntHeader("Session-Id")) {
+            if (!user.hasRole(role) || !sessionId.equals(requestId)) {
                 throw new JwtException("Invalid JWT.");
             }
 
@@ -64,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
+    private String getEncryptedJwtFromRequest(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return null;

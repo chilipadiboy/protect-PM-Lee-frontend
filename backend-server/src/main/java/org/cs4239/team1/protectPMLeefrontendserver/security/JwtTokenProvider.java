@@ -29,7 +29,7 @@ public class JwtTokenProvider {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
-    public String generateToken(int sessionId, Authentication authentication) {
+    public String generateToken(String sessionId, Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
 
@@ -63,12 +63,12 @@ public class JwtTokenProvider {
                 .toUpperCase();
     }
 
-    public int getSessionId(String token) {
+    public String getSessionId(String token) {
         return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody()
-                .get(SESSION_ID, Integer.class);
+                .get(SESSION_ID, String.class);
     }
 
     public boolean validateToken(String authToken) {

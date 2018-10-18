@@ -3,7 +3,6 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
@@ -24,6 +23,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRespon
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SessionIdResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.security.JwtEncryptionDecryptionTool;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
@@ -66,6 +66,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    @Autowired
+    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+
     @Value("${app.privateKey}")
     private String privateKey;
 
@@ -89,26 +92,30 @@ public class AuthController {
 
             int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
 
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = Jwts.builder()
                     .setSubject(user.getUsername())
-                    .claim("session_id", sessionId)
+                    .claim("session_id", iv)
                     .claim("role", user.getSelectedRole().toString())
                     .setIssuedAt(new Date())
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
+            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
 
-            Cookie newCookie = new Cookie("testCookie", jwt);
+            String cookieValue = Base64.getEncoder().encodeToString(encrypted);
+            Cookie newCookie = new Cookie("testCookie", cookieValue);
             newCookie.setPath("/api");
             newCookie.setHttpOnly(true);
-            response.addCookie(newCookie);
 
             //TODO: set cookie to secure for production when we have https up
             //newCookie.setSecure(true);
 
             response.addCookie(newCookie);
 
-            return ResponseEntity.ok(new SessionIdResponse(sessionId));
+            return ResponseEntity.ok(new SessionIdResponse(iv));
         } catch (GeneralSecurityException gse) {
             throw new BadCredentialsException("Bad credentials.");
         }
@@ -153,22 +160,25 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         try {
-            int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
-            String jwt = tokenProvider.generateToken(sessionId, authentication);
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            String iv = Base64.getEncoder().encodeToString(ivBytes);
+            String jwt = tokenProvider.generateToken(iv, authentication);
+            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
 
-            Cookie newCookie = new Cookie("testCookie", jwt);
+            String cookieValue = Base64.getEncoder().encodeToString(encrypted);
+            Cookie newCookie = new Cookie("testCookie", cookieValue);
             newCookie.setPath("/api");
             newCookie.setHttpOnly(true);
-            response.addCookie(newCookie);
 
             //TODO: set cookie to secure for production when we have https up
             //newCookie.setSecure(true);
 
             response.addCookie(newCookie);
 
-            return ResponseEntity.ok(new SessionIdResponse(sessionId));
-        } catch (NoSuchAlgorithmException nsae) {
-            throw new AssertionError("Algorithm should exist.");
+            return ResponseEntity.ok(new SessionIdResponse(iv));
+        } catch (Exception e) {
+            throw new AssertionError("Should not happen.");
         }
     }
 
