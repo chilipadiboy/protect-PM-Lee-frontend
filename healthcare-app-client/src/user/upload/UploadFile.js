@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Upload, Button, Icon, notification } from 'antd';
 import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
-import { downloadFile, downloadImg } from '../../util/APIUtils'
 
 class UploadFile extends Component {
   state = {
@@ -11,7 +10,6 @@ class UploadFile extends Component {
   handleChange = (info) => {
     let fileList = info.fileList;
 
-    // 2. Read from response and show file link
     fileList = fileList.map((file) => {
       if (file.response) {
         // Component will show file.url as link
@@ -20,7 +18,6 @@ class UploadFile extends Component {
       return file;
     });
 
-    // 3. Filter successfully uploaded files according to response from server
       fileList = fileList.filter((file) => {
         return true;
       });
