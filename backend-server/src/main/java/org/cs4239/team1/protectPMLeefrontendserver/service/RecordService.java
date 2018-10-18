@@ -123,14 +123,12 @@ public class RecordService {
     }
 
     public Record createRecord(RecordRequest recordRequest) {
-        Record record = new Record(recordRequest.getType(),
+
+        return recordRepository.save(new Record(recordRequest.getType(),
                 recordRequest.getSubtype(),
                 recordRequest.getTitle(),
                 recordRequest.getDocument(),
-                recordRequest.getPatientIC()
-        );
-
-        return recordRepository.save(record);
+                recordRequest.getPatientIC()));
     }
 
 
