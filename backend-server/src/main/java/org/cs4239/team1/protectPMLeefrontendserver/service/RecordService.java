@@ -159,11 +159,11 @@ public class RecordService {
             throw new BadRequestException("You do not have permission to grant record " + record.getRecordID());
         }
 
-        String date = permissionRequest.getDate() + " 23:59:59";
-System.out.println(date);
+        String date = permissionRequest.getEndDate() + " 23:59:59";
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         TemporalAccessor temporalAccessor = formatter.parse(date);
-System.out.println(1);
+
         LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC);
         Instant expirationDateTime = Instant.from(zonedDateTime);
