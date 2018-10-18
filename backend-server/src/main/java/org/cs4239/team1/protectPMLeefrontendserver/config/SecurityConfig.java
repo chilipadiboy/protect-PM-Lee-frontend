@@ -7,6 +7,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationPr
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.BeanIds;
@@ -74,6 +75,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .authorizeRequests()
+                    .antMatchers(HttpMethod.OPTIONS, "/**")
+                        .permitAll()
                     .antMatchers("/api/auth/**")
                         .permitAll()
                     .antMatchers("/api/admin/**")
