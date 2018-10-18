@@ -15,6 +15,7 @@ import CreateRecord from '../user/records/CreateRecord';
 import MyRecords from '../user/records/MyRecords';
 import AllRecords from '../user/records/AllRecords';
 import UploadFile from '../user/upload/UploadFile';
+import DownloadFile from '../user/download/DownloadFile';
 import AppHeader from '../common/AppHeader';
 // import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
@@ -133,9 +134,11 @@ class App extends Component {
                   <ResearcherRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/generatedata" component={Researcher_generate_data}></ResearcherRoute>
                   <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/uploaddatabase" component={External_upload_database}></ExternalPartnerRoute>
                   <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></PatientRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></PatientRoute>
+                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></TherapistRoute>
+                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></TherapistRoute>
                   <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload" component={UploadFile}></TherapistRoute>
+                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/download/:filename" component={DownloadFile}></TherapistRoute>
+                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/download/:filename" component={DownloadFile}></PatientRoute>
                   <Route path="/chart" component={Chart}></Route>
 
                   <Route component={NotFound}></Route>

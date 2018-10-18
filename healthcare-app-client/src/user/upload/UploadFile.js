@@ -4,30 +4,23 @@ import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
 
 class UploadFile extends Component {
   state = {
-    fileList: [],
+    fileList: []
   }
 
   handleChange = (info) => {
     let fileList = info.fileList;
 
-    // 2. Read from response and show file link
     fileList = fileList.map((file) => {
       if (file.response) {
         // Component will show file.url as link
-        file.url = file.response.url;
+        file.url = "http://localhost:3000/download/" + file.name;
       }
       return file;
     });
 
-    // 3. Filter successfully uploaded files according to response from server
-    fileList = fileList.filter((file) => {
-      if (file.response) {
-        return file.response.status === 'success';
-      } else {
-        console.log("error")
-      }
-      return true;
-    });
+      fileList = fileList.filter((file) => {
+        return true;
+      });
 
     this.setState({ fileList });
   }
