@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { matchPath } from 'react-router';
 import { getUserRecords } from '../../util/APIUtils';
 import { Layout, Table, Icon } from 'antd';
 import { getAvatarColor } from '../../util/Colors';
@@ -34,16 +35,14 @@ class MyRecords extends Component {
     }
 
     componentDidMount() {
-        const nric = this.props.match.params.nric;
-        const role = this.props.match.params.role;
+        const match = matchPath(this.props.history.location.pathname, {
+          path: '/records/:role/:nric',
+          exact: true,
+          strict: false
+        })
+        const nric = match.params.nric;
+        const role = match.params.role;
         this.loadUserRecords(nric, role);
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if(this.props.match.params.nric !== nextProps.match.params.nric || this.props.match.params.role !== nextProps.match.params.role) {
-            this.loadUserRecords(nextProps.match.params.nric);
-            this.loadUserRecords(nextProps.match.params.role);
-        }
     }
 
     render() {
