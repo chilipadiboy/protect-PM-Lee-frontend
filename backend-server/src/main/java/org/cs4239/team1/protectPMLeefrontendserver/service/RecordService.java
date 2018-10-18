@@ -170,6 +170,12 @@ System.out.println(1);
 
         Permission permission = new Permission(record,user, expirationDateTime, patientIC);
 
+        //update permission expiry if permission has already been granted by deleting old entry
+        if (permissionRepository.findByPermissionID(permission.getPermissionID()) != null){
+            //throw new BadRequestException(record.getRecordID() + " has already been granted");
+            permissionRepository.delete(permission);
+        }
+
         return permissionRepository.save(permission);
     }
 
