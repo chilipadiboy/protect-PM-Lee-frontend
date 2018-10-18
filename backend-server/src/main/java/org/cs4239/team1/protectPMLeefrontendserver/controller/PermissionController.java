@@ -10,7 +10,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
-import org.cs4239.team1.protectPMLeefrontendserver.security.UserPrincipal;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 
@@ -49,7 +48,7 @@ public class PermissionController {
 
     //give permission to view
     @PostMapping("/permit/")
-    public ResponseEntity<?> grantPermission(@Valid @RequestBody PermissionRequest permissionRequest, @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<?> grantPermission(@Valid @RequestBody PermissionRequest permissionRequest, @CurrentUser User currentUser) {
 
         Permission permission = recordService.grantPermission(permissionRequest, currentUser);
 
@@ -64,7 +63,7 @@ public class PermissionController {
 
     //revoke permission to view
     @PostMapping("/revoke/")
-    public ResponseEntity<?> revokePermission(@Valid @RequestBody PermissionRequest permissionRequest, @CurrentUser UserPrincipal currentUser) {
+    public ResponseEntity<?> revokePermission(@Valid @RequestBody PermissionRequest permissionRequest, @CurrentUser User currentUser) {
 
         Permission permission = recordService.revokePermission(permissionRequest, currentUser);
 
@@ -79,7 +78,7 @@ public class PermissionController {
 
     //Get all permissions that currentUser (the therapist) has been allowed to see
     @GetMapping("/therapist/allowed/")
-    public PagedResponse<RecordResponse> getAllowedRecords(@CurrentUser UserPrincipal currentUser,
+    public PagedResponse<RecordResponse> getAllowedRecords(@CurrentUser User currentUser,
                                                            @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                            @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getAllowedRecords(currentUser, page, size);
@@ -87,7 +86,7 @@ public class PermissionController {
 
     //Get all permissions that currentUser(the patient) has granted
     @GetMapping("/patient/given/")
-    public PagedResponse<RecordResponse> getGivenRecords(@CurrentUser UserPrincipal currentUser,
+    public PagedResponse<RecordResponse> getGivenRecords(@CurrentUser User currentUser,
                                                          @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                          @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getGivenRecords(currentUser, page, size);
