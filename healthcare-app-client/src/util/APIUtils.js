@@ -23,6 +23,38 @@ const request = (options) => {
     );
 };
 
+const download = (options) => {
+    const headers = new Headers({
+        'Content-Type': 'image',
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    options = Object.assign({}, defaults, options);
+
+    return fetch(options.url, options)
+    .then(response =>
+        response.arrayBuffer().then((buffer) => {
+    var base64Flag = 'data:image;base64,';
+    var imageStr = arrayBufferToBase64(buffer);
+
+    return base64Flag + imageStr;
+        })
+    );
+};
+
+function arrayBufferToBase64(buffer) {
+  var binary = '';
+  var bytes = [].slice.call(new Uint8Array(buffer));
+
+  bytes.forEach((b) => binary += String.fromCharCode(b));
+
+  return window.btoa(binary);
+};
+
 export function login(loginRequest) {
     return request({
         url: API_BASE_URL + "/auth/signin",
@@ -95,6 +127,13 @@ export function deleteUser(nric) {
 
 export function downloadFile(filename) {
     return request({
+        url: API_BASE_URL + "/file/download/" + filename,
+        method: 'GET'
+    });
+}
+
+export function downloadImg(filename) {
+    return download({
         url: API_BASE_URL + "/file/download/" + filename,
         method: 'GET'
     });
