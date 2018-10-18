@@ -33,7 +33,7 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @PostMapping("/upload")
-    public ApiResponse uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ApiResponse> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileName = fileStorageService.storeFile(file);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -41,7 +41,7 @@ public class FileController {
                 .path(fileName)
                 .toUriString();
 
-        return new ApiResponse(true, fileDownloadUri);
+        return ResponseEntity.ok(new ApiResponse(true, fileDownloadUri));
     }
 
 
