@@ -6,11 +6,12 @@ const request = (options) => {
     })
 
     if(localStorage.getItem(AUTH_TOKEN)) {
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem(AUTH_TOKEN))
+        headers.append('Session-Id', localStorage.getItem(AUTH_TOKEN))
     }
 
     const defaults = {headers: headers};
-    options = Object.assign({}, defaults, options);
+    const cred = {credentials: 'include'};
+    options = Object.assign({}, defaults, options, cred);
 
     return fetch(options.url, options)
     .then(response =>
