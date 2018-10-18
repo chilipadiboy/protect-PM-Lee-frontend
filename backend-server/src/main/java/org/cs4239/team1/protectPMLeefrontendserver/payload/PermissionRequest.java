@@ -10,5 +10,5 @@ public class PermissionRequest {
 
     private String nric;
 
-    private String date;
+    private String endDate;
 }
