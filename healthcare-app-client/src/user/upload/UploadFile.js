@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { Upload, Button, Icon, notification } from 'antd';
 import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
-import { downloadFile } from '../../util/APIUtils'
+import { downloadFile, downloadImg } from '../../util/APIUtils'
 
 class UploadFile extends Component {
   state = {
-    fileList: [],
-    images: []
+    fileList: []
   }
 
   handleChange = (info) => {
@@ -16,27 +15,15 @@ class UploadFile extends Component {
     fileList = fileList.map((file) => {
       if (file.response) {
         // Component will show file.url as link
-        file.url = file.response.message;
+        file.url = "http://localhost:3000/download/" + file.name;
       }
       return file;
     });
 
     // 3. Filter successfully uploaded files according to response from server
-    fileList = fileList.filter((file) => {
-      if (file.response) {
-        downloadFile(file.name)
-        .then(response =>
-          console.log("here1")
-        )
-        .catch(error => {
-            notification.error({
-                message: 'Healthcare App',
-                description: error.message || 'Sorry! Something went wrong. Please try again!'
-            });
-        });
-      }
-      return true;
-    });
+      fileList = fileList.filter((file) => {
+        return true;
+      });
 
     this.setState({ fileList });
   }
