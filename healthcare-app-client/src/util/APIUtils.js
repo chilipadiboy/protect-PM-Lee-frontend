@@ -88,6 +88,13 @@ export function signup(signupRequest) {
     });
 }
 
+export function logout() {
+    return request({
+        url: API_BASE_URL + "/user/logout",
+        method: 'POST',
+    });
+}
+
 export function getCurrentUser() {
     if(!localStorage.getItem(AUTH_TOKEN)) {
         return Promise.reject("No access token set.");

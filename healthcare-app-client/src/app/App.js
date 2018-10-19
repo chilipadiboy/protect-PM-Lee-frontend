@@ -6,7 +6,7 @@ import {
   Switch
 } from 'react-router-dom';
 
-import { getCurrentUser } from '../util/APIUtils';
+import { getCurrentUser, logout } from '../util/APIUtils';
 import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
@@ -61,20 +61,33 @@ class App extends Component {
     });
   }
 
-  handleLogout(redirectTo="/login", notificationType="success", description="You're successfully logged out.") {
-    localStorage.removeItem(AUTH_TOKEN);
+  handleLogout() {
+    logout().then(response => {
+      localStorage.removeItem(AUTH_TOKEN);
+      this.setState({
+        currentUser: null,
+        isAuthenticated: false
+      });
+      this.props.history.push("/login");
+      notification["success"]({
+        message: 'Healthcare App',
+        description: "You're successfully logged out.",
+      });
 
-    this.setState({
-      currentUser: null,
-      isAuthenticated: false
-    });
-
-    this.props.history.push("/");
-
-    notification[notificationType]({
-      message: 'Healthcare App',
-      description: description,
-    });
+    }).catch(error => {
+      console.log("Error here arhh");
+        if(error.status === 401) {
+            notification.error({
+                message: 'Healthcare App',
+                description: 'Your NRIC/Password/Role is/are incorrect. Please try again!'
+            });
+        } else {
+            notification.error({
+                message: 'Healthcare App',
+                description: error.message || 'Sorry! Something went wrong. Please try again!'
+            });
+        }
+      })
   }
 
   handleLogin() {
