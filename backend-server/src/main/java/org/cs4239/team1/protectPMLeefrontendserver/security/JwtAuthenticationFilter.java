@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String requestId = request.getHeader("Session-Id");
+            String requestId = request.getHeader("SessionId");
             String encryptedJwt = getEncryptedJwtFromRequest(request);
 
             if (requestId == null || !StringUtils.hasText(encryptedJwt)) {
