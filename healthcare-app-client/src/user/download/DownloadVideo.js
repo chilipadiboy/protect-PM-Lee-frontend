@@ -69,12 +69,14 @@ class DownloadVideo extends Component {
         window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
         window.requestFileSystem(window.TEMPORARY, 200 * 1024 * 1024, // 200MB
           this.handleInitSuccess);
-        document.querySelector('video').addEventListener('loadedmetadata');
-  }
+        document.querySelector('video').addEventListener('loadedmetadata', function() {
+          var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
+  });
+}
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/downloadVideo/:filename',
+      path: '/upload/downloadVideo/:filename',
       exact: true,
       strict: false
     })
@@ -86,7 +88,7 @@ class DownloadVideo extends Component {
   render() {
     return (
       <Layout className="app-container">
-      <video autoPlay controls preload="metadata">Your browser does not support the video element</video>
+      <video autoplay controls preload="metadata">Your browser does not support the video element</video>
       <p id="videoSrc"></p>
       </Layout>
     );
