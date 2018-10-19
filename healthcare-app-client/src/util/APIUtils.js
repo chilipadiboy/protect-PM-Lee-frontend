@@ -23,7 +23,7 @@ const request = (options) => {
     );
 };
 
-const download = (options) => {
+const requestImg = (options) => {
     const headers = new Headers({
         'Content-Type': 'image',
     })
@@ -42,6 +42,28 @@ const download = (options) => {
     var imageStr = arrayBufferToBase64(buffer);
 
     return base64Flag + imageStr;
+        })
+    );
+};
+
+const requestFile = (options) => {
+    const headers = new Headers({
+        'Content-Type': 'video/mp4',
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    options = Object.assign({}, defaults, options);
+
+    return fetch(options.url, options)
+    .then(response =>
+        response.arrayBuffer().then((buffer) => {
+    var videoStr = buffer;
+
+    return videoStr;
         })
     );
 };
@@ -142,14 +164,14 @@ export function deleteUser(nric) {
 }
 
 export function downloadFile(filename) {
-    return request({
+    return requestFile({
         url: API_BASE_URL + "/file/download/" + filename,
         method: 'GET'
     });
 }
 
 export function downloadImg(filename) {
-    return download({
+    return requestImg({
         url: API_BASE_URL + "/file/download/" + filename,
         method: 'GET'
     });
