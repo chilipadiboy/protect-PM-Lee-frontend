@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Upload, Button, Icon, notification } from 'antd';
+import { Upload, Button, Icon } from 'antd';
 import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
 
 class UploadFile extends Component {
