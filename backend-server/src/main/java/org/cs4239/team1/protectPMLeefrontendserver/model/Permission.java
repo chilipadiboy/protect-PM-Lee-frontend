@@ -27,6 +27,7 @@ public class Permission extends UserDateAudit {
     @MapsId("recordId")
     private Record record;
 
+    //Therapist
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("nric")
     private User user;
