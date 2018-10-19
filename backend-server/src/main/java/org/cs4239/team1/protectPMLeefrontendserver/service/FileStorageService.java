@@ -41,7 +41,7 @@ public class FileStorageService {
 
     public String storeFile(MultipartFile file, String nric) {
         String cleanedFileName = StringUtils.cleanPath(file.getOriginalFilename());
-        String distinctCleanedFileName = nric + "_" + LocalDateTime.now() + "_" + cleanedFileName;
+        String distinctCleanedFileName = nric + "_" + LocalDateTime.now().toString().replaceAll(":", ".") + "_" + cleanedFileName;
         Path targetLocation = fileStorageLocation.resolve(distinctCleanedFileName);
 
         try {
