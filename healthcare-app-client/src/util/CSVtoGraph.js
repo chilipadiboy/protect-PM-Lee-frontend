@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import './CSVtoGraph.css';
 import Papa from 'papaparse';
 import c3 from 'c3';
-import * from 'd3';
+import 'c3/c3.css';
+import * as d3 from 'd3';
+import { Helmet } from 'react-helmet';
 import {XYPlot, XAxis, YAxis, VerticalGridLines, HorizontalGridLines, LineSeries} from 'react-vis';
 
 const DATA_URL = "../sample-data/sample.csv";
@@ -11,15 +13,29 @@ function createGraph(data) {
   	var years = [];
   	var silverMinted = ["Silver Minted"];
 
+    console.log(data[i]);
+    // console.log(data[i][2]);
+
   	for (var i = 1; i < data.length; i++) {
-  		years.push(data[i][0]);
-  		silverMinted.push(data[i][2]);
+      if (data[i][0] !== undefined && data[i][0] !== null
+          && data[i][2] !== undefined && data[i][2] !== null) {
+            console.log(data[i][0]);
+            console.log(data[i][2]);
+            years.push(data[i][0]);
+            silverMinted.push(data[i][2]);
+          } else {
+            console.log(data[i][0]);
+            console.log(data[i][2]);
+            years.push(0);
+            silverMinted.push(0);
+          }
   	}
 
   	console.log(years);
   	console.log(silverMinted);
-
+    var c3 = require("c3/c3.min.js");
   	var chart = c3.generate({
+        bindto: '#chart',
   	    data: {
   	        columns: [
   	        	silverMinted
@@ -47,9 +63,14 @@ function createGraph(data) {
 }
 
 function parseData() {
-	  Papa.parse(DATA_URL, {
+    var csvFilePath = require("../sample-data/sample.csv");
+    var Papa = require("papaparse/papaparse.min.js");
+	  Papa.parse(csvFilePath, {
 		    download: true,
 		    complete: function(results) {
+             console.log(DATA_URL);
+             console.log(results);
+             console.log(results.data);
 			       createGraph(results.data);
 		    }
 	  });
@@ -59,7 +80,7 @@ class Chart extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            results: [],
+            // results: [],
         };
     }
 
@@ -81,9 +102,12 @@ class Chart extends Component {
             )} */
 
     render() {
-      const {results} = this.state;
+      // const {results} = this.state;
+      parseData();
       return (
-            <parseData />
+            <div id="chart">
+
+            </div>
             // <XYPlot
             //     width={1000}
             //     height={500}>
