@@ -76,7 +76,6 @@ class App extends Component {
       });
 
     }).catch(error => {
-      console.log("Error here arhh");
         if(error.status === 401) {
             notification.error({
                 message: 'Healthcare App',
