@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
-import { downloadFile, downloadImg } from '../../util/APIUtils'
+import { downloadFile } from '../../util/APIUtils'
 
-var image = new Image();
 var blob, data, filename, video;
 
-class DownloadFile extends Component {
+class DownloadVideo extends Component {
   constructor(props) {
       super(props);
       this.state = {
@@ -66,22 +65,6 @@ class DownloadFile extends Component {
   }
 
   showOutput(filename) {
-    const IMAGE_REGEX = RegExp('[^\\s]+(\\.(jpg|png))$');
-    if (IMAGE_REGEX.test(filename)) {
-      downloadImg(filename)
-      .then(response => {
-        image.src = response
-        image.width=500
-        image.height=500
-        document.body.appendChild(image);
-      })
-      .catch(error => {
-        notification.error({
-            message: 'Healthcare App',
-            description: error.message || 'Sorry! Something went wrong. Please try again!'
-        });
-    });
-  } else {
       data = document.getElementById('data');
       video = document.querySelector('video');
         window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
@@ -90,12 +73,11 @@ class DownloadFile extends Component {
         document.querySelector('video').addEventListener('loadedmetadata', function() {
           var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
         });
-    }
   }
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/download/:filename',
+      path: '/downloadVideo/:filename',
       exact: true,
       strict: false
     })
@@ -115,4 +97,4 @@ class DownloadFile extends Component {
   }
 }
 
-export default DownloadFile;
+export default DownloadVideo;
