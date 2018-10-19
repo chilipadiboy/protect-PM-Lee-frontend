@@ -3,23 +3,27 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.JwtAuthenticationResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.LoginRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.SessionIdResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.security.JwtEncryptionDecryptionTool;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
@@ -62,6 +66,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    @Autowired
+    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+
     @Value("${app.privateKey}")
     private String privateKey;
 
@@ -74,7 +81,7 @@ public class AuthController {
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
-    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request) {
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, HttpServletResponse response) {
         try {
             User user = userAuthentication.authenticate(request.getNric(),
                     request.getPassword(),
@@ -83,15 +90,32 @@ public class AuthController {
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
+            int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
+
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = Jwts.builder()
                     .setSubject(user.getUsername())
+                    .claim("session_id", iv)
                     .claim("role", user.getSelectedRole().toString())
                     .setIssuedAt(new Date())
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
+            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
 
-            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+            String cookieValue = Base64.getEncoder().encodeToString(encrypted);
+            Cookie newCookie = new Cookie("testCookie", cookieValue);
+            newCookie.setPath("/api");
+            newCookie.setHttpOnly(true);
+
+            //TODO: set cookie to secure for production when we have https up
+            //newCookie.setSecure(true);
+
+            response.addCookie(newCookie);
+
+            return ResponseEntity.ok(new SessionIdResponse(iv));
         } catch (GeneralSecurityException gse) {
             throw new BadCredentialsException("Bad credentials.");
         }
@@ -122,7 +146,7 @@ public class AuthController {
     }
 
     @PostMapping("/secondAuthorization")
-    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         Authentication authentication = authenticationManager.authenticate(
                 new UserAuthenticationToken(
                         loginRequest.getNric(),
@@ -135,8 +159,27 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = tokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        try {
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            String iv = Base64.getEncoder().encodeToString(ivBytes);
+            String jwt = tokenProvider.generateToken(iv, authentication);
+            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
+
+            String cookieValue = Base64.getEncoder().encodeToString(encrypted);
+            Cookie newCookie = new Cookie("testCookie", cookieValue);
+            newCookie.setPath("/api");
+            newCookie.setHttpOnly(true);
+
+            //TODO: set cookie to secure for production when we have https up
+            //newCookie.setSecure(true);
+
+            response.addCookie(newCookie);
+
+            return ResponseEntity.ok(new SessionIdResponse(iv));
+        } catch (Exception e) {
+            throw new AssertionError("Should not happen.");
+        }
     }
 
     @PostMapping("/signup")

@@ -1,9 +1,11 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,29 +30,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            String jwt = getJwtFromRequest(request);
+            String requestId = request.getHeader("Session-Id");
+            String encryptedJwt = getEncryptedJwtFromRequest(request);
 
-            if (!StringUtils.hasText(jwt) || !tokenProvider.validateToken(jwt)) {
+            if (requestId == null || !StringUtils.hasText(encryptedJwt)) {
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            String nric = tokenProvider.getNricFromJWT(jwt);
-            Role role = Role.create(tokenProvider.getRole(jwt));
-            User userDetails = customUserDetailsService.loadUserByUsername(nric);
+            String jwt = jwtEncryptionDecryptionTool.decrypt(encryptedJwt.getBytes(), requestId);
 
-            if (!userDetails.hasRole(role)) {
-                throw new JwtException("Invalid role.");
+            if (!tokenProvider.validateToken(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
             }
 
-            userDetails.setSelectedRole(role);
+            String nric = tokenProvider.getNric(jwt);
+            Role role = Role.create(tokenProvider.getRole(jwt));
+            String sessionId = tokenProvider.getSessionId(jwt);
+            User user = customUserDetailsService.loadUserByUsername(nric);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            if (!user.hasRole(role) || !sessionId.equals(requestId)) {
+                throw new JwtException("Invalid JWT.");
+            }
+
+            user.setSelectedRole(role);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -61,11 +75,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7, bearerToken.length());
+    private String getEncryptedJwtFromRequest(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return null;
         }
-        return null;
+
+        return Stream.of(cookies)
+                .filter(cookie -> cookie.getName().equals("testCookie"))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 }

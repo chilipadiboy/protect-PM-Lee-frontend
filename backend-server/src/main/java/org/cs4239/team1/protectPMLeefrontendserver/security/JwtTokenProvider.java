@@ -20,7 +20,8 @@ import io.jsonwebtoken.UnsupportedJwtException;
 public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
-    public static final String ROLE = "role";
+    private static final String ROLE = "role";
+    private static final String SESSION_ID = "session_id";
 
     @Value("${app.jwtSecret}")
     private String jwtSecret;
@@ -28,7 +29,7 @@ public class JwtTokenProvider {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(String sessionId, Authentication authentication) {
 
         User user = (User) authentication.getPrincipal();
 
@@ -37,6 +38,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(user.getUsername())
+                .claim(SESSION_ID, sessionId)
                 .claim(ROLE, user.getSelectedRole().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
@@ -44,7 +46,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getNricFromJWT(String token) {
+    public String getNric(String token) {
         return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
@@ -59,6 +61,14 @@ public class JwtTokenProvider {
                 .getBody()
                 .get(ROLE, String.class)
                 .toUpperCase();
+    }
+
+    public String getSessionId(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody()
+                .get(SESSION_ID, String.class);
     }
 
     public boolean validateToken(String authToken) {
