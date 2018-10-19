@@ -1,20 +1,12 @@
 package org.cs4239.team1.protectPMLeefrontendserver.payload;
 
-import java.time.Instant;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class RecordRequest {
-
-    @NotBlank
-    @Size(max = 140)
-    private String recordID;
 
     @NotBlank
     @Size(max = 140)
@@ -27,10 +19,6 @@ public class RecordRequest {
     @NotBlank
     @Size(max = 140)
     private String title;
-
-    //@NotEmpty
-    //@Size(max = 140)
-    private Instant date_time;
 
     @NotBlank
     @Size(max = 140)
