@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String requestId = request.getHeader("Session-Id");
             String encryptedJwt = getEncryptedJwtFromRequest(request);
 
-            if (!StringUtils.hasText(encryptedJwt) || encryptedJwt.equals("1")) {
+            if (requestId == null || !StringUtils.hasText(encryptedJwt)) {
                 filterChain.doFilter(request, response);
                 return;
             }
