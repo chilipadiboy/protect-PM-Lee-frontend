@@ -1,9 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.config;
 
-import org.cs4239.team1.protectPMLeefrontendserver.security.CustomUserDetailsService;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtAuthenticationEntryPoint;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtAuthenticationFilter;
-import org.cs4239.team1.protectPMLeefrontendserver.security.NricPasswordRoleAuthenticationProvider;
+import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
+import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    CustomUserDetailsService customUserDetailsService;
+    private UserAuthentication userAuthentication;
 
     @Autowired
     private JwtAuthenticationEntryPoint unauthorizedHandler;
@@ -48,7 +48,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public AuthenticationProvider authProvider() {
-        return new NricPasswordRoleAuthenticationProvider(passwordEncoder(), customUserDetailsService);
+        return new UserAuthenticationProvider(userAuthentication);
     }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)

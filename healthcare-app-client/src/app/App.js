@@ -83,7 +83,7 @@ class App extends Component {
       description: "You're successfully logged in.",
     });
     this.loadCurrentUser();
-    this.props.history.push("/mfa");
+    this.props.history.push("/");
   }
 
   loadCurrentUser() {

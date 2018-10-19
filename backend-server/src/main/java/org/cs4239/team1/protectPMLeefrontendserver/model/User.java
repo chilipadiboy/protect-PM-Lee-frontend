@@ -80,7 +80,9 @@ public class User extends DateAudit implements UserDetails {
     @Size(max = 100)
     private String password;
 
-    @Getter
+    @NonNull
+    private String publicKey;
+
     @NonNull
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @Enumerated(EnumType.STRING)

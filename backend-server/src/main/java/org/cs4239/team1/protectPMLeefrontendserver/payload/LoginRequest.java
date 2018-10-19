@@ -19,4 +19,10 @@ public class LoginRequest {
     @NotBlank
     @Pattern(regexp = "patient|therapist|administrator|researcher|external partner")
     private String role;
+
+    @NotBlank
+    private String signature;
+
+    @NotBlank
+    private String data;
 }

@@ -50,4 +50,7 @@ public class SignUpRequest {
     @NotNull
     @Size(min = 1)
     private List<@Pattern(regexp = "patient|therapist|administrator|researcher|external partner") String> roles;
+
+    @NotBlank
+    private String publicKey;
 }

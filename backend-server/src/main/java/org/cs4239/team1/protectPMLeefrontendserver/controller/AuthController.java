@@ -1,22 +1,34 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.net.URI;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import org.cs4239.team1.protectPMLeefrontendserver.security.NricPasswordRoleAuthenticationToken;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.JwtAuthenticationResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.LoginRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
+import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
+import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,9 +38,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.LoginRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
+import com.google.crypto.tink.subtle.Ed25519Sign;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,6 +49,9 @@ public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserAuthentication userAuthentication;
 
     @Autowired
     private UserRepository userRepository;
@@ -46,13 +62,74 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
+    @Value("${app.privateKey}")
+    private String privateKey;
+
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
+
+    @Value("${app.jwtExpirationInMs}")
+    private int jwtExpirationInMs;
+
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    @Deprecated
+    //TODO: Remove this method in release
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request) {
+        try {
+            User user = userAuthentication.authenticate(request.getNric(),
+                    request.getPassword(),
+                    Role.create(request.getRole()));
+
+            Date now = new Date();
+            Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+            String jwt = Jwts.builder()
+                    .setSubject(user.getUsername())
+                    .claim("role", user.getSelectedRole().toString())
+                    .setIssuedAt(new Date())
+                    .setExpiration(expiryDate)
+                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                    .compact();
+
+            return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
+        } catch (GeneralSecurityException gse) {
+            throw new BadCredentialsException("Bad credentials.");
+        }
+    }
+
+    @PostMapping("/firstAuthorization")
+    public ServerSignatureResponse getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
+        try {
+            userAuthentication.authenticate(serverSignatureRequest.getNric(),
+                    serverSignatureRequest.getPassword(),
+                    Role.create(serverSignatureRequest.getRole()));
+        } catch (GeneralSecurityException gse) {
+            throw new BadCredentialsException("Bad credentials.");
+        }
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-512");
+            String msg = "0";
+            byte[] msgHash =  digest.digest(msg.getBytes("UTF-8"));
+
+            Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
+            byte[] signature = signer.sign(msgHash);
+
+            return new ServerSignatureResponse(msgHash, signature);
+        } catch (Exception e) {
+            throw new AssertionError("Errors should not happen.");
+        }
+    }
+
+    @PostMapping("/secondAuthorization")
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new NricPasswordRoleAuthenticationToken(
+                new UserAuthenticationToken(
                         loginRequest.getNric(),
                         loginRequest.getPassword(),
-                        Role.create(loginRequest.getRole())
+                        Role.create(loginRequest.getRole()),
+                        Base64.getDecoder().decode(loginRequest.getSignature()),
+                        Base64.getDecoder().decode(loginRequest.getData())
                 )
         );
 
@@ -84,6 +161,7 @@ public class AuthController {
                 signUpRequest.getAge(),
                 Gender.valueOf(signUpRequest.getGender().toUpperCase()),
                 passwordEncoder.encode(signUpRequest.getPassword()),
+                signUpRequest.getPublicKey(),
                 new HashSet<>(signUpRequest.getRoles().stream()
                         .map(Role::create)
                         .collect(Collectors.toList()))
