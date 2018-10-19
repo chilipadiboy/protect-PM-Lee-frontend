@@ -62,7 +62,6 @@ class Administrator_add_user extends Component {
             roles: this.state.roles.value,
             publicKey: this.state.publicKey.value
         };
-        console.log(adduserRequest)
         signup(adduserRequest)
         .then(response => {
             notification.success({
@@ -71,7 +70,6 @@ class Administrator_add_user extends Component {
             });
             this.props.history.push("/manageusers");
         }).catch(error => {
-          console.log(error);
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
