@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
-import { downloadFile, downloadImg } from '../../util/APIUtils'
+import { downloadImg } from '../../util/APIUtils'
 
 var image = new Image();
 
-class DownloadFile extends Component {
+class DownloadImage extends Component {
   constructor(props) {
       super(props);
-      this.showImage = this.showImage.bind(this);
+      this.showOutput = this.showOutput.bind(this);
   }
 
-  showImage(filename) {
-    const IMAGE_REGEX = RegExp('^|\.jpg$|\.png$');
-    const FILE_REGEX = RegExp('^|\.csv$|\.txt$');
-    if (IMAGE_REGEX.test(filename)) {
+  showOutput(filename) {
       downloadImg(filename)
       .then(response => {
         image.src = response
@@ -28,28 +25,17 @@ class DownloadFile extends Component {
             description: error.message || 'Sorry! Something went wrong. Please try again!'
         });
     });
-    } else if (FILE_REGEX.test(filename)) {
-      downloadFile(filename)
-      .then(response => {
-
-      })
-      .catch(error => {
-        notification.error({
-            message: 'Healthcare App',
-            description: error.message || 'Sorry! Something went wrong. Please try again!'
-        });
-      });
-    }
   }
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/download/:filename',
+      path: '/downloadImage/:filename',
       exact: true,
       strict: false
     })
       const filename = match.params.filename;
-      this.showImage(filename);
+      this.showOutput(filename);
+      this.setState({filename});
   }
 
   render() {
@@ -60,4 +46,4 @@ class DownloadFile extends Component {
   }
 }
 
-export default DownloadFile;
+export default DownloadImage;

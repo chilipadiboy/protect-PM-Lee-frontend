@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Upload, Button, Icon, notification } from 'antd';
+import { Upload, Button, Icon } from 'antd';
 import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
 
 class UploadFile extends Component {
@@ -13,7 +13,12 @@ class UploadFile extends Component {
     fileList = fileList.map((file) => {
       if (file.response) {
         // Component will show file.url as link
-        file.url = "http://localhost:3000/download/" + file.name;
+        var url = file.response.message.split("/")
+        url = url[url.length-1]
+        if (url.includes(".mp4"))
+          file.url = "http://localhost:3000/downloadVideo/" + url
+        else if (url.includes(".jpg") || url.includes(".png"))
+          file.url = "http://localhost:3000/downloadImage/" + url
       }
       return file;
     });
