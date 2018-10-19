@@ -113,7 +113,7 @@ export function signup(signupRequest) {
 export function logout() {
     return request({
         url: API_BASE_URL + "/user/logout",
-        method: 'POST',
+        method: 'GET',
     });
 }
 
