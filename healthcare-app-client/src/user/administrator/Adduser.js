@@ -27,7 +27,8 @@ class Administrator_add_user extends Component {
           age: '',
           gender: '',
           password: '',
-          roles: ''
+          roles: '',
+          publicKey: ''
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -58,8 +59,10 @@ class Administrator_add_user extends Component {
             age: this.state.age.value,
             gender: this.state.gender.value,
             password: this.state.password.value,
-            roles: this.state.roles.value
+            roles: this.state.roles.value,
+            publicKey: this.state.publicKey.value
         };
+        console.log(adduserRequest)
         signup(adduserRequest)
         .then(response => {
             notification.success({
@@ -68,6 +71,7 @@ class Administrator_add_user extends Component {
             });
             this.props.history.push("/manageusers");
         }).catch(error => {
+          console.log(error);
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -190,7 +194,7 @@ class Administrator_add_user extends Component {
                                 name="password"
                                 type="password"
                                 autoComplete="off"
-                                placeholder="Between 6 to 20 characters"
+                                placeholder="Between 8 to 100 characters"
                                 value={this.state.password.value}
                                 onChange={(event) => {this.handleInputChange(event, this.validatePassword)}} />
                         </FormItem>
@@ -210,6 +214,17 @@ class Administrator_add_user extends Component {
                                 <Option value="external_partner">External Partner</Option>
                                 <Option value="administrator">Administrator</Option>
                             </Select>
+                        </FormItem>
+                        <FormItem
+                            label="Public Key"
+                            hasFeedback
+                            validateStatus={this.state.publicKey.validateStatus}>
+                            <Input
+                                size="large"
+                                name="publicKey"
+                                autoComplete="off"
+                                value={this.state.publicKey.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validatePublicKey)}} />
                         </FormItem>
                         <FormItem>
                             <Button type="primary"
@@ -386,6 +401,20 @@ class Administrator_add_user extends Component {
                 validateStatus: 'success',
                 errorMsg: null,
             };
+        }
+    }
+
+    validatePublicKey = (publicKey) => {
+        if(!publicKey) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Public key may not be empty'
+              }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };
         }
     }
 }
