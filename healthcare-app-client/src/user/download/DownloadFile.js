@@ -4,16 +4,69 @@ import { Layout, notification } from 'antd';
 import { downloadFile, downloadImg } from '../../util/APIUtils'
 
 var image = new Image();
+var blob, data, filename, video;
 
 class DownloadFile extends Component {
   constructor(props) {
       super(props);
-      this.showImage = this.showImage.bind(this);
+      this.state = {
+        filename: ''
+      }
+      this.handleInitSuccess = this.handleInitSuccess.bind(this);
+      this.createFile = this.createFile.bind(this);
+      this.showOutput = this.showOutput.bind(this);
   }
 
-  showImage(filename) {
-    const IMAGE_REGEX = RegExp('^|\.jpg$|\.png$');
-    const FILE_REGEX = RegExp('^|\.csv$|\.txt$');
+  handleInitSuccess(fileSystem) {
+    window.fileSystem = fileSystem;
+    this.createFile('video.mp4');
+  }
+
+  createFile(fullPath) {
+    filename = this.state.filename;
+    window.fileSystem.root.getFile(fullPath, {
+      create: true
+      /* exclusive: true */
+    },
+    function(fileEntry) {
+      downloadFile(filename)
+      .then(response => {
+        blob = new Blob([new Uint8Array(response)], {
+          type: 'video/mp4'
+        });
+        // Create a FileWriter object for fileEntry
+        fileEntry.createWriter(function(fileWriter) {
+          fileWriter.onwriteend = function() {
+            // read from file
+            window.fileSystem.root.getFile(fullPath, {}, function(fileEntry) {
+              // Get a File object representing the file
+              // then use FileReader to read its contents
+              fileEntry.file(function(file) {
+                var reader = new FileReader();
+                reader.onloadend = function() {
+                  // video.src = this.result;
+                  video.src = URL.createObjectURL(new Blob([this.result]));
+                };
+                // reader.readAsDataURL(file);
+                reader.readAsArrayBuffer(file);
+              });
+            });
+          };
+          // Create a new Blob and write it to file
+          fileWriter.write(blob);
+        });
+      })
+      .catch(error => {
+        notification.error({
+            message: 'Healthcare App',
+            description: error.message || 'Sorry! Something went wrong. Please try again!'
+      });
+      });
+    });
+  }
+
+  showOutput(filename) {
+    const IMAGE_REGEX = RegExp('[^\\s]+(\\.(jpg|png))$');
     if (IMAGE_REGEX.test(filename)) {
       downloadImg(filename)
       .then(response => {
@@ -28,17 +81,15 @@ class DownloadFile extends Component {
             description: error.message || 'Sorry! Something went wrong. Please try again!'
         });
     });
-    } else if (FILE_REGEX.test(filename)) {
-      downloadFile(filename)
-      .then(response => {
-
-      })
-      .catch(error => {
-        notification.error({
-            message: 'Healthcare App',
-            description: error.message || 'Sorry! Something went wrong. Please try again!'
+  } else {
+      data = document.getElementById('data');
+      video = document.querySelector('video');
+        window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+        window.requestFileSystem(window.TEMPORARY, 200 * 1024 * 1024, // 200MB
+          this.handleInitSuccess);
+        document.querySelector('video').addEventListener('loadedmetadata', function() {
+          var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
         });
-      });
     }
   }
 
@@ -49,12 +100,16 @@ class DownloadFile extends Component {
       strict: false
     })
       const filename = match.params.filename;
-      this.showImage(filename);
+      this.showOutput(filename);
+      this.setState({filename});
   }
 
   render() {
     return (
       <Layout className="app-container">
+      <video autoPlay controls preload="metadata">Your browser does not support the video element</video>
+      <p id="videoSrc"></p>
+      <p id="data"></p>
       </Layout>
     );
   }
