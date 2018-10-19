@@ -76,7 +76,6 @@ class App extends Component {
       });
 
     }).catch(error => {
-      console.log("Error here arhh");
         if(error.status === 401) {
             notification.error({
                 message: 'Healthcare App',
@@ -150,11 +149,11 @@ class App extends Component {
                   <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
                   <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></TherapistRoute>
                   <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></TherapistRoute>
+                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
+                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
+                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
+                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></PatientRoute>
                   <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload" component={UploadFile}></TherapistRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></PatientRoute>
                   <Route path="/chart" component={Chart}></Route>
 
                   <Route component={NotFound}></Route>

@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import { Upload, Button, Icon } from 'antd';
-import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js'
+import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js';
 
 class UploadFile extends Component {
-  state = {
-    fileList: []
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      filelist: []
+    }
+    this.handleChange = this.handleChange.bind(this);
   }
 
   handleChange = (info) => {
@@ -16,9 +21,9 @@ class UploadFile extends Component {
         var url = file.response.message.split("/")
         url = url[url.length-1]
         if (url.includes(".mp4"))
-          file.url = "http://localhost:3000/downloadVideo/" + url
+          file.url = this.props.history.location.pathname + "/downloadVideo/" + url
         else if (url.includes(".jpg") || url.includes(".png"))
-          file.url = "http://localhost:3000/downloadImage/" + url
+          file.url = this.props.history.location.pathname + "/downloadImage/" + url
       }
       return file;
     });
@@ -34,9 +39,10 @@ class UploadFile extends Component {
     const props = {
       action: API_BASE_URL + "/file/upload",
       headers: {
-        Authorization: "Bearer " + localStorage.getItem(AUTH_TOKEN),
+        SessionId: localStorage.getItem(AUTH_TOKEN),
         enctype: "multipart/form-data"
       },
+      withCredentials: 'include',
       onChange: this.handleChange,
       multiple: false
     };

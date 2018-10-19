@@ -29,7 +29,7 @@ class DownloadImage extends Component {
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/downloadImage/:filename',
+      path: '/upload/downloadImage/:filename',
       exact: true,
       strict: false
     })
