@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import './CSVtoGraph.css';
 import c3 from 'c3';
 import 'c3/c3.css';
-
+import { Layout } from 'antd';
 
 
 function createGraph(data) {
@@ -68,10 +67,17 @@ class Chart extends Component {
     }
 
     render() {
+      const { Header, Content } = Layout;
       parseData();
-
       return (
+        <Layout className="layout">
+          <Header>
+            <div className="title">Generated Data</div>
+          </Header>
+          <Content>
             <div id="chart"></div>
+          </Content>
+        </Layout>
       );
     }
 }
