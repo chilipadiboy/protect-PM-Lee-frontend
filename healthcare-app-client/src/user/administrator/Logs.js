@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Button, Layout, DatePicker, Icon } from 'antd';
+import { Button, Layout, DatePicker } from 'antd';
 import './Logs.css';
 
 class DateRange extends Component {

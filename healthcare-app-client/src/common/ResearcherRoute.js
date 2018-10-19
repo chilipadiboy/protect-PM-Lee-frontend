@@ -1,7 +1,6 @@
 import React from 'react';
 import {
-    Route,
-    Redirect
+    Route
   } from "react-router-dom";
 import NotFound from '../common/NotFound';
 

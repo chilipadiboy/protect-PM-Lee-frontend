@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Select, Input, Button, Layout} from 'antd';
+import { Form, Select, Button, Layout} from 'antd';
 import './Generatedata.css';
 
 const FormItem = Form.Item;

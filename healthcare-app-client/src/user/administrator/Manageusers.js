@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import {
-    Link,
-    withRouter
+    Link
 } from 'react-router-dom';
-import { Button, Layout, Table, Icon, notification } from 'antd';
+import { Button, Layout, Table, notification } from 'antd';
 import './Manageusers.css';
 import { getAllUsers, deleteUser } from '../../util/APIUtils';
 
@@ -65,7 +64,7 @@ class Administrator_manage_users extends Component {
     }
 
     render() {
-        const { Header, Content } = Layout;
+        const { Content } = Layout;
 
         const users_columns = [{
           title: 'NRIC',
