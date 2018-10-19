@@ -3,7 +3,7 @@ import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
 import { downloadFile } from '../../util/APIUtils'
 
-var blob, data, filename, video;
+var blob, filename, video;
 
 class DownloadVideo extends Component {
   constructor(props) {
@@ -65,14 +65,11 @@ class DownloadVideo extends Component {
   }
 
   showOutput(filename) {
-      data = document.getElementById('data');
       video = document.querySelector('video');
         window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
         window.requestFileSystem(window.TEMPORARY, 200 * 1024 * 1024, // 200MB
           this.handleInitSuccess);
-        document.querySelector('video').addEventListener('loadedmetadata', function() {
-          var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
-        });
+        document.querySelector('video').addEventListener('loadedmetadata');
   }
 
   componentDidMount() {
@@ -91,7 +88,6 @@ class DownloadVideo extends Component {
       <Layout className="app-container">
       <video autoPlay controls preload="metadata">Your browser does not support the video element</video>
       <p id="videoSrc"></p>
-      <p id="data"></p>
       </Layout>
     );
   }

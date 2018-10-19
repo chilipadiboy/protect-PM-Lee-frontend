@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import { getAllRecords } from '../../util/APIUtils';
-import { Layout, Table, Icon } from 'antd';
-import { getAvatarColor } from '../../util/Colors';
-import LoadingIndicator  from '../../common/LoadingIndicator';
+import { Table } from 'antd';
 import './AllRecords.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
 
 class MyRecords extends Component {
     constructor(props) {

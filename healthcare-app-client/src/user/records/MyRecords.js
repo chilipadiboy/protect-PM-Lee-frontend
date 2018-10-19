@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { getUserRecords } from '../../util/APIUtils';
-import { Layout, Table, Icon } from 'antd';
-import { getAvatarColor } from '../../util/Colors';
-import LoadingIndicator  from '../../common/LoadingIndicator';
+import { Table } from 'antd';
 import './MyRecords.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
 
 class MyRecords extends Component {
     constructor(props) {

@@ -4,7 +4,6 @@ import {
   withRouter
 } from 'react-router-dom';
 import './AppHeader.css';
-import dataIcon from '../data.svg';
 import { Layout, Menu, Dropdown, Icon } from 'antd';
 
 const Header = Layout.Header;

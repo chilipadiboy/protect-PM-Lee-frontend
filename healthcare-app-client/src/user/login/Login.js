@@ -102,12 +102,12 @@ class LoginForm extends Component {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
-                                 if (valueRec[0]==48 && valueRec[1]==48 && j==0) {
+                                 if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
                                    openNotificationError(0);
                                  }
-                                 if (valueRec[0]==33 && valueRec[1]==33) {
+                                 if (valueRec[0]===33 && valueRec[1]===33) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
                                    openNotificationError(1);
@@ -118,7 +118,7 @@ class LoginForm extends Component {
                                  let ack = "ACK" + j;
                                  ack = encoder.encode(ack);
                                  return writeChar.writeValue(ack).then(function() {
-                                   if (j==7) {
+                                   if (j===7) {
                                      dis(disconnectChar);
                                      let reqToSend = getTagSigAndMsg();
                                      Object.assign(reqToSend, loginRequest);
@@ -265,7 +265,7 @@ class LoginForm extends Component {
 }
 
 function openNotificationError(type) {
-  if (type==0) {
+  if (type===0) {
     notification["error"]({
      message: 'Healthcare App',
      description: 'Connection timed out',

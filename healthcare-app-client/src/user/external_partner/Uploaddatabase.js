@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Form, Select, Upload, Input, Button, Layout, Icon } from 'antd';
+import { Form, Upload, Button, Layout, Icon } from 'antd';
 import { AUTH_TOKEN, API_BASE_URL } from '../../constants/index.js'
 import './Uploaddatabase.css';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class UploadButton extends Component {
   render() {

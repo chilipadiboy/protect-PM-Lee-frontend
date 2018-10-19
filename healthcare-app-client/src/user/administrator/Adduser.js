@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { signup } from '../../util/APIUtils';
 import './Adduser.css';
-import { Link } from 'react-router-dom';
 import {
     NAME_MIN_LENGTH, NAME_MAX_LENGTH,
     NRIC_LENGTH,
