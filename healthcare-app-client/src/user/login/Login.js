@@ -256,7 +256,6 @@ class LoginForm extends Component {
                 <FormItem>
                     <Button type="primary" htmlType="submit" className="login-form-button">Login without your tag</Button>
                     <Button type="primary" className="mfa-button" size="large" onClick={this.startConnection.bind(this)}> Connect Your Tag To Log In </Button>
-                    Or <Link to="/signup">register now!</Link>
                 </FormItem>
             </Form>
             </Spin>
