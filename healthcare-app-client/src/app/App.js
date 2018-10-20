@@ -127,41 +127,139 @@ class App extends Component {
     }
 
     if(this.state.isAuthenticated) {
-      return (
-          <Layout className="app-container">
-            <AppHeader isAuthenticated={this.state.isAuthenticated}
-              currentUser={this.state.currentUser}
-              onLogout={this.handleLogout} />
+      if(this.state.currentUser.role === "patient") {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
 
-            <Content className="app-content">
-              <div className="container">
-                <Switch>
-                  <Route exact path="/" component={Home}>
-                  </Route>
-                  <Route path="/login"
-                    render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
-                  <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
-                  <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/logs" component={Administrator_logs}></AdministratorRoute>
-                  <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={Administrator_manage_users}></AdministratorRoute>
-                  <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={Administrator_add_user}></AdministratorRoute>
-                  <ResearcherRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/generatedata" component={Researcher_generate_data}></ResearcherRoute>
-                  <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/uploaddatabase" component={External_upload_database}></ExternalPartnerRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></TherapistRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></TherapistRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
-                  <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></PatientRoute>
-                  <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload" component={UploadFile}></TherapistRoute>
-                  <Route path="/chart" component={Chart}></Route>
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></PatientRoute>
+                    <Route component={NotFound}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      } else if(this.state.currentUser.role === "therapist") {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
 
-                  <Route component={NotFound}></Route>
-                </Switch>
-              </div>
-            </Content>
-          </Layout>
-      );
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/upload" component={UploadFile}></TherapistRoute>
+                    <Route component={NotFound}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      } else if(this.state.currentUser.role === "researcher") {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
+
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <ResearcherRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/generatedata" component={Researcher_generate_data}></ResearcherRoute>
+                    <Route component={NotFound}></Route>
+                    <Route path="/chart" component={Chart}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      } else if(this.state.currentUser.role === "external_partner") {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
+
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <Route path="/login"
+                      render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
+                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/uploaddatabase" component={External_upload_database}></ExternalPartnerRoute>
+                    <Route component={NotFound}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      } else if(this.state.currentUser.role === "administrator") {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
+
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/logs" component={Administrator_logs}></AdministratorRoute>
+                    <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={Administrator_manage_users}></AdministratorRoute>
+                    <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={Administrator_add_user}></AdministratorRoute>
+                    <Route path="/chart" component={Chart}></Route>
+                    <Route component={NotFound}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      } else {
+        return (
+            <Layout className="app-container">
+              <AppHeader isAuthenticated={this.state.isAuthenticated}
+                currentUser={this.state.currentUser}
+                onLogout={this.handleLogout} />
+
+              <Content className="app-content">
+                <div className="container">
+                  <Switch>
+                    <Route exact path="/" component={Home}>
+                    </Route>
+                    <Route path="/login"
+                      render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
+                    <Route component={NotFound}></Route>
+                  </Switch>
+                </div>
+              </Content>
+            </Layout>
+        );
+      }
     } else {
       return (
           <Layout className="app-container">
