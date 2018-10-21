@@ -5,13 +5,19 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
@@ -35,7 +41,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class RecordController {
 
     @Autowired
-    private RecordRepository recordRepository;
+    private TreatmentRepository treatmentRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -49,6 +55,16 @@ public class RecordController {
     @PreAuthorize("hasRole('THERAPIST')")
     public ResponseEntity<?> createRecord(@Valid @RequestBody RecordRequest recordRequest) {
         Record record = recordService.createRecord(recordRequest);
+
+        //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
+        //Need to be assigned to start treatment. Else record will be created but not auto permitted
+        Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
+        String endDate = treatment.getEndDate().toString().substring(0,10);
+        PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
+        User patient = userRepository.findByNric(record.getPatientIC())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
+
+        Permission permission = recordService.grantPermission(permissionRequest, patient);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{recordId}")
