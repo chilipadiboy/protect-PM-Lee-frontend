@@ -6,6 +6,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
@@ -60,7 +61,7 @@ public class PermissionController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, permissionRequest.getRecordID() + " permission granted to " + permissionRequest.getNric()));
+                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been GRANTED to Therapist_" + permissionRequest.getNric()));
     }
 
     //revoke permission to view
@@ -76,7 +77,7 @@ public class PermissionController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, permissionRequest.getRecordID() + " permission revoked from " + permissionRequest.getNric()));
+                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been REVOKED from Therapist_" + permissionRequest.getNric()));
     }
 
     //Get all permissions that currentUser (the therapist) has been allowed to see
@@ -91,9 +92,9 @@ public class PermissionController {
     //Get all permissions that currentUser(the patient) has granted
     @GetMapping("/patient/given/")
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<RecordResponse> getGivenRecords(@CurrentUser User currentUser,
-                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(@CurrentUser User currentUser,
+                                                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getGivenRecords(currentUser, page, size);
     }
 

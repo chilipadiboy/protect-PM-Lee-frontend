@@ -9,6 +9,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
@@ -226,7 +227,7 @@ public class RecordService {
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
-    public PagedResponse<RecordResponse> getGivenRecords(User currentUser, int page, int size) {
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
         String nric = currentUser.getNric();
@@ -244,11 +245,11 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses
-        List<RecordResponse> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
+        List<RecordResponseWithTherapistIdentifier> recordResponses = permission.map(permissions -> {
+            return ModelMapper.mapRecordToRecordResponseWithTherapistIdentifier(permissions);
         }).getContent();
 
-        return new PagedResponse<>(recordResponses, permission.getNumber(),
+        return new PagedResponse<RecordResponseWithTherapistIdentifier>(recordResponses, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
