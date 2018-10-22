@@ -51,7 +51,7 @@ public class RecordController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    @PostMapping
+    @PostMapping("/create/")
     @PreAuthorize("hasRole('THERAPIST')")
     public ResponseEntity<?> createRecord(@Valid @RequestBody RecordRequest recordRequest) {
         Record record = recordService.createRecord(recordRequest);
