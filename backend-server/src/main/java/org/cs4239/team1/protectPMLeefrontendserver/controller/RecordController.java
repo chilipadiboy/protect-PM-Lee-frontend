@@ -15,7 +15,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,7 +73,7 @@ public class RecordController {
 
     //Get all records
     @GetMapping
-    public PagedResponse<RecordResponse> getRecords(@CurrentUser User currentUser,
+    public PagedResponse<Record> getRecords(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getAllRecords(currentUser, page, size);
@@ -84,20 +82,20 @@ public class RecordController {
 
     //Get specific records by RecordID
     @GetMapping("/recordid/{recordId}")
-    public RecordResponse getRecordByRecordID(@CurrentUser User currentUser,
+    public Record getRecordByRecordID(@CurrentUser User currentUser,
                                               @PathVariable Long recordId) {
-        return recordService.getRecordByRecordID(recordId, currentUser);
+        return recordService.getRecordByRecordID(recordId);
     }
 
     @GetMapping("/therapist/")
-    public PagedResponse<RecordResponse> getRecordByTherapist(@CurrentUser User currentUser,
+    public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser,
                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getRecordsCreatedBy(currentUser, page, size);
     }
 
     @GetMapping("/patient/")
-    public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser User currentUser,
+    public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser,
                                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getRecordsBelongingTo(currentUser, page, size);
@@ -105,7 +103,7 @@ public class RecordController {
 
     //Therapist get patient-specific permitted records
     @GetMapping("/therapist/patient/{patient}")
-    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(@CurrentUser User currentUser,
+    public PagedResponse<Record> getRecordsPermittedByPatient(@CurrentUser User currentUser,
                                                                       @PathVariable String patient,
                                                                       @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                                       @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {

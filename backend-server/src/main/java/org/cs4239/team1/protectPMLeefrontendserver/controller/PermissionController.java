@@ -1,11 +1,11 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -80,9 +79,9 @@ public class PermissionController {
 
     //Get all permissions that currentUser (the therapist) has been allowed to see
     @GetMapping("/therapist/allowed/")
-    public PagedResponse<RecordResponse> getAllowedRecords(@CurrentUser User currentUser,
-                                                           @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                           @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+    public PagedResponse<Record> getAllowedRecords(@CurrentUser User currentUser,
+                                                   @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                   @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getAllowedRecords(currentUser, page, size);
     }
 

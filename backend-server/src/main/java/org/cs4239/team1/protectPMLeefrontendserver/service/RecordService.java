@@ -9,9 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
@@ -22,7 +19,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
@@ -53,8 +49,8 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-    public PagedResponse<RecordResponse> getAllRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    public PagedResponse<Record> getAllRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve Records
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -65,20 +61,13 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        Map<String, User> creatorMap = getRecordCreatorMap(records.getContent());
-
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record,
-                    creatorMap.get(record.getCreatedBy()));
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<RecordResponse> getRecordsCreatedBy(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    public PagedResponse<Record> getRecordsCreatedBy(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records created by the current user
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -89,17 +78,13 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, currentUser);
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<RecordResponse> getRecordsBelongingTo(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    public PagedResponse<Record> getRecordsBelongingTo(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -110,11 +95,7 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, currentUser);
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
@@ -136,17 +117,11 @@ public class RecordService {
                 recordRequest.getPatientIC()));
     }
 
+    //TODO Do we still need this method? Or who will call this method
+    public Record getRecordByRecordID(Long recordId) {
 
-    public RecordResponse getRecordByRecordID(Long recordId, User currentUser) {
-
-        Record record = recordRepository.findByRecordID(recordId).orElseThrow(
+        return recordRepository.findByRecordID(recordId).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", recordId));
-
-        // Retrieve record creator details
-        User creator = userRepository.findByNric(record.getCreatedBy())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", record.getCreatedBy()));
-
-        return ModelMapper.mapRecordToRecordResponse(record, creator);
     }
 
     @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST')")
@@ -207,35 +182,28 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<RecordResponse> getAllowedRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
-
-        String nric = currentUser.getNric();
-
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+    public PagedResponse<Record> getAllowedRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByUser(user, pageable);
+        Page<Permission> permission = permissionRepository.findByUser(currentUser, pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
                     permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
         }
 
-        // Map Records to RecordResponses
-        List<RecordResponse> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
-        }).getContent();
+        // Map Permissions to Records
+        List<Record> records = permission.map(ModelMapper::mapPermissionToRecord).getContent();
 
-        return new PagedResponse<>(recordResponses, permission.getNumber(),
+        return new PagedResponse<>(records, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
     @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+        validatePageNumberAndSize(size);
 
         String nric = currentUser.getNric();
 
@@ -255,13 +223,13 @@ public class RecordService {
         List<RecordResponseWithTherapistIdentifier> recordResponses = permission.map(
                 ModelMapper::mapRecordToRecordResponseWithTherapistIdentifier).getContent();
 
-        return new PagedResponse<RecordResponseWithTherapistIdentifier>(recordResponses, permission.getNumber(),
+        return new PagedResponse<>(recordResponses, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records that matches the user and patient Nric pair
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -272,38 +240,17 @@ public class RecordService {
                     permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
         }
 
-        //TODO: Maybe can return Record, no need make to RecordResponse?
-        // Map Records to RecordResponses
-        List<RecordResponse> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), currentUser);
-        }).getContent();
+        // Map Permissions to Records
+        List<Record> records = permission.map(ModelMapper::mapPermissionToRecord).getContent();
 
-        return new PagedResponse<>(recordResponses, permission.getNumber(),
+        return new PagedResponse<>(records, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
 
-    private void validatePageNumberAndSize(int page, int size) {
-        if(page < 0) {
-            throw new BadRequestException("Page number cannot be less than zero.");
-        }
-
+    private void validatePageNumberAndSize(int size) {
         if(size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
-    }
-
-    Map<String, User> getRecordCreatorMap(List<Record> records) {
-        // Get Record Creator details of the given list of records
-        List<String> creatorIds = records.stream()
-                .map(Record::getCreatedBy)
-                .distinct()
-                .collect(Collectors.toList());
-
-        List<User> creators = userRepository.findByNricIn(creatorIds);
-        Map<String, User> creatorMap = creators.stream()
-                .collect(Collectors.toMap(User::getNric, Function.identity()));
-
-        return creatorMap;
     }
 }
