@@ -17,6 +17,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
@@ -119,6 +120,14 @@ public class RecordService {
 
     @PreAuthorize("hasRole('THERAPIST')")
     public Record createRecord(RecordRequest recordRequest) {
+
+        //check if user exist
+        User user = userRepository.findByNric(recordRequest.getPatientIC())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", recordRequest.getPatientIC()));
+        //check if user has role patient
+        if (!user.getRoles().contains(Role.ROLE_PATIENT)){
+            throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
+        }
 
         return recordRepository.save(new Record(recordRequest.getType(),
                 recordRequest.getSubtype(),

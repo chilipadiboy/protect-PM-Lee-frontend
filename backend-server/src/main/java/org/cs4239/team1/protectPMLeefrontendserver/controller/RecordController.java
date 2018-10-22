@@ -50,14 +50,11 @@ public class RecordController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    //TODO: I think all PreAuthorizes in Controller classes should be placed in SecurityConfig
     @PostMapping("/create/")
     public ResponseEntity<?> createRecord(@Valid @RequestBody RecordRequest recordRequest) {
-        // TODO: Need some validation of RecordRequest fields such as whether patientIc exists.
+
         Record record = recordService.createRecord(recordRequest);
 
-        // TODO: Should be documented elsewhere, not in code.
-        // TODO: Should call TreatmentService#assignTherapistPatient
         //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
         //Need to be assigned to start treatment. Else record will be created but not auto permitted
         Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
