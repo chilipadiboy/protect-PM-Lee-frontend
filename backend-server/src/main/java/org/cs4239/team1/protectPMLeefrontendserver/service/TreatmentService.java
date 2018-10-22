@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.service;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
@@ -43,7 +44,7 @@ public class TreatmentService {
     private static final Logger logger = LoggerFactory.getLogger(TreatmentService.class);
 
     public PagedResponse<TreatmentResponse> getAllTreatments(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+        validatePageNumberAndSize(size);
 
         // Retrieve all treatments
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -66,8 +67,14 @@ public class TreatmentService {
 
         User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getTherapistNric()));
+        if (!therapist.getRoles().contains(Role.ROLE_THERAPIST)){
+            throw new BadRequestException(therapist.getNric() + " is not a therapist!");
+        }
         User patient = userRepository.findByNric(treatmentRequest.getPatientNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getPatientNric()));
+        if (!therapist.getRoles().contains(Role.ROLE_PATIENT)){
+            throw new BadRequestException(therapist.getNric() + " is not a patient!");
+        }
 
         String date = treatmentRequest.getEndDate() + " 23:59:59";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -102,7 +109,7 @@ public class TreatmentService {
     }
 
     public PagedResponse<TreatmentResponse> getPatients(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+        validatePageNumberAndSize(size);
 
         // Retrieve all patients under this user(therapist)
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -123,7 +130,7 @@ public class TreatmentService {
     }
 
     public PagedResponse<TreatmentResponse> getTherapists(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+        validatePageNumberAndSize(size);
 
         // Retrieve all therapists treating this user(patient)
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -144,10 +151,7 @@ public class TreatmentService {
     }
 
 
-    private void validatePageNumberAndSize(int page, int size) {
-        if(page < 0) {
-            throw new BadRequestException("Page number cannot be less than zero.");
-        }
+    private void validatePageNumberAndSize(int size) {
 
         if(size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
