@@ -52,7 +52,6 @@ public class RecordController {
 
     //TODO: I think all PreAuthorizes in Controller classes should be placed in SecurityConfig
     @PostMapping("/create/")
-    @PreAuthorize("hasRole('THERAPIST')")
     public ResponseEntity<?> createRecord(@Valid @RequestBody RecordRequest recordRequest) {
         // TODO: Need some validation of RecordRequest fields such as whether patientIc exists.
         Record record = recordService.createRecord(recordRequest);
@@ -88,33 +87,27 @@ public class RecordController {
 
     //Get specific records by RecordID
     @GetMapping("/recordid/{recordId}")
-
     public RecordResponse getRecordByRecordID(@CurrentUser User currentUser,
                                               @PathVariable Long recordId) {
         return recordService.getRecordByRecordID(recordId, currentUser);
     }
 
-    //@PreAuthorize("checkownership")
-    @GetMapping("/therapist/{therapist}")
+    @GetMapping("/therapist/")
     public PagedResponse<RecordResponse> getRecordByTherapist(@CurrentUser User currentUser,
-                                              @PathVariable String therapist,
                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsCreatedBy(therapist, currentUser, page, size);
+        return recordService.getRecordsCreatedBy(currentUser, page, size);
     }
 
-    //@PreAuthorize("checkpatient")
-    @GetMapping("/patient/{patient}/")
+    @GetMapping("/patient/")
     public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser User currentUser,
-                                                              @PathVariable String patient,
                                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsBelongingTo(patient, currentUser, page, size);
+        return recordService.getRecordsBelongingTo(currentUser, page, size);
     }
 
     //Therapist get patient-specific permitted records
     @GetMapping("/therapist/patient/{patient}")
-    @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<RecordResponse> getRecordsPermittedByPatient(@CurrentUser User currentUser,
                                                                       @PathVariable String patient,
                                                                       @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,

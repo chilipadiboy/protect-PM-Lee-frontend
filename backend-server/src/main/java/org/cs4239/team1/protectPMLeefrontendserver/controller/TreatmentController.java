@@ -65,7 +65,6 @@ public class TreatmentController {
 
     //List ALL treatments
     @GetMapping("/getAll/")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
@@ -74,7 +73,6 @@ public class TreatmentController {
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
-    @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
@@ -83,7 +81,6 @@ public class TreatmentController {
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
-    @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser,
                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {

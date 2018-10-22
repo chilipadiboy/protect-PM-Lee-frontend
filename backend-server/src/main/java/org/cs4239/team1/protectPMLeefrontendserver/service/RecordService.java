@@ -35,6 +35,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -74,15 +75,13 @@ public class RecordService {
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsCreatedBy(String nric, User currentUser, int page, int size) {
+    @PreAuthorize("hasRole('THERAPIST')")
+    public PagedResponse<RecordResponse> getRecordsCreatedBy(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
-
-        // Retrieve all records created by the given nric
+        // Retrieve all records created by the current user
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByCreatedBy(user.getNric(), pageable);
+        Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
@@ -90,22 +89,20 @@ public class RecordService {
         }
 
         List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, user);
+            return ModelMapper.mapRecordToRecordResponse(record, currentUser);
         }).getContent();
 
         return new PagedResponse<>(recordResponses, records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsBelongingTo(String nric, User currentUser, int page, int size) {
+    @PreAuthorize("hasRole('PATIENT')")
+    public PagedResponse<RecordResponse> getRecordsBelongingTo(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
-
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByPatientIC(user.getNric(), pageable);
+        Page<Record> records = recordRepository.findByPatientIC(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
@@ -113,13 +110,14 @@ public class RecordService {
         }
 
         List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, user);
+            return ModelMapper.mapRecordToRecordResponse(record, currentUser);
         }).getContent();
 
         return new PagedResponse<>(recordResponses, records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public Record createRecord(RecordRequest recordRequest) {
 
         return recordRepository.save(new Record(recordRequest.getType(),
@@ -142,7 +140,7 @@ public class RecordService {
         return ModelMapper.mapRecordToRecordResponse(record, creator);
     }
 
-
+    @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST')")
     public Permission grantPermission(PermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
@@ -175,6 +173,7 @@ public class RecordService {
         return permissionRepository.save(permission);
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
     public Permission revokePermission(PermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
@@ -198,6 +197,7 @@ public class RecordService {
         return permission;
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<RecordResponse> getAllowedRecords(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
@@ -224,6 +224,7 @@ public class RecordService {
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser, int page, int size) {
         validatePageNumberAndSize(page, size);
 
@@ -249,6 +250,7 @@ public class RecordService {
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<RecordResponse> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
         validatePageNumberAndSize(page, size);
 

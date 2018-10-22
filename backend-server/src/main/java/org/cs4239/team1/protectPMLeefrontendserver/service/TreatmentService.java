@@ -26,6 +26,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -39,6 +40,7 @@ public class TreatmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(TreatmentService.class);
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public PagedResponse<Treatment> getAllTreatments(int page, int size) {
         validatePageNumberAndSize(size);
 
@@ -56,6 +58,7 @@ public class TreatmentService {
     }
 
     // TODO: Preauthorise can be done here
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public Treatment assignTherapistPatient(TreatmentRequest treatmentRequest){
 
         User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
@@ -65,7 +68,7 @@ public class TreatmentService {
         }
         User patient = userRepository.findByNric(treatmentRequest.getPatientNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getPatientNric()));
-        if (!therapist.getRoles().contains(Role.ROLE_PATIENT)){
+        if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
             throw new BadRequestException(therapist.getNric() + " is not a patient!");
         }
 
@@ -89,6 +92,7 @@ public class TreatmentService {
         return treatmentRepository.save(treatment);
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public Treatment stopTherapistPatient(TreatmentRequest treatmentRequest){
         // TODO: Stopping treatment shouldn't need endDate.
         User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
@@ -104,6 +108,7 @@ public class TreatmentService {
         return treatment;
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Treatment> getPatients(User currentUser, int page, int size) {
         validatePageNumberAndSize(size);
 
@@ -121,6 +126,7 @@ public class TreatmentService {
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<Treatment> getTherapists(User currentUser, int page, int size) {
         validatePageNumberAndSize(size);
 
