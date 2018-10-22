@@ -5,8 +5,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.TreatmentService;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
@@ -70,7 +68,7 @@ public class TreatmentController {
     //List ALL treatments
     @GetMapping("/getAll/")
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public PagedResponse<TreatmentResponse> getAllTreatments(@CurrentUser User currentUser,
+    public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return treatmentService.getAllTreatments(currentUser, page, size);
@@ -79,7 +77,7 @@ public class TreatmentController {
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<TreatmentResponse> getPatients(@CurrentUser User currentUser,
+    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return treatmentService.getPatients(currentUser, page, size);
@@ -88,7 +86,7 @@ public class TreatmentController {
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<TreatmentResponse> getTherapists(@CurrentUser User currentUser,
+    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser,
                                                         @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                         @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return treatmentService.getTherapists(currentUser, page, size);

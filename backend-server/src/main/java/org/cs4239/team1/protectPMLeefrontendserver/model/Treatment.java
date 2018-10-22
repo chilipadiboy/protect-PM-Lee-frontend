@@ -1,5 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.NoArgsConstructor;
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
 
@@ -22,9 +23,11 @@ public class Treatment extends UserDateAudit {
     @EmbeddedId
     private TreatmentId treatmentId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private User therapist;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     private User patient;
 

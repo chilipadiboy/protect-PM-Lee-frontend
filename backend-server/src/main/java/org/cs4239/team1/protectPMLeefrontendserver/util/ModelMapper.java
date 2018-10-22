@@ -2,11 +2,9 @@ package org.cs4239.team1.protectPMLeefrontendserver.util;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponse;
 
 public class ModelMapper {
 
@@ -29,12 +27,5 @@ public class ModelMapper {
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),
                 permission.getUser().getNric());
-    }
-
-    public static TreatmentResponse mapTreatmentToTreatmentResponse(Treatment treatment) {
-
-        return new TreatmentResponse(treatment.getTherapist().getNric(),
-                treatment.getPatient().getNric(),
-                treatment.getEndDate());
     }
 }

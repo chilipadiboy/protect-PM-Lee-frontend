@@ -7,11 +7,9 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
-import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +26,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
-import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
 
@@ -43,7 +40,7 @@ public class TreatmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(TreatmentService.class);
 
-    public PagedResponse<TreatmentResponse> getAllTreatments(User currentUser, int page, int size) {
+    public PagedResponse<Treatment> getAllTreatments(User currentUser, int page, int size) {
         validatePageNumberAndSize(size);
 
         // Retrieve all treatments
@@ -55,11 +52,7 @@ public class TreatmentService {
                     treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
         }
 
-        List<TreatmentResponse> treatmentResponse = treatments.map(treatment -> {
-            return ModelMapper.mapTreatmentToTreatmentResponse(treatment);
-        }).getContent();
-
-        return new PagedResponse<>(treatmentResponse, treatments.getNumber(),
+        return new PagedResponse<Treatment>(treatments.getContent(), treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
@@ -108,7 +101,7 @@ public class TreatmentService {
         return treatment;
     }
 
-    public PagedResponse<TreatmentResponse> getPatients(User currentUser, int page, int size) {
+    public PagedResponse<Treatment> getPatients(User currentUser, int page, int size) {
         validatePageNumberAndSize(size);
 
         // Retrieve all patients under this user(therapist)
@@ -120,16 +113,11 @@ public class TreatmentService {
                     treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
         }
 
-        // Map treatments to TreatmentResponse
-        List<TreatmentResponse> treatmentResponses = treatments.map(treatment -> {
-            return ModelMapper.mapTreatmentToTreatmentResponse(treatment);
-        }).getContent();
-
-        return new PagedResponse<>(treatmentResponses, treatments.getNumber(),
+        return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
-    public PagedResponse<TreatmentResponse> getTherapists(User currentUser, int page, int size) {
+    public PagedResponse<Treatment> getTherapists(User currentUser, int page, int size) {
         validatePageNumberAndSize(size);
 
         // Retrieve all therapists treating this user(patient)
@@ -141,12 +129,7 @@ public class TreatmentService {
                     treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
         }
 
-        // Map treatments to TreatmentResponse
-        List<TreatmentResponse> treatmentResponses = treatments.map(treatment -> {
-            return ModelMapper.mapTreatmentToTreatmentResponse(treatment);
-        }).getContent();
-
-        return new PagedResponse<>(treatmentResponses, treatments.getNumber(),
+        return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
