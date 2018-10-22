@@ -1,12 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
-import static java.time.ZoneOffset.UTC;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
@@ -19,6 +13,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
+import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,15 +65,7 @@ public class TreatmentService {
         if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
             throw new BadRequestException(therapist.getNric() + " is not a patient!");
         }
-
-        // TODO: Maybe Time Parser.
-        // TODO: Verify that end date > today. TreatmentController may have to throw something.
-        String date = treatmentRequest.getEndDate() + " 23:59:59";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        TemporalAccessor temporalAccessor = formatter.parse(date);
-        LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC);
-        Instant expirationDateTime = Instant.from(zonedDateTime);
+        Instant expirationDateTime = FormatDate.formatDate(treatmentRequest.getEndDate());
 
         Treatment treatment = new Treatment(therapist, patient, expirationDateTime);
 

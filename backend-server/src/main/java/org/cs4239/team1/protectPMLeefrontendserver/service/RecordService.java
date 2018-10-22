@@ -1,12 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
-import static java.time.ZoneOffset.UTC;
-
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,6 +18,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionReposito
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
+import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,15 +131,7 @@ public class RecordService {
         if(!record.getPatientIC().equals(patientIC)){
             throw new BadRequestException("You do not have permission to grant record " + record.getRecordID());
         }
-
-        String date = permissionRequest.getEndDate() + " 23:59:59";
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        TemporalAccessor temporalAccessor = formatter.parse(date);
-
-        LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC);
-        Instant expirationDateTime = Instant.from(zonedDateTime);
+        Instant expirationDateTime = FormatDate.formatDate(permissionRequest.getEndDate());
 
         Permission permission = new Permission(record,user, expirationDateTime, patientIC);
 
