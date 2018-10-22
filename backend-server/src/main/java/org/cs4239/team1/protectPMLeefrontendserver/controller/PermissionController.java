@@ -60,7 +60,7 @@ public class PermissionController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been GRANTED to Therapist_" + permissionRequest.getNric()));
+                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been GRANTED to Therapist_" + permissionRequest.getTherapistNric()));
     }
 
     //revoke permission to view

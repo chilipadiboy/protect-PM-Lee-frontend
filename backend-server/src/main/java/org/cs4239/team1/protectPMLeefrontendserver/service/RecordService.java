@@ -127,8 +127,8 @@ public class RecordService {
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
-        User user = userRepository.findByNric(permissionRequest.getNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
+        User user = userRepository.findByNric(permissionRequest.getTherapistNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getTherapistNric()));
         String patientIC = currentUser.getNric();
 
         if(!record.getPatientIC().equals(patientIC)){
