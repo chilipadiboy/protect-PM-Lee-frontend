@@ -19,7 +19,6 @@ public class ModelMapper {
     }
 
     public static RecordResponseWithTherapistIdentifier mapRecordToRecordResponseWithTherapistIdentifier(Permission permission) {
-
         return new RecordResponseWithTherapistIdentifier(
                 permission.getRecord().getRecordID(),
                 permission.getRecord().getType(),

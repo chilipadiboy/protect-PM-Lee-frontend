@@ -1,5 +1,18 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+import static java.time.ZoneOffset.UTC;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
@@ -15,7 +28,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,21 +36,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.time.ZoneOffset.UTC;
 
 @Service
 public class RecordService {
@@ -245,26 +242,26 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses
-        List<RecordResponseWithTherapistIdentifier> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponseWithTherapistIdentifier(permissions);
-        }).getContent();
+        List<RecordResponseWithTherapistIdentifier> recordResponses = permission.map(
+                ModelMapper::mapRecordToRecordResponseWithTherapistIdentifier).getContent();
 
         return new PagedResponse<RecordResponseWithTherapistIdentifier>(recordResponses, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(User currentUser, String patientNRric, int page, int size) {
+    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
         validatePageNumberAndSize(page, size);
 
         // Retrieve all records that matches the user and patient Nric pair
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNRric, pageable);
+        Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNric, pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
                     permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
         }
 
+        //TODO: Maybe can return Record, no need make to RecordResponse?
         // Map Records to RecordResponses
         List<RecordResponse> recordResponses = permission.map(permissions -> {
             return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), currentUser);

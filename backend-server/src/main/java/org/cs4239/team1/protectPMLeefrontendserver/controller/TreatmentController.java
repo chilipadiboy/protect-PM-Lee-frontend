@@ -1,5 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
+import java.net.URI;
+
+import javax.validation.Valid;
+
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
@@ -21,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-
 @RestController
 @RequestMapping("/api/treatments")
 public class TreatmentController {
@@ -35,10 +36,8 @@ public class TreatmentController {
 
     //Admin assigns therapist-patient treatment pair
     @PostMapping("/start/")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<?> startTreatment(@Valid @RequestBody TreatmentRequest treatmentRequest) {
-
-        Treatment treatment = treatmentService.assignTherapistPatient(treatmentRequest);
+        treatmentService.assignTherapistPatient(treatmentRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{patientNric}")
@@ -46,12 +45,11 @@ public class TreatmentController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "Therapist_" + treatmentRequest.getTherapistNric() + " START treating Patient_" + treatmentRequest.getPatientNric() + " until " + treatmentRequest.getEndDate()));
+                .body(new ApiResponse(true, "Therapist_" + treatmentRequest.getTherapistNric() + " treats Patient_" + treatmentRequest.getPatientNric() + " until " + treatmentRequest.getEndDate()));
     }
 
     //Admin terminates therapist-patient treatment pair
     @PostMapping("/stop/")
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public ResponseEntity<?> stopTreatment(@Valid @RequestBody TreatmentRequest treatmentRequest) {
 
         Treatment treatment = treatmentService.stopTherapistPatient(treatmentRequest);
@@ -71,7 +69,7 @@ public class TreatmentController {
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getAllTreatments(currentUser, page, size);
+        return treatmentService.getAllTreatments(page, size);
     }
 
     //Therapist get list of all his patients

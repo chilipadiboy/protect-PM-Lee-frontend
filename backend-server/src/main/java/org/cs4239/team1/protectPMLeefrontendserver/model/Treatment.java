@@ -1,8 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.NoArgsConstructor;
-import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
+import java.time.Instant;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -10,9 +8,13 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.time.Instant;
+
+import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -34,6 +36,7 @@ public class Treatment extends UserDateAudit {
     @Column(name = "endDate")
     private Instant endDate;
 
+    //TODO: Wonder if need to check that the User exists for that particular role.
     public Treatment(User therapist, User patient, Instant endDate) {
         this.treatmentId = new TreatmentId(therapist.getNric(), patient.getNric());
         this.therapist = therapist;

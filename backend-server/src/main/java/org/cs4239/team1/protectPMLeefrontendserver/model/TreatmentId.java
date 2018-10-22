@@ -1,14 +1,13 @@
 package org.cs4239.team1.protectPMLeefrontendserver.model;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
-import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
 
 @Embeddable
-@NoArgsConstructor
 @AllArgsConstructor
 public class TreatmentId implements Serializable {
 
