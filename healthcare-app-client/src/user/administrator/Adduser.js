@@ -83,7 +83,8 @@ class Administrator_add_user extends Component {
             this.state.phone.validateStatus === 'success' &&
             this.state.address.validateStatus === 'success' &&
             this.state.age.validateStatus === 'success' &&
-            this.state.password.validateStatus === 'success'
+            this.state.password.validateStatus === 'success' &&
+            this.state.publicKey.validateStatus === 'success'
         );
     }
 
