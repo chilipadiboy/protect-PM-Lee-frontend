@@ -253,6 +253,27 @@ public class RecordService {
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
+    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(User currentUser, String patientNRric, int page, int size) {
+        validatePageNumberAndSize(page, size);
+
+        // Retrieve all records that matches the user and patient Nric pair
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNRric, pageable);
+
+        if (permission.getNumberOfElements() == 0) {
+            return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
+                    permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+        }
+
+        // Map Records to RecordResponses
+        List<RecordResponse> recordResponses = permission.map(permissions -> {
+            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), currentUser);
+        }).getContent();
+
+        return new PagedResponse<>(recordResponses, permission.getNumber(),
+                permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+    }
+
 
     private void validatePageNumberAndSize(int page, int size) {
         if(page < 0) {

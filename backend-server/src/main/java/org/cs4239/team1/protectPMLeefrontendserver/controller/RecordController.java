@@ -101,11 +101,21 @@ public class RecordController {
     }
 
     //@PreAuthorize("checkpatient")
-    @GetMapping("/patient/{patient}")
+    @GetMapping("/patient/{patient}/")
     public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser User currentUser,
                                                               @PathVariable String patient,
                                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getRecordsBelongingTo(patient, currentUser, page, size);
+    }
+
+    //Therapist get patient-specific permitted records
+    @GetMapping("/therapist/patient/{patient}")
+    @PreAuthorize("hasRole('THERAPIST')")
+    public PagedResponse<RecordResponse> getRecordsPermittedByPatient(@CurrentUser User currentUser,
+                                                                      @PathVariable String patient,
+                                                                      @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                                      @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return recordService.getRecordsPermittedByPatient(currentUser, patient, page, size);
     }
 }
