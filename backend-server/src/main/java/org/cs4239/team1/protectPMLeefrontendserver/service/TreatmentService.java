@@ -96,14 +96,22 @@ public class TreatmentService {
         treatmentRepository.deleteById(new TreatmentId(therapist.getNric(), patient.getNric()));
     }
 
-    @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Treatment> getPatients(User currentUser, int page, int size) {
+    @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
+    public PagedResponse<Treatment> getUsers(User currentUser, String type,int page, int size) {
         validatePageNumberAndSize(size);
 
         //TODO: Code repetition as the method below. Extract it out.
-        // Retrieve all patients under this user(therapist)
+        //
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Treatment> treatments = treatmentRepository.findByTherapist(currentUser, pageable);
+
+        Page<Treatment> treatments;
+        if(type.equals("getPatients")){
+            //Retrieve all patients treated by this user(therapist)
+            treatments = treatmentRepository.findByTherapist(currentUser, pageable);
+        }else if(type.equals("getTherapists")){
+            //Retrieve all therapist treating this user(patient)
+            treatments = treatmentRepository.findByPatient(currentUser, pageable);
+        }
 
         if (treatments.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), treatments.getNumber(),
@@ -113,24 +121,6 @@ public class TreatmentService {
         return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
-
-    @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<Treatment> getTherapists(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
-
-        // Retrieve all therapists treating this user(patient)
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Treatment> treatments = treatmentRepository.findByPatient(currentUser, pageable);
-
-        if (treatments.getNumberOfElements() == 0) {
-            return new PagedResponse<>(Collections.emptyList(), treatments.getNumber(),
-                    treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
-        }
-
-        return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
-                treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
-    }
-
 
     private void validatePageNumberAndSize(int size) {
         if(size > AppConstants.MAX_PAGE_SIZE) {

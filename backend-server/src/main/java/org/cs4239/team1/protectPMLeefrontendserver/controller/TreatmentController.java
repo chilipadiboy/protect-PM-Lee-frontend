@@ -74,16 +74,18 @@ public class TreatmentController {
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
     public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
-                                                        @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                        @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getPatients(currentUser, page, size);
+                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        String type = "getPatients";
+        return treatmentService.getUsers(currentUser, type, page, size);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
     public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser,
-                                                        @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                        @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getTherapists(currentUser, page, size);
+                                                  @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                  @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        String type = "getTherapists";
+        return treatmentService.getUsers(currentUser, type, page, size);
     }
 }
