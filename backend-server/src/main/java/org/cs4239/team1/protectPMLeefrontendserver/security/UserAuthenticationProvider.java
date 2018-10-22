@@ -1,9 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
-import java.security.GeneralSecurityException;
-import java.util.Base64;
-import java.util.Collections;
-
+import lombok.AllArgsConstructor;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,9 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.google.crypto.tink.subtle.Ed25519Verify;
-
-import lombok.AllArgsConstructor;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 
 @AllArgsConstructor
 public class UserAuthenticationProvider implements AuthenticationProvider {
@@ -45,8 +41,6 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
         try {
             User loadedUser = userAuthentication.authenticate(presentedNric, presentedPassword, presentedRole);
-            Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
-            verifier.verify(authToken.getSignature(), authToken.getData());
 
             return loadedUser;
         } catch (GeneralSecurityException gse) {

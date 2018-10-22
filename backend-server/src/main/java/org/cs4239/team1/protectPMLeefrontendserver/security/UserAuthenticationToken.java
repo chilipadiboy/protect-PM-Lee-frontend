@@ -10,13 +10,13 @@ import lombok.Getter;
 public class UserAuthenticationToken extends UsernamePasswordAuthenticationToken {
     private Role role;
     private byte[] signature;
-    private byte[] data;
+    private byte[] iv;
 
     public UserAuthenticationToken(Object principal, Object credentials, Role role,
-            byte[] signature, byte[] data) {
+            byte[] signature, byte[] iv) {
         super(principal, credentials);
         this.role = role;
         this.signature = signature;
-        this.data = data;
+        this.iv = iv;
     }
 }
