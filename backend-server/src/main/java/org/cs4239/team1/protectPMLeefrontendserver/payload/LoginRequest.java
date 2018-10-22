@@ -21,7 +21,7 @@ public class LoginRequest {
     private String role;
 
     @NotBlank
-    private String signature;
+    private String encryptedString;
 
     @NotBlank
     private String iv;

@@ -41,6 +41,8 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
         try {
             User loadedUser = userAuthentication.authenticate(presentedNric, presentedPassword, presentedRole);
+            //Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
+            //verifier.verify(authToken.getSignature(), authToken.getIv());
 
             return loadedUser;
         } catch (GeneralSecurityException gse) {
