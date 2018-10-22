@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PermissionRequest {
+public class EndPermissionRequest {
 
     private Long recordID;
 
     private String therapistNric;
-
-    private String endDate;
 }

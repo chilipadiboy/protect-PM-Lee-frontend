@@ -4,6 +4,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
@@ -64,9 +65,9 @@ public class PermissionController {
 
     //revoke permission to view
     @PostMapping("/revoke/")
-    public ResponseEntity<?> revokePermission(@Valid @RequestBody PermissionRequest permissionRequest, @CurrentUser User currentUser) {
+    public ResponseEntity<?> revokePermission(@Valid @RequestBody EndPermissionRequest permissionRequest, @CurrentUser User currentUser) {
 
-        Permission permission = recordService.revokePermission(permissionRequest, currentUser);
+        recordService.revokePermission(permissionRequest, currentUser);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{recordID}")
@@ -74,7 +75,7 @@ public class PermissionController {
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been REVOKED from Therapist_" + permissionRequest.getNric()));
+                .body(new ApiResponse(true, "Record_" + permissionRequest.getRecordID() + "'s permission has been REVOKED from Therapist_" + permissionRequest.getTherapistNric()));
     }
 
     //Get all permissions that currentUser (the therapist) has been allowed to see

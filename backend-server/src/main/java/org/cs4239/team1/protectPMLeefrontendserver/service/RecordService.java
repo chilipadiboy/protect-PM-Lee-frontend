@@ -1,5 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -7,9 +8,11 @@ import java.util.List;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
+import org.cs4239.team1.protectPMLeefrontendserver.model.PermissionId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
@@ -145,27 +148,24 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public Permission revokePermission(PermissionRequest permissionRequest, User currentUser){
+    public void revokePermission(EndPermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
-        User user = userRepository.findByNric(permissionRequest.getNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
-        Instant now = Instant.now();
-        String patientIC = currentUser.getNric();
+        User therapist = userRepository.findByNric(permissionRequest.getTherapistNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getTherapistNric()));
 
-        if(!record.getPatientIC().equals(patientIC)){
+        if(!record.getPatientIC().equals(currentUser.getNric())){
             throw new BadRequestException("You do not have permission to revoke record " + record.getRecordID());
         }
 
-        Permission permission = new Permission(record,user, now, patientIC);
+        PermissionId permissionId = new PermissionId(permissionRequest.getRecordID(),permissionRequest.getTherapistNric());
 
-        if (permissionRepository.findByPermissionID(permission.getPermissionID()) == null){
+        if (permissionRepository.findByPermissionID(permissionId) == null){
             throw new BadRequestException(record.getRecordID() + " has not been granted");
         }
 
-        permissionRepository.delete(permission);
-        return permission;
+        permissionRepository.deleteById(permissionId);
     }
 
     @PreAuthorize("hasRole('THERAPIST')")

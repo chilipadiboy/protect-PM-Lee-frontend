@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.EndTreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -50,17 +50,17 @@ public class TreatmentController {
 
     //Admin terminates therapist-patient treatment pair
     @PostMapping("/stop/")
-    public ResponseEntity<?> stopTreatment(@Valid @RequestBody TreatmentRequest treatmentRequest) {
+    public ResponseEntity<?> stopTreatment(@Valid @RequestBody EndTreatmentRequest endTreatmentRequest) {
 
-        Treatment treatment = treatmentService.stopTherapistPatient(treatmentRequest);
+        treatmentService.stopTherapistPatient(endTreatmentRequest);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{patientNric}")
-                .buildAndExpand(treatmentRequest.getPatientNric())
+                .buildAndExpand(endTreatmentRequest.getPatientNric())
                 .toUri();
 
         return ResponseEntity.created(location)
-                .body(new ApiResponse(true, "Therapist_" + treatmentRequest.getTherapistNric() + " STOP treating Patient_" + treatmentRequest.getPatientNric()));
+                .body(new ApiResponse(true, "Therapist_" + endTreatmentRequest.getTherapistNric() + " STOP treating Patient_" + endTreatmentRequest.getPatientNric()));
     }
 
     //List ALL treatments

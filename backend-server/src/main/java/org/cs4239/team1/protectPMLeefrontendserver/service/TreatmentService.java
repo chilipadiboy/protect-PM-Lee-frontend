@@ -7,7 +7,9 @@ import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.EndTreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
@@ -78,25 +80,20 @@ public class TreatmentService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public Treatment stopTherapistPatient(TreatmentRequest treatmentRequest){
-        // TODO: Stopping treatment shouldn't need endDate.
-        User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getTherapistNric()));
+    public void stopTherapistPatient(EndTreatmentRequest endTreatmentRequest){
+
+        User therapist = userRepository.findByNric(endTreatmentRequest.getTherapistNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", endTreatmentRequest.getTherapistNric()));
         if (!therapist.getRoles().contains(Role.ROLE_THERAPIST)){
             throw new BadRequestException(therapist.getNric() + " is not a therapist!");
         }
-        User patient = userRepository.findByNric(treatmentRequest.getPatientNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getPatientNric()));
+        User patient = userRepository.findByNric(endTreatmentRequest.getPatientNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", endTreatmentRequest.getPatientNric()));
         if (!patient.getRoles().contains(Role.ROLE_THERAPIST)){
             throw new BadRequestException(therapist.getNric() + " is not a therapist!");
         }
-        Instant expirationDateTime = Instant.now();
 
-        Treatment treatment = new Treatment(therapist, patient, expirationDateTime);
-
-        treatmentRepository.delete(treatment);
-
-        return treatment;
+        treatmentRepository.deleteById(new TreatmentId(therapist.getNric(), patient.getNric()));
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
