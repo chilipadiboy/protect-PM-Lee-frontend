@@ -48,6 +48,7 @@ class LoginForm extends Component {
     }
 
     startConnection() {
+       valueRecArray = [];
        let context = this;
        var ivStr;
        this.setState({isLoading:true});
@@ -87,16 +88,10 @@ class LoginForm extends Component {
            getServerSignature(loginRequest)
            .then(response => {
                ivStr = response.iv;
-               console.log(response.encrypted);
                let encrypted = convertBase64StrToUint8Array(response.encrypted);
-               console.log(encrypted);
-               let iv = new Uint8Array([123, 132, 0, 75, 17, 111, 101, 51, 119, 4, 237, 73, 60, 59, 222, 105]);
-               //let iv = convertBase64StrToUint8Array(response.iv);
-               console.log(iv);
-               //let nonce = new TextEncoder("utf-8").encode(response.nonce);
+               let iv = convertBase64StrToUint8Array(ivStr);
                let stringEnder = encoder.encode("//");
                let sendMsg = concatenate(Uint8Array, iv, encrypted, stringEnder);
-
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
                var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
                var prevPromise = Promise.resolve();
@@ -104,13 +99,12 @@ class LoginForm extends Component {
                   prevPromise = prevPromise.then(function() {
                     return writeChar.writeValue(msgChunks[i]).then(function() {
                       if (i === numOfChunks-1) {
-                        wait(20000);
+                        wait(11000);
                           var prevWhilePromise = Promise.resolve();
                           for (let j=0; j< 8; j++) {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
-                                 console.log(valueRec);
                                  if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
@@ -132,10 +126,9 @@ class LoginForm extends Component {
                                      let encryptedMsg = getTagSigAndMsg();
                                      let ivMsg = {iv: ivStr};
                                      let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
-                                     console.log(reqToSend);
                                      verifyTagSignature(reqToSend)
                                       .then(response => {
-                                        localStorage.setItem(AUTH_TOKEN, response.accessToken);
+                                        localStorage.setItem(AUTH_TOKEN, response.sessionId);
                                         context.setState({isLoading: false});
                                         context.props.onLogin();
                                       }).catch(error => {
@@ -153,10 +146,16 @@ class LoginForm extends Component {
                          }
                       })
                     }).catch(error => {
+                      context.setState({isLoading: false});
                       if (!deviceConnected.gatt.connected) {
                         notification.error({
                             message: 'Healthcare App',
                             description: 'Device disconnected!'
+                        });
+                      } else {
+                        notification.error({
+                            message: 'Healthcare App',
+                            description: error.message || 'Sorry! Something went wrong. Please try again!'
                         });
                       }
                     })
@@ -183,7 +182,6 @@ class LoginForm extends Component {
                });
             })
          }
-
 
 
     handleInputChange(event) {
@@ -291,7 +289,7 @@ function openNotificationError(type) {
 function convertBase64StrToUint8Array(str) {
   var binary_string =  window.atob(str);
   var len = binary_string.length;
-  var bytes = new Uint8Array( len );
+  var bytes = new Uint8Array(len);
   for (var i = 0; i < len; i++)        {
       bytes[i] = binary_string.charCodeAt(i);
   }
@@ -311,22 +309,11 @@ function getTagSigAndMsg() {
   let tagSignature = new Uint8Array(64);
   let tagPublicKey = new Uint8Array(32);
 
-  // for(i=0, j=0; i<messageHashLength && j<messageHashLength; i++, j++) {
-  //   tagMessageHash[j] = valueRecArray[i];
-  // }
-  // let messageStr = convertUint8ArrayToStr(tagMessageHash);
-  //
-  // for(i=i, j=0; i<messageHashLength+signatureLength && j<signatureLength; i++, j++) {
-  //   tagSignature[j] = valueRecArray[i];
-  // }
-
   for(i=0; i<messageHashLength+signatureLength; i++) {
      encryptedMsg[i] = valueRecArray[i];
   }
   let encryptedStr = convertUint8ArrayToStr(encryptedMsg);
-
-  return {signature: encryptedStr};
-
+  return {encryptedString: encryptedStr};
 }
 
 
