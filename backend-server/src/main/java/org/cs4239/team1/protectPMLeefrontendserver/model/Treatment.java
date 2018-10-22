@@ -35,8 +35,7 @@ public class Treatment extends UserDateAudit {
 
     @Column(name = "endDate")
     private Instant endDate;
-
-    //TODO: Wonder if need to check that the User exists for that particular role.
+    
     public Treatment(User therapist, User patient, Instant endDate) {
         this.treatmentId = new TreatmentId(therapist.getNric(), patient.getNric());
         this.therapist = therapist;

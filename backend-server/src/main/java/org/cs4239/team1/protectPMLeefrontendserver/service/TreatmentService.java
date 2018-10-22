@@ -57,7 +57,6 @@ public class TreatmentService {
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
-    // TODO: Preauthorise can be done here
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public Treatment assignTherapistPatient(TreatmentRequest treatmentRequest){
 
@@ -72,7 +71,6 @@ public class TreatmentService {
             throw new BadRequestException(therapist.getNric() + " is not a patient!");
         }
 
-        // TODO: Verify roles
         // TODO: Maybe Time Parser.
         // TODO: Verify that end date > today. TreatmentController may have to throw something.
         String date = treatmentRequest.getEndDate() + " 23:59:59";
@@ -97,8 +95,14 @@ public class TreatmentService {
         // TODO: Stopping treatment shouldn't need endDate.
         User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getTherapistNric()));
+        if (!therapist.getRoles().contains(Role.ROLE_THERAPIST)){
+            throw new BadRequestException(therapist.getNric() + " is not a therapist!");
+        }
         User patient = userRepository.findByNric(treatmentRequest.getPatientNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getPatientNric()));
+        if (!patient.getRoles().contains(Role.ROLE_THERAPIST)){
+            throw new BadRequestException(therapist.getNric() + " is not a therapist!");
+        }
         Instant expirationDateTime = Instant.now();
 
         Treatment treatment = new Treatment(therapist, patient, expirationDateTime);
