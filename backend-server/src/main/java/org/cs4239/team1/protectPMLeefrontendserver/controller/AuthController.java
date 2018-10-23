@@ -25,6 +25,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.SessionIdResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecryptionTool;
+import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
 import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
@@ -204,7 +205,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest, @CurrentUser User currentUser) {
         if (userRepository.existsByNric(signUpRequest.getNric())) {
             return new ResponseEntity<>(new ApiResponse(false, "Nric is already taken!"),
                     HttpStatus.BAD_REQUEST);
@@ -216,6 +217,12 @@ public class AuthController {
         }
 
         // Creating user's account
+        if (currentUser.getSelectedRole().equals(Role.ROLE_EXTERNAL_PARTNER)
+                && signUpRequest.getRoles().contains("administrator")) {
+            return new ResponseEntity<>(new ApiResponse(false, "External partners are not allowed to create administrator accounts!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         User user = new User(
                 signUpRequest.getNric(),
                 signUpRequest.getName(),
