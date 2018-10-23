@@ -56,7 +56,7 @@ class LoginForm extends Component {
        var ivStr;
        this.setState({isLoading:true});
        navigator.bluetooth.requestDevice({
-         filters: [ {services:[0x2220]}, {name:'ifs'},]
+         filters: [ {services:[0x2220]}]
        })
          .then(device => {
            deviceConnected = device;

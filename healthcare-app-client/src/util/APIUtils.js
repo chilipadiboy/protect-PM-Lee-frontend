@@ -140,6 +140,30 @@ const requestVideo = (options) => {
     );
 };
 
+const sendFile = (options) => {
+    const headers = new Headers({
+        'enctype': "multipart/form-data"
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('SessionId', localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    const cred = {credentials: 'include'};
+    options = Object.assign({}, defaults, options, cred);
+
+    return fetch(options.url, options)
+    .then(response =>
+        response.json().then(json => {
+            if(!response.ok) {
+                return Promise.reject(json);
+            }
+            return json;
+        })
+    );
+};
+
 function arrayBufferToBase64(buffer) {
   var binary = '';
   var bytes = [].slice.call(new Uint8Array(buffer));
@@ -172,6 +196,15 @@ export function verifyTagSignature(loginRequest) {
         body: JSON.stringify(loginRequest)
     });
 }
+
+export function getServerFileDataSignature(file) {
+    return sendFile({
+        url: API_BASE_URL + "/file/getSignature",
+        method: 'POST',
+        body: file
+    });
+}
+
 
 export function signup(signupRequest) {
     return request({
