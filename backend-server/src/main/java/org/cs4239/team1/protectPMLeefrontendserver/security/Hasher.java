@@ -21,4 +21,8 @@ public class Hasher {
             throw new AssertionError("Encoding should be valid.");
         }
     }
+
+    public static byte[] hash(byte[] toHash) {
+        return digest.digest(toHash);
+    }
 }
