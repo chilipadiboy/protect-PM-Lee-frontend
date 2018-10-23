@@ -13,6 +13,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
@@ -124,7 +125,7 @@ public class AuthController {
     }
 
     @PostMapping("/firstAuthorization")
-    public ServerSignatureResponse getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
+    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
         try {
             userAuthentication.authenticate(serverSignatureRequest.getNric(),
                     serverSignatureRequest.getPassword(),
@@ -148,8 +149,9 @@ public class AuthController {
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagBluetoothEncryptionKey, ivBytes);
 
-            return new ServerSignatureResponse(ivBytes, encrypted);
-
+            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
+        } catch (NonceExceededException nce) {
+            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             throw new AssertionError("Errors should not happen.");
         }
