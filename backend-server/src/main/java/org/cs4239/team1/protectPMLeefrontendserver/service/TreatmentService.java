@@ -97,21 +97,12 @@ public class TreatmentService {
     }
 
     @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
-    public PagedResponse<Treatment> getUsers(User currentUser, String type,int page, int size) {
+    public PagedResponse<Treatment> getUsers(User currentUser, Role role, int page, int size) {
         validatePageNumberAndSize(size);
 
-        //TODO: Code repetition as the method below. Extract it out.
-        //
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 
-        Page<Treatment> treatments;
-        if(type.equals("getPatients")){
-            //Retrieve all patients treated by this user(therapist)
-            treatments = treatmentRepository.findByTherapist(currentUser, pageable);
-        }else if(type.equals("getTherapists")){
-            //Retrieve all therapist treating this user(patient)
-            treatments = treatmentRepository.findByPatient(currentUser, pageable);
-        }
+        Page<Treatment> treatments = getTreatments(currentUser, role, pageable);
 
         if (treatments.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), treatments.getNumber(),
@@ -120,6 +111,18 @@ public class TreatmentService {
 
         return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
+    }
+
+    private Page<Treatment> getTreatments(User currentUser, Role role, Pageable pageable) {
+        if (role.equals(Role.ROLE_PATIENT)) {
+            //Retrieve all patients treated by this user(therapist)
+            return treatmentRepository.findByTherapist(currentUser, pageable);
+        } else if (role.equals(Role.ROLE_THERAPIST)) {
+            //Retrieve all therapist treating this user(patient)
+            return treatmentRepository.findByPatient(currentUser, pageable);
+        } else {
+            throw new AssertionError("Should not happen.");
+        }
     }
 
     private void validatePageNumberAndSize(int size) {

@@ -4,6 +4,7 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
@@ -76,8 +77,7 @@ public class TreatmentController {
     public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
                                                 @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                 @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        String type = "getPatients";
-        return treatmentService.getUsers(currentUser, type, page, size);
+        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, page, size);
     }
 
     //Patient get list of all his Therapists
@@ -86,6 +86,6 @@ public class TreatmentController {
                                                   @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                   @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, type, page, size);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, page, size);
     }
 }
