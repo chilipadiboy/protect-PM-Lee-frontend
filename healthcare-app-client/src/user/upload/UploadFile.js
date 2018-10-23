@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Upload, Button, Icon } from 'antd';
-import { API_BASE_URL, AUTH_TOKEN } from '../../constants/index.js';
+import { API, AUTH_TOKEN } from '../../constants/index.js';
 
 class UploadFile extends Component {
 
@@ -37,7 +37,7 @@ class UploadFile extends Component {
 
   render() {
     const props = {
-      action: API_BASE_URL + "/file/upload",
+      action: API + "/file/upload",
       headers: {
         SessionId: localStorage.getItem(AUTH_TOKEN),
         enctype: "multipart/form-data"

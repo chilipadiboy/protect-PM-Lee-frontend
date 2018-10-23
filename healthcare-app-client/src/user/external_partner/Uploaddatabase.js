@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Upload, Button, Layout, Icon } from 'antd';
-import { AUTH_TOKEN, API_BASE_URL } from '../../constants/index.js'
+import { AUTH_TOKEN, API } from '../../constants/index.js'
 import './Uploaddatabase.css';
 
 const FormItem = Form.Item;
@@ -35,7 +35,7 @@ class UploadDataForm extends Component {
 
   render() {
     const props = {
-      action: API_BASE_URL + "/file/upload",
+      action: API + "/file/upload",
       headers: {
         Authorization: "Bearer " + localStorage.getItem(AUTH_TOKEN),
         enctype: "multipart/form-data"

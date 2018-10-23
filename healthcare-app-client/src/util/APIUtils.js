@@ -1,4 +1,4 @@
-import { API_BASE_URL, AUTH_TOKEN } from '../constants';
+import { API, AUTH_TOKEN } from '../constants';
 
 const request = (options) => {
     const headers = new Headers({
@@ -82,7 +82,7 @@ function arrayBufferToBase64(buffer) {
 
 export function login(loginRequest) {
     return request({
-        url: API_BASE_URL + "/auth/signin",
+        url: API + "/auth/signin",
         method: 'POST',
         body: JSON.stringify(loginRequest)
     });
@@ -90,7 +90,7 @@ export function login(loginRequest) {
 
 export function getServerSignature(loginRequest) {
     return request({
-        url: API_BASE_URL + "/auth/firstAuthorization",
+        url: API + "/auth/firstAuthorization",
         method: 'POST',
         body: JSON.stringify(loginRequest)
     });
@@ -98,7 +98,7 @@ export function getServerSignature(loginRequest) {
 
 export function verifyTagSignature(loginRequest) {
     return request({
-        url: API_BASE_URL + "/auth/secondAuthorization",
+        url: API + "/auth/secondAuthorization",
         method: 'POST',
         body: JSON.stringify(loginRequest)
     });
@@ -106,7 +106,7 @@ export function verifyTagSignature(loginRequest) {
 
 export function signup(signupRequest) {
     return request({
-        url: API_BASE_URL + "/auth/signup",
+        url: API + "/auth/signup",
         method: 'POST',
         body: JSON.stringify(signupRequest)
     });
@@ -114,7 +114,7 @@ export function signup(signupRequest) {
 
 export function logout() {
     return request({
-        url: API_BASE_URL + "/user/logout",
+        url: API + "/user/logout",
         method: 'GET',
     });
 }
@@ -125,21 +125,21 @@ export function getCurrentUser() {
     }
 
     return request({
-        url: API_BASE_URL + "/user/me",
+        url: API + "/user/me",
         method: 'GET'
     });
 }
 
 export function getUserProfile(nric) {
     return request({
-        url: API_BASE_URL + "/users/" + nric,
+        url: API + "/users/" + nric,
         method: 'GET'
     });
 }
 
 export function createRecord(newRecord) {
     return request({
-        url: API_BASE_URL + "/records/",
+        url: API + "/records/",
         method: 'POST',
         body: JSON.stringify(newRecord)
     });
@@ -147,42 +147,42 @@ export function createRecord(newRecord) {
 
 export function getAllRecords() {
     return request({
-        url: API_BASE_URL + "/records/",
+        url: API + "/records/",
         method: 'GET'
     });
 }
 
 export function getUserRecords(nric, role) {
     return request({
-        url: API_BASE_URL + "/records/" + role + "/" + nric,
+        url: API + "/records/" + role + "/" + nric,
         method: 'GET'
     });
 }
 
 export function getAllUsers() {
     return request({
-        url: API_BASE_URL + "/admin/showAllUsers",
+        url: API + "/admin/showAllUsers",
         method: 'GET'
     });
 }
 
 export function deleteUser(nric) {
     return request({
-        url: API_BASE_URL + "/admin/delete/" + nric,
+        url: API + "/admin/delete/" + nric,
         method: 'GET'
     });
 }
 
 export function downloadFile(filename) {
     return requestFile({
-        url: API_BASE_URL + "/file/download/" + filename,
+        url: API + "/file/download/" + filename,
         method: 'GET'
     });
 }
 
 export function downloadImg(filename) {
     return requestImg({
-        url: API_BASE_URL + "/file/download/" + filename,
+        url: API + "/file/download/" + filename,
         method: 'GET'
     });
 }
