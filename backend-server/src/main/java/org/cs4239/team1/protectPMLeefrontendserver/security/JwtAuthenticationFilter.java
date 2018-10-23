@@ -14,6 +14,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -23,6 +24,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import io.jsonwebtoken.JwtException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    @Value("${app.jwtSecret}")
+    private String jwtSecret;
 
     @Autowired
     private JwtTokenProvider tokenProvider;
@@ -31,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private CustomUserDetailsService customUserDetailsService;
 
     @Autowired
-    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+    private AESEncryptionDecryptionTool AESEncryptionDecryptionTool;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
@@ -46,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String jwt = jwtEncryptionDecryptionTool.decrypt(encryptedJwt.getBytes(), requestId);
+            String jwt = AESEncryptionDecryptionTool.decrypt(encryptedJwt, jwtSecret, requestId);
 
             if (!tokenProvider.validateToken(jwt)) {
                 filterChain.doFilter(request, response);

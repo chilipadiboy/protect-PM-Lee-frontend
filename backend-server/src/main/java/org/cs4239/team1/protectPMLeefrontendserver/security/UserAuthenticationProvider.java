@@ -1,6 +1,10 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
-import lombok.AllArgsConstructor;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -9,8 +13,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.security.GeneralSecurityException;
-import java.util.Collections;
+import com.google.crypto.tink.subtle.Ed25519Verify;
+
+import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class UserAuthenticationProvider implements AuthenticationProvider {
@@ -41,11 +46,17 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
         try {
             User loadedUser = userAuthentication.authenticate(presentedNric, presentedPassword, presentedRole);
-            //Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
-            //verifier.verify(authToken.getSignature(), authToken.getIv());
+
+            Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
+            verifier.verify(authToken.getSignature(), authToken.getMsgHash());
+
+            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(presentedNric));
+            if (!Arrays.equals(authToken.getMsgHash(), verifyHash)) {
+                throw new GeneralSecurityException();
+            }
 
             return loadedUser;
-        } catch (GeneralSecurityException gse) {
+        } catch (Exception e) {
             throw new BadCredentialsException("Bad credentials.");
         }
     }
