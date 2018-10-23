@@ -12,19 +12,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AESEncryptionDecryptionTool {
-    public byte[] encrypt(String toEncrypt, String secretKey, byte[] ivBytes) {
+    public byte[] encrypt(String toEncrypt, String secretKey, byte[] ivBytes, String transformation) {
         try {
-            return encrypt(toEncrypt.getBytes("UTF-8"), secretKey, ivBytes);
+            return encrypt(toEncrypt.getBytes("UTF-8"), secretKey, ivBytes, transformation);
         } catch (UnsupportedEncodingException uee) {
             throw new AssertionError("Encoding should be valid.");
         }
     }
 
-    public byte[] encrypt(byte[] toEncrypt, String secretKey, byte[] ivBytes) {
+    public byte[] encrypt(byte[] toEncrypt, String secretKey, byte[] ivBytes, String transformation) {
         try {
             IvParameterSpec iv = new IvParameterSpec(ivBytes);
             SecretKeySpec sKeySpec = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "AES");
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            Cipher cipher = Cipher.getInstance(transformation);
             cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, iv);
 
             return cipher.doFinal(toEncrypt);
@@ -33,11 +33,11 @@ public class AESEncryptionDecryptionTool {
         }
     }
 
-    public String decrypt(String toDecrypt, String secretKey, String ivString) {
+    public String decrypt(String toDecrypt, String secretKey, String ivString, String transformation) {
         try {
             IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(ivString));
             SecretKeySpec sKeySpec = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "AES");
-            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            Cipher cipher = Cipher.getInstance(transformation);
             cipher.init(Cipher.DECRYPT_MODE, sKeySpec, iv);
 
             byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(toDecrypt));

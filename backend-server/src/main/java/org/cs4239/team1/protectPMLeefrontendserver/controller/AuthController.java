@@ -106,7 +106,7 @@ public class AuthController {
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);
@@ -147,7 +147,7 @@ public class AuthController {
             String tagBluetoothEncryptionKey = "D2edHtPLRkUXYMCRA3NLeQ==";
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagBluetoothEncryptionKey, ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagBluetoothEncryptionKey, ivBytes, "AES/CBC/NOPADDING");
 
             return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
         } catch (NonceExceededException nce) {
@@ -162,7 +162,7 @@ public class AuthController {
         try {
             String tagBluetoothEncryptionKey = "D2edHtPLRkUXYMCRA3NLeQ==";
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(loginRequest.getEncryptedString(), tagBluetoothEncryptionKey, loginRequest.getIv())
+                    .decrypt(loginRequest.getEncryptedString(), tagBluetoothEncryptionKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
                     .getBytes();
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
@@ -184,7 +184,7 @@ public class AuthController {
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = tokenProvider.generateToken(iv, authentication);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);
