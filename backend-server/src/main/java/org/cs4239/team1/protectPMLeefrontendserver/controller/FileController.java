@@ -1,9 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import org.apache.commons.io.IOUtils;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.sf.jmimemagic.Magic;
+
 @RestController
 @RequestMapping("/api/file")
 public class FileController {
@@ -27,23 +26,17 @@ public class FileController {
     private FileStorageService fileStorageService;
 
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName, HttpServletRequest request) {
-        Resource resource = fileStorageService.loadFileAsResource(fileName);
-        String contentType = getContentType(request, resource);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .body(resource);
-    }
-
-    private String getContentType(HttpServletRequest request, Resource resource) {
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         try {
-            return request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-        } catch (IOException ex) {
-            logger.info("Could not determine file type.");
-        }
+            Resource resource = fileStorageService.loadFileAsResource(fileName);
+            String contentType = Magic.getMagicMatch(IOUtils.toByteArray(resource.getInputStream())).getMimeType();
 
-        return "application/octet-stream";
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            throw new AssertionError("Should not happen.");
+        }
     }
 }
