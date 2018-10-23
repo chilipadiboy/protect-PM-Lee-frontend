@@ -1,6 +1,5 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -98,7 +97,7 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public Record createRecord(RecordRequest recordRequest) {
+    public Record createRecord(RecordRequest recordRequest, String fileName) {
 
         //check if user exist
         User user = userRepository.findByNric(recordRequest.getPatientIC())
@@ -111,7 +110,7 @@ public class RecordService {
         return recordRepository.save(new Record(recordRequest.getType(),
                 recordRequest.getSubtype(),
                 recordRequest.getTitle(),
-                recordRequest.getDocument(),
+                fileName,
                 recordRequest.getPatientIC()));
     }
 
