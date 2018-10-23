@@ -20,6 +20,7 @@ import DownloadImage from '../user/download/DownloadImage';
 import AppHeader from '../common/AppHeader';
 // import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
+import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
 import Administrator_add_user from '../user/administrator/Adduser';
 import Researcher_generate_data from '../user/researcher/Generatedata';
@@ -230,6 +231,7 @@ class App extends Component {
                     </Route>
                     <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/logs" component={Administrator_logs}></AdministratorRoute>
+                    <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/link" component={Administrator_link_users}></AdministratorRoute>
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={Administrator_manage_users}></AdministratorRoute>
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={Administrator_add_user}></AdministratorRoute>
                     <Route path="/chart" component={Chart}></Route>
