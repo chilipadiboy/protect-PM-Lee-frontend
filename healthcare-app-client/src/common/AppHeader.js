@@ -121,14 +121,14 @@ class AppHeader extends Component {
                   <Icon type="database" />
                 </Link>
               </Menu.Item>,
+              <Menu.Item key="/link">
+                <Link to="/link">
+                  <Icon type="swap" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/manageusers">
                 <Link to="/manageusers">
                   <Icon type="usergroup-add" />
-                </Link>
-              </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
