@@ -1,20 +1,28 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
+import org.cs4239.team1.protectPMLeefrontendserver.model.PermissionId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
+import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,22 +30,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Period;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.time.ZoneOffset.UTC;
 
 @Service
 public class RecordService {
@@ -53,8 +47,8 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-    public PagedResponse<RecordResponse> getAllRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    public PagedResponse<Record> getAllRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve Records
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
@@ -65,64 +59,54 @@ public class RecordService {
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        Map<String, User> creatorMap = getRecordCreatorMap(records.getContent());
-
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record,
-                    creatorMap.get(record.getCreatedBy()));
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsCreatedBy(String nric, User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    @PreAuthorize("hasRole('THERAPIST')")
+    public PagedResponse<Record> getRecordsCreatedBy(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
-
-        // Retrieve all records created by the given nric
+        // Retrieve all records created by the current user
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByCreatedBy(user.getNric(), pageable);
+        Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, user);
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
-    public PagedResponse<RecordResponse> getRecordsBelongingTo(String nric, User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
-
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+    @PreAuthorize("hasRole('PATIENT')")
+    public PagedResponse<Record> getRecordsBelongingTo(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByPatientIC(user.getNric(), pageable);
+        Page<Record> records = recordRepository.findByPatientIC(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
                     records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
         }
 
-        List<RecordResponse> recordResponses = records.map(record -> {
-            return ModelMapper.mapRecordToRecordResponse(record, user);
-        }).getContent();
-
-        return new PagedResponse<>(recordResponses, records.getNumber(),
+        return new PagedResponse<>(records.getContent(), records.getNumber(),
                 records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public Record createRecord(RecordRequest recordRequest) {
+
+        //check if user exist
+        User user = userRepository.findByNric(recordRequest.getPatientIC())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", recordRequest.getPatientIC()));
+        //check if user has role patient
+        if (!user.getRoles().contains(Role.ROLE_PATIENT)){
+            throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
+        }
 
         return recordRepository.save(new Record(recordRequest.getType(),
                 recordRequest.getSubtype(),
@@ -131,40 +115,26 @@ public class RecordService {
                 recordRequest.getPatientIC()));
     }
 
+    //TODO Do we still need this method? Or who will call this method
+    public Record getRecordByRecordID(Long recordId) {
 
-    public RecordResponse getRecordByRecordID(Long recordId, User currentUser) {
-
-        Record record = recordRepository.findByRecordID(recordId).orElseThrow(
+        return recordRepository.findByRecordID(recordId).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", recordId));
-
-        // Retrieve record creator details
-        User creator = userRepository.findByNric(record.getCreatedBy())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", record.getCreatedBy()));
-
-        return ModelMapper.mapRecordToRecordResponse(record, creator);
     }
 
-
+    @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST')")
     public Permission grantPermission(PermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
-        User user = userRepository.findByNric(permissionRequest.getNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
+        User user = userRepository.findByNric(permissionRequest.getTherapistNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getTherapistNric()));
         String patientIC = currentUser.getNric();
 
         if(!record.getPatientIC().equals(patientIC)){
             throw new BadRequestException("You do not have permission to grant record " + record.getRecordID());
         }
-
-        String date = permissionRequest.getEndDate() + " 23:59:59";
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        TemporalAccessor temporalAccessor = formatter.parse(date);
-
-        LocalDateTime localDateTime = LocalDateTime.from(temporalAccessor);
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, UTC);
-        Instant expirationDateTime = Instant.from(zonedDateTime);
+        Instant expirationDateTime = FormatDate.formatDate(permissionRequest.getEndDate());
 
         Permission permission = new Permission(record,user, expirationDateTime, patientIC);
 
@@ -177,57 +147,50 @@ public class RecordService {
         return permissionRepository.save(permission);
     }
 
-    public Permission revokePermission(PermissionRequest permissionRequest, User currentUser){
+    @PreAuthorize("hasRole('PATIENT')")
+    public void revokePermission(EndPermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
                 () -> new ResourceNotFoundException("Record", "id", permissionRequest.getRecordID()));
-        User user = userRepository.findByNric(permissionRequest.getNric())
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getNric()));
-        Instant now = Instant.now();
-        String patientIC = currentUser.getNric();
+        User therapist = userRepository.findByNric(permissionRequest.getTherapistNric())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", permissionRequest.getTherapistNric()));
 
-        if(!record.getPatientIC().equals(patientIC)){
+        if(!record.getPatientIC().equals(currentUser.getNric())){
             throw new BadRequestException("You do not have permission to revoke record " + record.getRecordID());
         }
 
-        Permission permission = new Permission(record,user, now, patientIC);
+        PermissionId permissionId = new PermissionId(permissionRequest.getRecordID(),permissionRequest.getTherapistNric());
 
-        if (permissionRepository.findByPermissionID(permission.getPermissionID()) == null){
+        if (permissionRepository.findByPermissionID(permissionId) == null){
             throw new BadRequestException(record.getRecordID() + " has not been granted");
         }
 
-        permissionRepository.delete(permission);
-        return permission;
+        permissionRepository.deleteById(permissionId);
     }
 
-    public PagedResponse<RecordResponse> getAllowedRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
-
-        String nric = currentUser.getNric();
-
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+    @PreAuthorize("hasRole('THERAPIST')")
+    public PagedResponse<Record> getAllowedRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByUser(user, pageable);
+        Page<Permission> permission = permissionRepository.findByUser(currentUser, pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
                     permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
         }
 
-        // Map Records to RecordResponses
-        List<RecordResponse> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
-        }).getContent();
+        // Map Permissions to Records
+        List<Record> records = permission.map(ModelMapper::mapPermissionToRecord).getContent();
 
-        return new PagedResponse<>(recordResponses, permission.getNumber(),
+        return new PagedResponse<>(records, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
-    public PagedResponse<RecordResponse> getGivenRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(page, size);
+    @PreAuthorize("hasRole('PATIENT')")
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser, int page, int size) {
+        validatePageNumberAndSize(size);
 
         String nric = currentUser.getNric();
 
@@ -244,36 +207,37 @@ public class RecordService {
         }
 
         // Map Records to RecordResponses
-        List<RecordResponse> recordResponses = permission.map(permissions -> {
-            return ModelMapper.mapRecordToRecordResponse(permissions.getRecord(), user);
-        }).getContent();
+        List<RecordResponseWithTherapistIdentifier> recordResponses = permission.map(
+                ModelMapper::mapRecordToRecordResponseWithTherapistIdentifier).getContent();
 
         return new PagedResponse<>(recordResponses, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
+    public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
+        validatePageNumberAndSize(size);
 
-    private void validatePageNumberAndSize(int page, int size) {
-        if(page < 0) {
-            throw new BadRequestException("Page number cannot be less than zero.");
+        // Retrieve all records that matches the user and patient Nric pair
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNric, pageable);
+
+        if (permission.getNumberOfElements() == 0) {
+            return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
+                    permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
         }
 
+        // Map Permissions to Records
+        List<Record> records = permission.map(ModelMapper::mapPermissionToRecord).getContent();
+
+        return new PagedResponse<>(records, permission.getNumber(),
+                permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+    }
+
+
+    private void validatePageNumberAndSize(int size) {
         if(size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
-    }
-
-    Map<String, User> getRecordCreatorMap(List<Record> records) {
-        // Get Record Creator details of the given list of records
-        List<String> creatorIds = records.stream()
-                .map(Record::getCreatedBy)
-                .distinct()
-                .collect(Collectors.toList());
-
-        List<User> creators = userRepository.findByNricIn(creatorIds);
-        Map<String, User> creatorMap = creators.stream()
-                .collect(Collectors.toMap(User::getNric, Function.identity()));
-
-        return creatorMap;
     }
 }

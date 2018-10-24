@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RecordResponse {
+public class RecordResponseWithTherapistIdentifier {
     private Long recordID;
     private String type;
     private String subtype;
     private String title;
     private String document;
-    private String patientIC;
+    private String therapistNric;
 }

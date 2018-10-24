@@ -5,13 +5,17 @@ import java.net.URI;
 
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
@@ -20,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +38,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class RecordController {
 
     @Autowired
-    private RecordRepository recordRepository;
+    private TreatmentRepository treatmentRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -45,10 +48,20 @@ public class RecordController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
-    @PostMapping
-    @PreAuthorize("hasRole('THERAPIST')")
+    @PostMapping("/create/")
     public ResponseEntity<?> createRecord(@Valid @RequestBody RecordRequest recordRequest) {
+
         Record record = recordService.createRecord(recordRequest);
+
+        //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
+        //Need to be assigned to start treatment. Else record will be created but not auto permitted
+        Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
+        String endDate = treatment.getEndDate().toString().substring(0,10);
+        PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
+        User patient = userRepository.findByNric(record.getPatientIC())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
+
+        Permission permission = recordService.grantPermission(permissionRequest, patient);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{recordId}")
@@ -60,7 +73,7 @@ public class RecordController {
 
     //Get all records
     @GetMapping
-    public PagedResponse<RecordResponse> getRecords(@CurrentUser User currentUser,
+    public PagedResponse<Record> getRecords(@CurrentUser User currentUser,
                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return recordService.getAllRecords(currentUser, page, size);
@@ -69,27 +82,31 @@ public class RecordController {
 
     //Get specific records by RecordID
     @GetMapping("/recordid/{recordId}")
-
-    public RecordResponse getRecordByRecordID(@CurrentUser User currentUser,
+    public Record getRecordByRecordID(@CurrentUser User currentUser,
                                               @PathVariable Long recordId) {
-        return recordService.getRecordByRecordID(recordId, currentUser);
+        return recordService.getRecordByRecordID(recordId);
     }
 
-    //@PreAuthorize("checkownership")
-    @GetMapping("/therapist/{therapist}")
-    public PagedResponse<RecordResponse> getRecordByTherapist(@CurrentUser User currentUser,
-                                              @PathVariable String therapist,
+    @GetMapping("/therapist/")
+    public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser,
                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsCreatedBy(therapist, currentUser, page, size);
+        return recordService.getRecordsCreatedBy(currentUser, page, size);
     }
 
-    //@PreAuthorize("checkpatient")
-    @GetMapping("/patient/{patient}")
-    public PagedResponse<RecordResponse> getRecordByPatient(@CurrentUser User currentUser,
-                                                              @PathVariable String patient,
+    @GetMapping("/patient/")
+    public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser,
                                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsBelongingTo(patient, currentUser, page, size);
+        return recordService.getRecordsBelongingTo(currentUser, page, size);
+    }
+
+    //Therapist get patient-specific permitted records
+    @GetMapping("/therapist/patient/{patient}")
+    public PagedResponse<Record> getRecordsPermittedByPatient(@CurrentUser User currentUser,
+                                                                      @PathVariable String patient,
+                                                                      @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                                      @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return recordService.getRecordsPermittedByPatient(currentUser, patient, page, size);
     }
 }

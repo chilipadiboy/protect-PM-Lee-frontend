@@ -11,7 +11,7 @@ import javax.validation.constraints.Size;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PermissionRequest {
+public class EndPermissionRequest {
 
     @NonNull
     private Long recordID;
@@ -20,9 +20,4 @@ public class PermissionRequest {
     @NotBlank
     @Size(min = 9, max = 9)
     private String therapistNric;
-
-    @NonNull
-    @NotBlank
-    @Size(min = 10, max = 10)
-    private String endDate;
 }

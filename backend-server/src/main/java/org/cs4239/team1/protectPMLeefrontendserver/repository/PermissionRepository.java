@@ -12,5 +12,6 @@ import org.springframework.stereotype.Repository;
 public interface PermissionRepository extends JpaRepository<Permission, PermissionId> {
     Page<Permission> findByUser(User user, Pageable pageable);
     Page<Permission> findByPatientNric(String nric, Pageable pageable);
+    Page<Permission> findByUserAndPatientNric(User user, String nric, Pageable pageable);
     Permission findByPermissionID(PermissionId permissionId);
 }
