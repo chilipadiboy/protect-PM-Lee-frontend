@@ -24,29 +24,6 @@ const request = (options) => {
     );
 };
 
-const create = (options) => {
-    const headers = new Headers({
-    })
-
-    if(localStorage.getItem(AUTH_TOKEN)) {
-        headers.append('SessionId', localStorage.getItem(AUTH_TOKEN))
-    }
-
-    const defaults = {headers: headers};
-    const cred = {credentials: 'include'};
-    options = Object.assign({}, defaults, options, cred);
-
-    return fetch(options.url, options)
-    .then(response =>
-        response.json().then(json => {
-            if(!response.ok) {
-                return Promise.reject(json);
-            }
-            return json;
-        })
-    );
-};
-
 const requestImg = (options) => {
     const headers = new Headers({
         'Content-Type': 'image',
@@ -160,16 +137,12 @@ export function getUserProfile(nric) {
     });
 }
 
-export function createRecord(newRecord, file) {
-    const formData = new FormData();
-    formData.append("recordRequest", JSON.stringify(newRecord));
-
-    return create({
-        url: API + "/records/create/",
+export function createRecord(newRecord) {
+    return request({
+        url: API + "/records/",
         method: 'POST',
-        body: formData
+        body: JSON.stringify(newRecord)
     });
-
 }
 
 export function getAllRecords() {
@@ -214,18 +187,18 @@ export function downloadImg(filename) {
     });
 }
 
-export function assignTherapistPatient(assign) {
+export function assign(nrics) {
     return request({
         url: API + "/treatments/start/",
         method: 'POST',
-        body: JSON.stringify(assign)
+        body: JSON.stringify(nrics)
     });
 }
 
-export function disassignTherapistPatient(disassign) {
+export function unassign(nrics) {
     return request({
         url: API + "/treatments/stop/",
         method: 'POST',
-        body: JSON.stringify(disassign)
+        body: JSON.stringify(nrics)
     });
 }
