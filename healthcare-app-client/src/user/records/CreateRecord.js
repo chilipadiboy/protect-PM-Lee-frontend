@@ -1,24 +1,49 @@
 import React, { Component } from 'react';
+import { Form, Input, Upload, Button, Icon, notification } from 'antd';
 import { createRecord } from '../../util/APIUtils';
 import './CreateRecord.css';
 
-import { Form, Input, Button, notification } from 'antd';
-
 const FormItem = Form.Item;
+
+const dummyRequest = ({ file, onSuccess }) => {
+  setTimeout(() => {
+    onSuccess("ok");
+  }, 0);
+};
 
 class CreateRecord extends Component {
   constructor(props) {
         super(props);
         this.state = {
-          recordID: '',
           type: '',
           subtype: '',
           title: '',
-          document: '',
-          patientIC: ''
+          patientIC: '',
+          selectedFile: '',
+          selectedFilelist: []
         }
+        this.handleUploadChange = this.handleUploadChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleUploadChange = (info) => {
+      const nextState = {};
+      switch (info.file.status) {
+        case "uploading":
+          nextState.selectedFileList = [info.file];
+          break;
+          case "done":
+          nextState.selectedFile = info.file;
+          nextState.selectedFileList = [info.file];
+          break;
+
+      default:
+        // error or removed
+        nextState.selectedFile = null;
+        nextState.selectedFileList = [];
+      }
+      this.setState(() => nextState);
     }
 
     handleInputChange(event) {
@@ -36,14 +61,15 @@ class CreateRecord extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const createRecordRequest = {
-            recordID: this.state.recordID.value,
             type: this.state.type.value,
             subtype: this.state.subtype.value,
             title: this.state.title.value,
-            document: this.state.document.value,
             patientIC: this.state.patientIC.value
         };
-        createRecord(createRecordRequest)
+        const uploadedFile = {
+            file: this.state.selectedFile
+        };
+        createRecord(createRecordRequest, uploadedFile)
         .then(response => {
             notification.success({
                 message: 'Healthcare App',
@@ -51,6 +77,7 @@ class CreateRecord extends Component {
             });
             this.props.history.push("/");
         }).catch(error => {
+            console.log(error)
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -64,15 +91,6 @@ class CreateRecord extends Component {
                 <h1 className="page-title">Create New Record</h1>
                 <div className="createRecord-content">
                     <Form onSubmit={this.handleSubmit} className="createRecord-form">
-                    <FormItem
-                      label="RecordID">
-                      <Input
-                          size="large"
-                          name="recordID"
-                          autoComplete="off"
-                          value={this.state.recordID.value}
-                          onChange={(event) => {this.handleInputChange(event)}}  />
-                    </FormItem>
                         <FormItem
                           label="Type">
                           <Input
@@ -101,15 +119,6 @@ class CreateRecord extends Component {
                                 onChange={(event) => {this.handleInputChange(event)}} />
                         </FormItem>
                         <FormItem
-                            label="Document">
-                            <Input
-                                size="large"
-                                name="document"
-                                autoComplete="off"
-                                value={this.state.document.value}
-                                onChange={(event) => {this.handleInputChange(event)}} />
-                        </FormItem>
-                        <FormItem
                             label="PatientIC">
                             <Input
                                 size="large"
@@ -117,6 +126,14 @@ class CreateRecord extends Component {
                                 autoComplete="off"
                                 value={this.state.patientIC.value}
                                 onChange={(event) => {this.handleInputChange(event)}} />
+                        </FormItem>
+                        <FormItem
+                            label="Document">
+                            <Upload customRequest={dummyRequest} onChange={this.handleUploadChange} fileList={this.state.selectedFileList}>
+                              <Button>
+                                <Icon type="upload" /> Upload
+                              </Button>
+                            </Upload>
                         </FormItem>
                         <FormItem>
                             <Button type="primary"

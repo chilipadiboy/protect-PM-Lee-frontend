@@ -24,6 +24,31 @@ const request = (options) => {
     );
 };
 
+const create = (options) => {
+    const headers = new Headers({
+      'enctype': 'multipart/form-data',
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('SessionId', localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    const cred = {credentials: 'include'};
+    options = Object.assign({}, defaults, options, cred);
+    console.log(options)
+
+    return fetch(options.url, options)
+    .then(response =>
+        response.json().then(json => {
+            if(!response.ok) {
+                return Promise.reject(json);
+            }
+            return json;
+        })
+    );
+};
+
 const requestImg = (options) => {
     const headers = new Headers({
         'Content-Type': 'image',
@@ -137,11 +162,14 @@ export function getUserProfile(nric) {
     });
 }
 
-export function createRecord(newRecord) {
-    return request({
-        url: API + "/records/",
+export function createRecord(newRecord, file) {
+    return create({
+        url: API + "/records/create/",
         method: 'POST',
-        body: JSON.stringify(newRecord)
+        body: {
+          recordRequest: JSON.stringify(newRecord),
+          file: JSON.stringify(file)
+        }
     });
 }
 
@@ -184,5 +212,21 @@ export function downloadImg(filename) {
     return requestImg({
         url: API + "/file/download/" + filename,
         method: 'GET'
+    });
+}
+
+export function assignTherapistPatient(assign) {
+    return request({
+        url: API + "/treatments/start/",
+        method: 'POST',
+        body: JSON.stringify(assign)
+    });
+}
+
+export function disassignTherapistPatient(disassign) {
+    return request({
+        url: API + "/treatments/stop/",
+        method: 'POST',
+        body: JSON.stringify(disassign)
     });
 }
