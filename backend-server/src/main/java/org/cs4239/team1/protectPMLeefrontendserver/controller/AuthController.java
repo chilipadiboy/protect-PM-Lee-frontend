@@ -81,6 +81,9 @@ public class AuthController {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
+    @Value("${bluetooth.tag.encryptionKey}")
+    private String tagKey;
+
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
@@ -144,10 +147,9 @@ public class AuthController {
             System.arraycopy(msgHash, 0, combined, 0, msgHash.length);
             System.arraycopy(signature, 0, combined, msgHash.length, signature.length);
 
-            String tagBluetoothEncryptionKey = "D2edHtPLRkUXYMCRA3NLeQ==";
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagBluetoothEncryptionKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagKey, ivBytes, "AES/CBC/NOPADDING");
 
             return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
         } catch (NonceExceededException nce) {
@@ -160,9 +162,8 @@ public class AuthController {
     @PostMapping("/secondAuthorization")
     public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
-            String tagBluetoothEncryptionKey = "D2edHtPLRkUXYMCRA3NLeQ==";
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(loginRequest.getEncryptedString(), tagBluetoothEncryptionKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
+                    .decrypt(loginRequest.getEncryptedString(), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
                     .getBytes();
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
