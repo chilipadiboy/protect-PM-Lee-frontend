@@ -64,13 +64,13 @@ class MyRecords extends Component {
           dataIndex: 'title',
           key: 'title',
         }, {
-          title: 'Document',
-          dataIndex: 'document',
-          key: 'document',
-        }, {
           title: 'PatientIC',
           dataIndex: 'patientIC',
           key: 'patientIC',
+        }, {
+          title: 'Document',
+          dataIndex: 'document',
+          key: 'document',
         }];
          return (
             <Table dataSource={this.state.data.content} columns={columns} />
