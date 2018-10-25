@@ -2,8 +2,8 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.net.URI;
 import java.security.GeneralSecurityException;
-import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
@@ -13,6 +13,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
@@ -23,8 +24,10 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureRespon
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SessionIdResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.SignUpRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.security.JwtEncryptionDecryptionTool;
+import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecryptionTool;
+import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
+import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +70,7 @@ public class AuthController {
     private JwtTokenProvider tokenProvider;
 
     @Autowired
-    private JwtEncryptionDecryptionTool jwtEncryptionDecryptionTool;
+    private AESEncryptionDecryptionTool aesEncryptionDecryptionTool;
 
     @Value("${app.privateKey}")
     private String privateKey;
@@ -77,6 +80,9 @@ public class AuthController {
 
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
+
+    @Value("${bluetooth.tag.encryptionKey}")
+    private String tagKey;
 
     @PostMapping("/signin")
     @Deprecated
@@ -103,7 +109,7 @@ public class AuthController {
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
-            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);
@@ -122,7 +128,7 @@ public class AuthController {
     }
 
     @PostMapping("/firstAuthorization")
-    public ServerSignatureResponse getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
+    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
         try {
             userAuthentication.authenticate(serverSignatureRequest.getNric(),
                     serverSignatureRequest.getPassword(),
@@ -132,14 +138,22 @@ public class AuthController {
         }
 
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-512");
-            String msg = "0";
-            byte[] msgHash =  digest.digest(msg.getBytes("UTF-8"));
+            byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
 
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
             byte[] signature = signer.sign(msgHash);
 
-            return new ServerSignatureResponse(msgHash, signature);
+            byte[] combined = new byte[msgHash.length + signature.length];
+            System.arraycopy(msgHash, 0, combined, 0, msgHash.length);
+            System.arraycopy(signature, 0, combined, msgHash.length, signature.length);
+
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagKey, ivBytes, "AES/CBC/NOPADDING");
+
+            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
+        } catch (NonceExceededException nce) {
+            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             throw new AssertionError("Errors should not happen.");
         }
@@ -147,24 +161,31 @@ public class AuthController {
 
     @PostMapping("/secondAuthorization")
     public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UserAuthenticationToken(
-                        loginRequest.getNric(),
-                        loginRequest.getPassword(),
-                        Role.create(loginRequest.getRole()),
-                        Base64.getDecoder().decode(loginRequest.getSignature()),
-                        Base64.getDecoder().decode(loginRequest.getData())
-                )
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         try {
+            byte[] decrypted = aesEncryptionDecryptionTool
+                    .decrypt(loginRequest.getEncryptedString(), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
+                    .getBytes();
+            byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
+            byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
+
+            Authentication authentication = authenticationManager.authenticate(
+                    new UserAuthenticationToken(
+                            loginRequest.getNric(),
+                            loginRequest.getPassword(),
+                            Role.create(loginRequest.getRole()),
+                            Base64.getDecoder().decode(msgHash),
+                            Base64.getDecoder().decode(signature),
+                            Base64.getDecoder().decode(loginRequest.getIv())
+                    )
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = tokenProvider.generateToken(iv, authentication);
-            byte[] encrypted = jwtEncryptionDecryptionTool.encrypt(jwt, ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);

@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ServerSignatureResponse {
-    private byte[] messageHash;
-    private byte[] signature;
+    private byte[] iv;
+    private byte[] encrypted;
 }

@@ -1,6 +1,7 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 
@@ -45,11 +46,17 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
         try {
             User loadedUser = userAuthentication.authenticate(presentedNric, presentedPassword, presentedRole);
+
             Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
-            verifier.verify(authToken.getSignature(), authToken.getData());
+            verifier.verify(authToken.getSignature(), authToken.getMsgHash());
+
+            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(presentedNric));
+            if (!Arrays.equals(authToken.getMsgHash(), verifyHash)) {
+                throw new GeneralSecurityException();
+            }
 
             return loadedUser;
-        } catch (GeneralSecurityException gse) {
+        } catch (Exception e) {
             throw new BadCredentialsException("Bad credentials.");
         }
     }

@@ -48,7 +48,9 @@ class LoginForm extends Component {
     }
 
     startConnection() {
+       valueRecArray = [];
        let context = this;
+       var ivStr;
        this.setState({isLoading:true});
        navigator.bluetooth.requestDevice({
          filters: [ {services:[0x2220]}, {name:'ifs'},]
@@ -85,10 +87,11 @@ class LoginForm extends Component {
            };
            getServerSignature(loginRequest)
            .then(response => {
-               let signature = convertStrToUint8Array(response.signature);
-               let messageHash = convertStrToUint8Array(response.messageHash);
+               ivStr = response.iv;
+               let encrypted = convertBase64StrToUint8Array(response.encrypted);
+               let iv = convertBase64StrToUint8Array(ivStr);
                let stringEnder = encoder.encode("//");
-               let sendMsg = concatenate(Uint8Array, messageHash, signature, stringEnder);
+               let sendMsg = concatenate(Uint8Array, iv, encrypted, stringEnder);
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
                var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
                var prevPromise = Promise.resolve();
@@ -120,11 +123,12 @@ class LoginForm extends Component {
                                  return writeChar.writeValue(ack).then(function() {
                                    if (j===7) {
                                      dis(disconnectChar);
-                                     let reqToSend = getTagSigAndMsg();
-                                     Object.assign(reqToSend, loginRequest);
+                                     let encryptedMsg = getTagSigAndMsg();
+                                     let ivMsg = {iv: ivStr};
+                                     let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
                                      verifyTagSignature(reqToSend)
                                       .then(response => {
-                                        localStorage.setItem(AUTH_TOKEN, response.accessToken);
+                                        localStorage.setItem(AUTH_TOKEN, response.sessionId);
                                         context.setState({isLoading: false});
                                         context.props.onLogin();
                                       }).catch(error => {
@@ -142,10 +146,16 @@ class LoginForm extends Component {
                          }
                       })
                     }).catch(error => {
+                      context.setState({isLoading: false});
                       if (!deviceConnected.gatt.connected) {
                         notification.error({
                             message: 'Healthcare App',
                             description: 'Device disconnected!'
+                        });
+                      } else {
+                        notification.error({
+                            message: 'Healthcare App',
+                            description: error.message || 'Sorry! Something went wrong. Please try again!'
                         });
                       }
                     })
@@ -172,7 +182,6 @@ class LoginForm extends Component {
                });
             })
          }
-
 
 
     handleInputChange(event) {
@@ -277,10 +286,10 @@ function openNotificationError(type) {
   }
 }
 
-function convertStrToUint8Array(str) {
+function convertBase64StrToUint8Array(str) {
   var binary_string =  window.atob(str);
   var len = binary_string.length;
-  var bytes = new Uint8Array( len );
+  var bytes = new Uint8Array(len);
   for (var i = 0; i < len; i++)        {
       bytes[i] = binary_string.charCodeAt(i);
   }
@@ -295,24 +304,16 @@ function convertUint8ArrayToStr(arr) {
 
 function getTagSigAndMsg() {
   let i,j;
+  let encryptedMsg = new Uint8Array(128);
   let tagMessageHash = new Uint8Array(64);
   let tagSignature = new Uint8Array(64);
   let tagPublicKey = new Uint8Array(32);
 
-  for(i=0, j=0; i<messageHashLength && j<messageHashLength; i++, j++) {
-    tagMessageHash[j] = valueRecArray[i];
+  for(i=0; i<messageHashLength+signatureLength; i++) {
+     encryptedMsg[i] = valueRecArray[i];
   }
-  let messageStr = convertUint8ArrayToStr(tagMessageHash);
-
-  for(i=i, j=0; i<messageHashLength+signatureLength && j<signatureLength; i++, j++) {
-    tagSignature[j] = valueRecArray[i];
-  }
-  let sigStr = convertUint8ArrayToStr(tagSignature);
-
-
-
-  return {signature: sigStr, data: messageStr};
-
+  let encryptedStr = convertUint8ArrayToStr(encryptedMsg);
+  return {encryptedString: encryptedStr};
 }
 
 

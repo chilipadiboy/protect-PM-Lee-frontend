@@ -1,10 +1,10 @@
 package org.cs4239.team1.protectPMLeefrontendserver.payload;
 
+import lombok.Getter;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import lombok.Getter;
 
 @Getter
 public class LoginRequest {
@@ -21,8 +21,8 @@ public class LoginRequest {
     private String role;
 
     @NotBlank
-    private String signature;
+    private String encryptedString;
 
     @NotBlank
-    private String data;
+    private String iv;
 }
