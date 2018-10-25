@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { signup } from '../../util/APIUtils';
+import { assign, unassign } from '../../util/APIUtils';
 import { Form, Input, Button, Select, notification } from 'antd';
 import './Linkusers.css';
 
@@ -10,25 +10,31 @@ class Administrator_link_users extends Component {
   constructor(props) {
         super(props);
         this.state = {
-          therapist: '',
-          patients: '',
+          therapist1: '',
+          patient1: '',
+          therapist2: '',
+          patient2: '',
+          endDate: ''
         }
-        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleAssign = this.handleAssign.bind(this);
+        this.handleUnassign = this.handleUnassign.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
     }
 
-  handleSubmit(event) {
+  handleAssign(event) {
       event.preventDefault();
       const linkuserRequest = {
-          nric: this.state.therapists.value,
-          name: this.state.patients.value,
+          therapistNric: this.state.therapist1.value,
+          patientNric: this.state.patient1.value,
+          endDate: this.state.endDate.value
       };
-      signup(linkuserRequest) //to change when api is up
+      assign(linkuserRequest)
       .then(response => {
           notification.success({
               message: 'Healthcare App',
               description: "You've successfully assigned the users!",
           });
-          this.props.history.push("/");
+          this.props.history.push("/link");
       }).catch(error => {
           notification.error({
               message: 'Healthcare App',
@@ -37,52 +43,104 @@ class Administrator_link_users extends Component {
       });
   }
 
+  handleUnassign(event) {
+      event.preventDefault();
+      const delinkuserRequest = {
+          therapistNric: this.state.therapist2.value,
+          patientNric: this.state.patient2.value
+      };
+      unassign(delinkuserRequest)
+      .then(response => {
+          notification.success({
+              message: 'Healthcare App',
+              description: "You've successfully unassigned the users!",
+          });
+          this.props.history.push("/link");
+      }).catch(error => {
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+      });
+  }
+
+  handleInputChange(event) {
+      const target = event.target;
+      const inputName = target.name;
+      const inputValue = target.value;
+
+      this.setState({
+          [inputName] : {
+              value: inputValue
+          }
+      });
+  }
+
   render() {
       return (
           <div className="linkuser-container">
               <h1 className="page-title">Therapist -> Patient(s)</h1>
               <div className="linkuser-content">
-                  <Form onSubmit={this.handleSubmit} className="linkuser-form">
+                  <Form onSubmit={this.handleAssign} className="linkuser-form">
                       <FormItem
-                          label="Therapist">
-                          <Select placeholder="Select a therapist"
+                          label="Therapist NRIC">
+                          <Input
                               size="large"
-                              name="therapist"
-                              autoComplete="off"
-                              onChange={(value) => this.setState({
-                                  therapist : {
-                                      value: value
-                                  }})}>
-                              <Option value="therapist1">Therapist 1</Option>
-                              <Option value="therapist2">Therapist 2</Option>
-                              <Option value="therapist3">Therapist 3</Option>
-                              <Option value="therapist4">Therapist 4</Option>
-                              <Option value="therapist5">Therapist 5</Option>
-                          </Select>
+                              name="therapist1"
+                              value={this.state.therapist1.value}
+                              onChange={(event) => {this.handleInputChange(event)}} />
                       </FormItem>
                       <FormItem
-                          label="Patients">
-                          <Select mode="multiple" placeholder="Select patients"
+                          label="Patient">
+                          <Input
                               size="large"
-                              name="patients"
-                              autoComplete="off"
-                              onChange={(value) => this.setState({
-                                  patients : {
-                                      value: value
-                                  }})}>
-                              <Option value="patient1">Patient 1</Option>
-                              <Option value="patient2">Patient 2</Option>
-                              <Option value="patient3">Patient 3</Option>
-                              <Option value="patient4">Patient 4</Option>
-                              <Option value="patient4">Patient 5</Option>
-                          </Select>
+                              name="patient1"
+                              value={this.state.patient1.value}
+                              onChange={(event) => {this.handleInputChange(event)}} />
+                      </FormItem>
+                      <FormItem
+                          label="Patient NRIC">
+                          <Input
+                              size="large"
+                              name="endDate"
+                              value={this.state.endDate.value}
+                              placeholder="YYYY-MM-DD"
+                              onChange={(event) => {this.handleInputChange(event)}} />
                       </FormItem>
                       <FormItem>
-                          <Button type="primary" icon="arrow-right"
+                          <Button type="primary" icon="shrink"
                               htmlType="submit"
                               size="large"
                               className="linkuser-form-button"
                               >Assign</Button>
+                      </FormItem>
+                  </Form>
+              </div>
+              <h1 className="page-title">Therapist -/> Patient(s)</h1>
+              <div className="linkuser-content">
+                  <Form onSubmit={this.handleUnassign} className="linkuser-form">
+                      <FormItem
+                          label="Therapist NRIC">
+                          <Input
+                              size="large"
+                              name="therapist2"
+                              value={this.state.therapist2.value}
+                              onChange={(event) => {this.handleInputChange(event)}} />
+                      </FormItem>
+                      <FormItem
+                          label="Patient NRIC">
+                          <Input
+                              size="large"
+                              name="patient2"
+                              value={this.state.patient2.value}
+                              onChange={(event) => {this.handleInputChange(event)}} />
+                      </FormItem>
+                      <FormItem>
+                          <Button type="primary" icon="arrow-alt"
+                              htmlType="submit"
+                              size="large"
+                              className="linkuser-form-button"
+                              >Unassign</Button>
                       </FormItem>
                   </Form>
               </div>

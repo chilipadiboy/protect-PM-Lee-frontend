@@ -186,3 +186,19 @@ export function downloadImg(filename) {
         method: 'GET'
     });
 }
+
+export function assign(nrics) {
+    return request({
+        url: API + "/treatments/start/",
+        method: 'POST',
+        body: JSON.stringify(nrics)
+    });
+}
+
+export function unassign(nrics) {
+    return request({
+        url: API + "/treatments/stop/",
+        method: 'POST',
+        body: JSON.stringify(nrics)
+    });
+}
