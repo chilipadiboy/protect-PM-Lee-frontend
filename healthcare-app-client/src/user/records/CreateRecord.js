@@ -8,7 +8,7 @@ const FormItem = Form.Item;
 const dummyRequest = ({ file, onSuccess }) => {
   setTimeout(() => {
     onSuccess("ok");
-  }, 0);
+  }, 100);
 };
 
 class CreateRecord extends Component {
@@ -25,6 +25,7 @@ class CreateRecord extends Component {
         this.handleUploadChange = this.handleUploadChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.uploadFile = this.uploadFile.bind(this);
     }
 
     handleUploadChange = (info) => {
@@ -75,7 +76,7 @@ class CreateRecord extends Component {
                 message: 'Healthcare App',
                 description: "Record created!",
             });
-            this.props.history.push("/");
+            this.props.history.push("/all");
         }).catch(error => {
             console.log(error)
             notification.error({
@@ -84,6 +85,31 @@ class CreateRecord extends Component {
             });
         });
     }
+
+    uploadFile = ({ onSuccess, onError, file }) => {
+      const createRecordRequest = {
+          type: this.state.type.value,
+          subtype: this.state.subtype.value,
+          title: this.state.title.value,
+          patientIC: this.state.patientIC.value
+      };
+      setTimeout(() => {
+          createRecord(createRecordRequest,file)
+            .then((response) => {
+              onSuccess("ok");
+              notification.success({
+                  message: 'Healthcare App',
+                  description: "Record created!",
+              });
+            }).catch(error => {
+                console.log(error)
+                notification.error({
+                    message: 'Healthcare App',
+                    description: error.message || 'Sorry! Something went wrong. Please try again!'
+                });
+            });
+      }, 100);
+    };
 
     render() {
         return (
@@ -129,7 +155,7 @@ class CreateRecord extends Component {
                         </FormItem>
                         <FormItem
                             label="Document">
-                            <Upload customRequest={dummyRequest} onChange={this.handleUploadChange} fileList={this.state.selectedFileList}>
+                            <Upload customRequest={this.uploadFile} onChange={this.handleUploadChange} fileList={this.state.selectedFileList}>
                               <Button>
                                 <Icon type="upload" /> Upload
                               </Button>
