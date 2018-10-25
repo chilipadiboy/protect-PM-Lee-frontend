@@ -65,7 +65,7 @@ public class TreatmentService {
         User patient = userRepository.findByNric(treatmentRequest.getPatientNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", treatmentRequest.getPatientNric()));
         if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
-            throw new BadRequestException(therapist.getNric() + " is not a patient!");
+            throw new BadRequestException(patient.getNric() + " is not a patient!");
         }
         Instant expirationDateTime = FormatDate.formatDate(treatmentRequest.getEndDate());
 
@@ -89,8 +89,8 @@ public class TreatmentService {
         }
         User patient = userRepository.findByNric(endTreatmentRequest.getPatientNric())
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", endTreatmentRequest.getPatientNric()));
-        if (!patient.getRoles().contains(Role.ROLE_THERAPIST)){
-            throw new BadRequestException(therapist.getNric() + " is not a therapist!");
+        if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
+            throw new BadRequestException(patient.getNric() + " is not a patient!");
         }
 
         treatmentRepository.deleteById(new TreatmentId(therapist.getNric(), patient.getNric()));
