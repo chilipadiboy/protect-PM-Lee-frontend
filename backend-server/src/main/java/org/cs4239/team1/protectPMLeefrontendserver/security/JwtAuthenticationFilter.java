@@ -1,7 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.security;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.FilterChain;
@@ -43,10 +42,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String requestId = request.getHeader("SessionId");
             String encryptedJwt = getEncryptedJwtFromRequest(request);
-            i++;
-            if (i == 5) {
-                String test = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
-            }
 
             if (requestId == null || !StringUtils.hasText(encryptedJwt)) {
                 filterChain.doFilter(request, response);
