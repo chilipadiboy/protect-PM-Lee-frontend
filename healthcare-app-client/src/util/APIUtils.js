@@ -26,7 +26,6 @@ const request = (options) => {
 
 const create = (options) => {
     const headers = new Headers({
-      'enctype': 'multipart/form-data',
     })
 
     if(localStorage.getItem(AUTH_TOKEN)) {
@@ -36,7 +35,6 @@ const create = (options) => {
     const defaults = {headers: headers};
     const cred = {credentials: 'include'};
     options = Object.assign({}, defaults, options, cred);
-    console.log(options)
 
     return fetch(options.url, options)
     .then(response =>
@@ -163,14 +161,15 @@ export function getUserProfile(nric) {
 }
 
 export function createRecord(newRecord, file) {
+    const formData = new FormData();
+    formData.append("recordRequest", JSON.stringify(newRecord));
+
     return create({
         url: API + "/records/create/",
         method: 'POST',
-        body: {
-          recordRequest: JSON.stringify(newRecord),
-          file: JSON.stringify(file)
-        }
+        body: formData
     });
+
 }
 
 export function getAllRecords() {
