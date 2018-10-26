@@ -16,7 +16,10 @@ To run on VM:
 1. `yarn start`
 
 ### Backend
-To run the server, go to the backend directory and run `gradlew.bat bootRun` (or `./gradlew bootRun` for Mac/Linux).
+To run the server, go to the backend directory and run:
+1. `gradlew.bat build` (or `./gradlew build` for Mac/Linux).
+1. `cp ./build/libs/protect-PM-Lee-frontend-server-0.0.1-SNAPSHOT.jar .`
+1. `java -jar protect-PM-Lee-frontend-server-0.0.1-SNAPSHOT.jar --jasypt.encryptor.password="QOa9cJMTJzwN0lPUj3gU"`
 
 To run on VM:
 1. `cd src/main/java/org/cs4239/team1/protectPMLeefrontendserver/config/`
