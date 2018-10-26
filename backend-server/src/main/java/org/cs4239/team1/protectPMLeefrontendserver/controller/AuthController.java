@@ -163,8 +163,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(loginRequest.getEncryptedString(), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
-                    .getBytes();
+                    .decrypt(Base64.getDecoder().decode(loginRequest.getEncryptedString()), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING");
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
 

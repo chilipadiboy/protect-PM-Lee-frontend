@@ -47,4 +47,16 @@ public class AESEncryptionDecryptionTool {
             throw new AssertionError("Should not happen.");
         }
     }
+    public byte[] decrypt(byte[] toDecrypt, String secretKey, String ivString, String transformation) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(ivString));
+            SecretKeySpec sKeySpec = new SecretKeySpec(Base64.getDecoder().decode(secretKey), "AES");
+            Cipher cipher = Cipher.getInstance(transformation);
+            cipher.init(Cipher.DECRYPT_MODE, sKeySpec, iv);
+
+            return cipher.doFinal(toDecrypt);
+        } catch (Exception e) {
+            throw new AssertionError("Should not happen.");
+        }
+    }
 }
