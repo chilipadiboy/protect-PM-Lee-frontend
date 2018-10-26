@@ -5,12 +5,6 @@ import './CreateRecord.css';
 
 const FormItem = Form.Item;
 
-const dummyRequest = ({ file, onSuccess }) => {
-  setTimeout(() => {
-    onSuccess("ok");
-  }, 100);
-};
-
 class CreateRecord extends Component {
   constructor(props) {
         super(props);
@@ -19,32 +13,11 @@ class CreateRecord extends Component {
           subtype: '',
           title: '',
           patientIC: '',
-          selectedFile: '',
           selectedFilelist: []
         }
-        this.handleUploadChange = this.handleUploadChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.uploadFile = this.uploadFile.bind(this);
-    }
-
-    handleUploadChange = (info) => {
-      const nextState = {};
-      switch (info.file.status) {
-        case "uploading":
-          nextState.selectedFileList = [info.file];
-          break;
-          case "done":
-          nextState.selectedFile = info.file;
-          nextState.selectedFileList = [info.file];
-          break;
-
-      default:
-        // error or removed
-        nextState.selectedFile = null;
-        nextState.selectedFileList = [];
-      }
-      this.setState(() => nextState);
+        this.beforeUpload = this.beforeUpload.bind(this);
     }
 
     handleInputChange(event) {
@@ -67,9 +40,7 @@ class CreateRecord extends Component {
             title: this.state.title.value,
             patientIC: this.state.patientIC.value
         };
-        const uploadedFile = {
-            file: this.state.selectedFile
-        };
+        const uploadedFile = this.state.selectedFileList[0]
         createRecord(createRecordRequest, uploadedFile)
         .then(response => {
             notification.success({
@@ -86,29 +57,11 @@ class CreateRecord extends Component {
         });
     }
 
-    uploadFile = ({ onSuccess, onError, file }) => {
-      const createRecordRequest = {
-          type: this.state.type.value,
-          subtype: this.state.subtype.value,
-          title: this.state.title.value,
-          patientIC: this.state.patientIC.value
-      };
-      setTimeout(() => {
-          createRecord(createRecordRequest,file)
-            .then((response) => {
-              onSuccess("ok");
-              notification.success({
-                  message: 'Healthcare App',
-                  description: "Record created!",
-              });
-            }).catch(error => {
-                console.log(error)
-                notification.error({
-                    message: 'Healthcare App',
-                    description: error.message || 'Sorry! Something went wrong. Please try again!'
-                });
-            });
-      }, 100);
+    beforeUpload = (file) => {
+      this.setState({
+          selectedFileList: [file],
+        });
+      return false;
     };
 
     render() {
@@ -155,7 +108,7 @@ class CreateRecord extends Component {
                         </FormItem>
                         <FormItem
                             label="Document">
-                            <Upload customRequest={this.uploadFile} onChange={this.handleUploadChange} fileList={this.state.selectedFileList}>
+                            <Upload beforeUpload={this.beforeUpload} fileList={this.state.selectedFileList}>
                               <Button>
                                 <Icon type="upload" /> Upload
                               </Button>

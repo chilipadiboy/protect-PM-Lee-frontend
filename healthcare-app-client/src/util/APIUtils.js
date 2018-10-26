@@ -163,7 +163,7 @@ export function getUserProfile(nric) {
 export function createRecord(newRecord, file) {
     const formData = new FormData();
     formData.append("recordRequest", JSON.stringify(newRecord))
-    formData.append("file", JSON.stringify(file), file.name)
+    formData.append("file", file, file.name)
     return create({
         url: API + "/records/create/",
         method: 'POST',
