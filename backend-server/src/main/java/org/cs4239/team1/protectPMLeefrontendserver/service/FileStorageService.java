@@ -1,5 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.FileSystems;
@@ -19,6 +20,7 @@ import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.FileNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.FileStorageException;
 import org.cs4239.team1.protectPMLeefrontendserver.storage.FileStorageProperties;
+import org.cs4239.team1.protectPMLeefrontendserver.storage.LogsStorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -30,17 +32,21 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+    private final Path logsStorageLocation;
     private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("txt", "csv", "jpg", "png", "mp4");
 
     @Autowired
-    public FileStorageService(FileStorageProperties fileStorageProperties) {
+    public FileStorageService(FileStorageProperties fileStorageProperties, LogsStorageProperties logsStorageProperties) {
         fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+                .toAbsolutePath().normalize();
+        logsStorageLocation = Paths.get(logsStorageProperties.getFile())
                 .toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(fileStorageLocation);
+            new File(logsStorageLocation.toUri()).createNewFile();
         } catch (Exception ex) {
-            throw new FileStorageException("Could not create the directory where the uploaded files will be stored.", ex);
+            throw new FileStorageException("Could not create the files.", ex);
         }
     }
 
@@ -73,6 +79,14 @@ public class FileStorageService {
             }
         } catch (MalformedURLException ex) {
             throw new FileNotFoundException("File not found " + fileName, ex);
+        }
+    }
+
+    public Resource loadLogs() {
+        try {
+            return new UrlResource(logsStorageLocation.toUri());
+        } catch (MalformedURLException ex) {
+            throw new AssertionError("Logs should exist.");
         }
     }
 
