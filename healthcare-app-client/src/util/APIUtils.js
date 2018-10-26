@@ -47,6 +47,29 @@ const create = (options) => {
     );
 };
 
+const requestFile = (options) => {
+    const headers = new Headers({
+        'Content-Type': 'text/plain',
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('SessionId', localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    const cred = {credentials: 'include'};
+    options = Object.assign({}, defaults, options, cred);
+
+    return fetch(options.url, options)
+    .then(response =>
+      response.arrayBuffer().then((buffer) => {
+      var txtStr = arrayBufferToBase64(buffer);
+
+      return txtStr;
+      })
+    );
+};
+
 const requestImg = (options) => {
     const headers = new Headers({
         'Content-Type': 'image',
@@ -63,15 +86,15 @@ const requestImg = (options) => {
     return fetch(options.url, options)
     .then(response =>
         response.arrayBuffer().then((buffer) => {
-    var base64Flag = 'data:image;base64,';
-    var imageStr = arrayBufferToBase64(buffer);
+        var base64Flag = 'data:image;base64,';
+        var imageStr = arrayBufferToBase64(buffer);
 
-    return base64Flag + imageStr;
+        return base64Flag + imageStr;
         })
     );
 };
 
-const requestFile = (options) => {
+const requestVideo = (options) => {
     const headers = new Headers({
         'Content-Type': 'video/mp4',
     })
@@ -201,6 +224,13 @@ export function deleteUser(nric) {
 
 export function downloadFile(filename) {
     return requestFile({
+        url: API + "/file/download/" + filename,
+        method: 'GET'
+    });
+}
+
+export function downloadVideo(filename) {
+    return requestVideo({
         url: API + "/file/download/" + filename,
         method: 'GET'
     });
