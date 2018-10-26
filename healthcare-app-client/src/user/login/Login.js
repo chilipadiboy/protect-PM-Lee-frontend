@@ -3,17 +3,14 @@ import { login, getServerSignature, verifyTagSignature } from '../../util/APIUti
 import './Login.css';
 import { Link } from 'react-router-dom';
 import { AUTH_TOKEN } from '../../constants';
-
+import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
 import {sign, hash} from 'tweetnacl';
+
 const FormItem = Form.Item;
 const Option = Select.Option;
 
-const messageHashLength = 64;
-const signatureLength = 64;
-const writeUid = "00002222";
-const readUid = "00002221";
-const disconUid = "00002223";
 
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
@@ -98,6 +95,7 @@ class LoginForm extends Component {
                for (let i=0; i< numOfChunks; i++) {
                   prevPromise = prevPromise.then(function() {
                     return writeChar.writeValue(msgChunks[i]).then(function() {
+                      console.log(msgChunks[i]);
                       if (i === numOfChunks-1) {
                         wait(11000);
                           var prevWhilePromise = Promise.resolve();
@@ -105,6 +103,7 @@ class LoginForm extends Component {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
+                                 console.log(valueRec);
                                  if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
@@ -123,9 +122,10 @@ class LoginForm extends Component {
                                  return writeChar.writeValue(ack).then(function() {
                                    if (j===7) {
                                      dis(disconnectChar);
-                                     let encryptedMsg = getTagSigAndMsg();
+                                     let encryptedMsg = getTagSigAndMsg(valueRecArray);
                                      let ivMsg = {iv: ivStr};
                                      let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
+                                     console.log(reqToSend);
                                      verifyTagSignature(reqToSend)
                                       .then(response => {
                                         localStorage.setItem(AUTH_TOKEN, response.sessionId);
@@ -284,76 +284,6 @@ function openNotificationError(type) {
      description: 'Failed to identify you, please try again.',
    });
   }
-}
-
-function convertBase64StrToUint8Array(str) {
-  var binary_string =  window.atob(str);
-  var len = binary_string.length;
-  var bytes = new Uint8Array(len);
-  for (var i = 0; i < len; i++)        {
-      bytes[i] = binary_string.charCodeAt(i);
-  }
-  return bytes;
-}
-
-function convertUint8ArrayToStr(arr) {
-  let base64String = btoa(String.fromCharCode(...arr));
-  return base64String;
-}
-
-
-function getTagSigAndMsg() {
-  let i,j;
-  let encryptedMsg = new Uint8Array(128);
-  let tagMessageHash = new Uint8Array(64);
-  let tagSignature = new Uint8Array(64);
-  let tagPublicKey = new Uint8Array(32);
-
-  for(i=0; i<messageHashLength+signatureLength; i++) {
-     encryptedMsg[i] = valueRecArray[i];
-  }
-  let encryptedStr = convertUint8ArrayToStr(encryptedMsg);
-  return {encryptedString: encryptedStr};
-}
-
-
-function wait(ms){
-   var start = new Date().getTime();
-   var end = start;
-   while(end < start + ms) {
-     end = new Date().getTime();
-  }
-}
-
-
-function splitByMaxLength(sendMsg, numOfChunks) {
-    let chunks = new Array(numOfChunks);
-    let i, j, k;
-    for (i=0; i<numOfChunks; i++) {
-      chunks[i] = new Uint8Array(20);
-      for (j=0, k=i*20; j<20 && k<i*20+20; j++, k++) {
-          chunks[i][j] = sendMsg[k];
-      }
-    }
-    return chunks;
-}
-
-function dis(disconnectChar) {
-    disconnectChar.writeValue(new Uint8Array([1]));
-}
-
-function concatenate(resultConstructor, ...arrays) {
-    let totalLength = 0;
-    for (let arr of arrays) {
-        totalLength += arr.byteLength;
-    }
-    let result = new resultConstructor(totalLength);
-    let offset = 0;
-    for (let arr of arrays) {
-        result.set(arr, offset);
-        offset += arr.byteLength;
-    }
-    return result;
 }
 
 export default Login;
