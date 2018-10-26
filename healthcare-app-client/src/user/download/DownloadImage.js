@@ -3,9 +3,6 @@ import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
 import { downloadImg } from '../../util/APIUtils'
 
-var image = new Image();
-var string = new String();
-
 class DownloadImage extends Component {
   constructor(props) {
       super(props);
