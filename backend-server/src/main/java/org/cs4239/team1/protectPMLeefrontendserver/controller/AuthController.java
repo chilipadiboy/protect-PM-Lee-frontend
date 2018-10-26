@@ -120,6 +120,7 @@ public class AuthController {
             //newCookie.setSecure(true);
 
             response.addCookie(newCookie);
+            response.setHeader("Set-Cookie", response.getHeader("Set-Cookie") + "; SameSite=strict");
 
             return ResponseEntity.ok(new SessionIdResponse(iv));
         } catch (GeneralSecurityException gse) {
@@ -196,6 +197,7 @@ public class AuthController {
             //newCookie.setSecure(true);
 
             response.addCookie(newCookie);
+            response.setHeader("Set-Cookie", response.getHeader("Set-Cookie") + "; SameSite=strict");
 
             return ResponseEntity.ok(new SessionIdResponse(iv));
         } catch (Exception e) {
