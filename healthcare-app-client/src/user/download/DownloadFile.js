@@ -1,20 +1,28 @@
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
-import { downloadImg } from '../../util/APIUtils'
+import { downloadFile } from '../../util/APIUtils'
 
-class DownloadImage extends Component {
+class DownloadFile extends Component {
   constructor(props) {
       super(props);
       this.showOutput = this.showOutput.bind(this);
+      this.b64DecodeUnicode = this.b64DecodeUnicode.bind(this);
+  }
+
+  b64DecodeUnicode(str) {
+    return decodeURIComponent(atob(str).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
   }
 
   showOutput(filename) {
-      downloadImg(filename)
+      downloadFile(filename)
       .then(response => {
-        document.getElementById("image").src = response
+        document.getElementById('contents').innerHTML = this.b64DecodeUnicode(response);
       })
       .catch(error => {
+        console.log(error)
         notification.error({
             message: 'Healthcare App',
             description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -24,7 +32,7 @@ class DownloadImage extends Component {
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/downloadImage/:filename',
+      path: '/downloadFile/:filename',
       exact: true,
       strict: false
     })
@@ -36,10 +44,10 @@ class DownloadImage extends Component {
   render() {
     return (
       <Layout className="app-container">
-      <img id="image" src="" width="500" height="500"/>
+      <div id="contents"></div>
       </Layout>
     );
   }
 }
 
-export default DownloadImage;
+export default DownloadFile;

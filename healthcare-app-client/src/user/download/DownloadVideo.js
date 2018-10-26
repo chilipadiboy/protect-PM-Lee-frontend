@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { Layout, notification } from 'antd';
-import { downloadFile } from '../../util/APIUtils'
+import { downloadVideo } from '../../util/APIUtils'
 
 var blob, filename, video;
 
@@ -28,7 +28,7 @@ class DownloadVideo extends Component {
       /* exclusive: true */
     },
     function(fileEntry) {
-      downloadFile(filename)
+      downloadVideo(filename)
       .then(response => {
         blob = new Blob([new Uint8Array(response)], {
           type: 'video/mp4'

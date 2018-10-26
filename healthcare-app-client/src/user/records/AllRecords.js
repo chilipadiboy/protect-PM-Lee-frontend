@@ -78,6 +78,8 @@ class MyRecords extends Component {
               text = "/downloadVideo/" + url
             else if (url.includes(".jpg") || url.includes(".png"))
               text = "/downloadImage/" + url
+            else if (url.includes(".txt") || url.includes(".csv"))
+              text = "/downloadFile/" + url
 
             return <a href={text}>{url}</a>
           }

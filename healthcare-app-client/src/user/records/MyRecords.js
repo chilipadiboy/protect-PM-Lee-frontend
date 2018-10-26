@@ -62,6 +62,18 @@ class MyRecords extends Component {
           title: 'Document',
           dataIndex: 'document',
           key: 'document',
+          render: text => {
+            var url = text.split("/")
+            url = url[url.length-1]
+            if (url.includes(".mp4"))
+              text = "/downloadVideo/" + url
+            else if (url.includes(".jpg") || url.includes(".png"))
+              text = "/downloadImage/" + url
+            else if (url.includes(".txt") || url.includes(".csv"))
+              text = "/downloadFile/" + url
+
+            return <a href={text}>{url}</a>
+          }
         }];
          return (
             <Table dataSource={this.state.data.content} columns={columns} />

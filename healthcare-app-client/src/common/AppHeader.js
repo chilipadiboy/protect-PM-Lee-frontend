@@ -218,9 +218,6 @@ function ProfileDropdownMenu(props) {
       <Menu.Item key="records" className="dropdown-item">
       <Link to={`/all`}>All Records</Link>
       </Menu.Item>
-      <Menu.Item key="records" className="dropdown-item">
-      <Link to={`/upload`}>Upload File</Link>
-      </Menu.Item>
       <Menu.Item key="logout" className="dropdown-item">
       Logout
       </Menu.Item>

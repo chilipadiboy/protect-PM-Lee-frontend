@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
-    private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("jpg", "png", "mp4");
+    private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("txt", "csv", "jpg", "png", "mp4");
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
