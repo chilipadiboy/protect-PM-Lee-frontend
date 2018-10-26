@@ -9,9 +9,13 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.FileNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.FileStorageException;
 import org.cs4239.team1.protectPMLeefrontendserver.storage.FileStorageProperties;
@@ -26,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+    private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("jpg", "png", "mp4");
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
@@ -39,7 +44,11 @@ public class FileStorageService {
         }
     }
 
-    public String storeFile(MultipartFile file, String nric) {
+    public String storeFile(MultipartFile file, String nric) throws FileUploadException {
+        if (!ALLOWED_FILE_TYPES.contains(FilenameUtils.getExtension(file.getOriginalFilename()))) {
+            throw new FileUploadException("Invalid file type.");
+        }
+
         String cleanedFileName = StringUtils.cleanPath(file.getOriginalFilename());
         String distinctCleanedFileName = nric + "_" + LocalDateTime.now().toString().replaceAll(":", ".") + "_" + cleanedFileName;
         Path targetLocation = fileStorageLocation.resolve(distinctCleanedFileName);

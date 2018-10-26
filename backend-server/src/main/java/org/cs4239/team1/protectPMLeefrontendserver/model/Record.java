@@ -8,12 +8,13 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
 
 @Getter
 @NoArgsConstructor
@@ -42,7 +43,6 @@ public class Record extends UserDateAudit {
     private String title;
 
     @NonNull
-    @NotBlank
     @Size(max = 140)
     private String document;
 

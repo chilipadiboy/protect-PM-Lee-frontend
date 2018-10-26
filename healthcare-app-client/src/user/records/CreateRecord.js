@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
+import { Form, Input, Upload, Button, Icon, notification } from 'antd';
 import { createRecord } from '../../util/APIUtils';
 import './CreateRecord.css';
-
-import { Form, Input, Button, notification } from 'antd';
 
 const FormItem = Form.Item;
 
@@ -10,15 +9,15 @@ class CreateRecord extends Component {
   constructor(props) {
         super(props);
         this.state = {
-          recordID: '',
           type: '',
           subtype: '',
           title: '',
-          document: '',
-          patientIC: ''
+          patientIC: '',
+          selectedFilelist: []
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.beforeUpload = this.beforeUpload.bind(this);
     }
 
     handleInputChange(event) {
@@ -36,21 +35,21 @@ class CreateRecord extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const createRecordRequest = {
-            recordID: this.state.recordID.value,
             type: this.state.type.value,
             subtype: this.state.subtype.value,
             title: this.state.title.value,
-            document: this.state.document.value,
             patientIC: this.state.patientIC.value
         };
-        createRecord(createRecordRequest)
+        const uploadedFile = this.state.selectedFileList[0]
+        createRecord(createRecordRequest, uploadedFile)
         .then(response => {
             notification.success({
                 message: 'Healthcare App',
                 description: "Record created!",
             });
-            this.props.history.push("/");
+            this.props.history.push("/all");
         }).catch(error => {
+            console.log(error)
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -58,21 +57,19 @@ class CreateRecord extends Component {
         });
     }
 
+    beforeUpload = (file) => {
+      this.setState({
+          selectedFileList: [file],
+        });
+      return false;
+    };
+
     render() {
         return (
             <div className="createRecord-container">
                 <h1 className="page-title">Create New Record</h1>
                 <div className="createRecord-content">
                     <Form onSubmit={this.handleSubmit} className="createRecord-form">
-                    <FormItem
-                      label="RecordID">
-                      <Input
-                          size="large"
-                          name="recordID"
-                          autoComplete="off"
-                          value={this.state.recordID.value}
-                          onChange={(event) => {this.handleInputChange(event)}}  />
-                    </FormItem>
                         <FormItem
                           label="Type">
                           <Input
@@ -101,15 +98,6 @@ class CreateRecord extends Component {
                                 onChange={(event) => {this.handleInputChange(event)}} />
                         </FormItem>
                         <FormItem
-                            label="Document">
-                            <Input
-                                size="large"
-                                name="document"
-                                autoComplete="off"
-                                value={this.state.document.value}
-                                onChange={(event) => {this.handleInputChange(event)}} />
-                        </FormItem>
-                        <FormItem
                             label="PatientIC">
                             <Input
                                 size="large"
@@ -117,6 +105,14 @@ class CreateRecord extends Component {
                                 autoComplete="off"
                                 value={this.state.patientIC.value}
                                 onChange={(event) => {this.handleInputChange(event)}} />
+                        </FormItem>
+                        <FormItem
+                            label="Document">
+                            <Upload beforeUpload={this.beforeUpload} fileList={this.state.selectedFileList}>
+                              <Button>
+                                <Icon type="upload" /> Upload
+                              </Button>
+                            </Upload>
                         </FormItem>
                         <FormItem>
                             <Button type="primary"

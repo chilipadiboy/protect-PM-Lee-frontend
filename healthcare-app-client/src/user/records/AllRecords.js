@@ -64,13 +64,23 @@ class MyRecords extends Component {
           dataIndex: 'title',
           key: 'title',
         }, {
-          title: 'Document',
-          dataIndex: 'document',
-          key: 'document',
-        }, {
           title: 'PatientIC',
           dataIndex: 'patientIC',
           key: 'patientIC',
+        }, {
+          title: 'Document',
+          dataIndex: 'document',
+          key: 'document',
+          render: text => {
+            var url = text.split("/")
+            url = url[url.length-1]
+            if (url.includes(".mp4"))
+              text = "/downloadVideo/" + url
+            else if (url.includes(".jpg") || url.includes(".png"))
+              text = "/downloadImage/" + url
+
+            return <a href={text}>{url}</a>
+          }
         }];
          return (
             <Table dataSource={this.state.data.content} columns={columns} />

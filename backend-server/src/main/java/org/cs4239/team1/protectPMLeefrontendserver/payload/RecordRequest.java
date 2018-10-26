@@ -22,9 +22,5 @@ public class RecordRequest {
 
     @NotBlank
     @Size(max = 140)
-    private String document;
-
-    @NotBlank
-    @Size(max = 140)
     private String patientIC;
 }

@@ -76,7 +76,7 @@ class DownloadVideo extends Component {
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/upload/downloadVideo/:filename',
+      path: '/downloadVideo/:filename',
       exact: true,
       strict: false
     })
