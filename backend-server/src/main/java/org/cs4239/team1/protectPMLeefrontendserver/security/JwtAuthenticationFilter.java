@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String jwt = AESEncryptionDecryptionTool.decrypt(encryptedJwt, jwtSecret, requestId, "AES/CBC/PCKS5PADDING");
+            String jwt = AESEncryptionDecryptionTool.decrypt(encryptedJwt, jwtSecret, requestId, "AES/CBC/PKCS5PADDING");
 
             if (!tokenProvider.validateToken(jwt)) {
                 filterChain.doFilter(request, response);

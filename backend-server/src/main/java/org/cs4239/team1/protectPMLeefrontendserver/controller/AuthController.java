@@ -109,7 +109,7 @@ public class AuthController {
                     .setExpiration(expiryDate)
                     .signWith(SignatureAlgorithm.HS512, jwtSecret)
                     .compact();
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PKCS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);
@@ -185,7 +185,7 @@ public class AuthController {
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = tokenProvider.generateToken(iv, authentication);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PCKS5PADDING");
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PKCS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
             Cookie newCookie = new Cookie("testCookie", cookieValue);
