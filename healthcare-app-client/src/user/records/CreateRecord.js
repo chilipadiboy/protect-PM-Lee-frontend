@@ -38,7 +38,7 @@ class CreateRecord extends Component {
             type: this.state.type.value,
             subtype: this.state.subtype.value,
             title: this.state.title.value,
-            patientIC: this.state.patientIC.value
+            patientIC: encodeURIComponent(this.state.patientIC.value)
         };
         const uploadedFile = this.state.selectedFileList[0]
         createRecord(createRecordRequest, uploadedFile)

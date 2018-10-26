@@ -24,9 +24,9 @@ class Administrator_link_users extends Component {
   handleAssign(event) {
       event.preventDefault();
       const linkuserRequest = {
-          therapistNric: this.state.therapist1.value,
-          patientNric: this.state.patient1.value,
-          endDate: this.state.endDate.value
+          therapistNric: encodeURIComponent(this.state.therapist1.value),
+          patientNric: encodeURIComponent(this.state.patient1.value),
+          endDate: encodeURIComponent(this.state.endDate.value)
       };
       assign(linkuserRequest)
       .then(response => {
@@ -91,7 +91,7 @@ class Administrator_link_users extends Component {
                               onChange={(event) => {this.handleInputChange(event)}} />
                       </FormItem>
                       <FormItem
-                          label="Patient">
+                          label="Patient NRIC">
                           <Input
                               size="large"
                               name="patient1"
@@ -99,7 +99,7 @@ class Administrator_link_users extends Component {
                               onChange={(event) => {this.handleInputChange(event)}} />
                       </FormItem>
                       <FormItem
-                          label="Patient NRIC">
+                          label="End Date">
                           <Input
                               size="large"
                               name="endDate"
