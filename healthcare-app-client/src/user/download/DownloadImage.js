@@ -4,6 +4,7 @@ import { Layout, notification } from 'antd';
 import { downloadImg } from '../../util/APIUtils'
 
 var image = new Image();
+var string = new String();
 
 class DownloadImage extends Component {
   constructor(props) {
@@ -14,10 +15,7 @@ class DownloadImage extends Component {
   showOutput(filename) {
       downloadImg(filename)
       .then(response => {
-        image.src = response
-        image.width=500
-        image.height=500
-        document.body.appendChild(image);
+        document.getElementById("image").src = response
       })
       .catch(error => {
         notification.error({
@@ -29,7 +27,7 @@ class DownloadImage extends Component {
 
   componentDidMount() {
     const match = matchPath(this.props.history.location.pathname, {
-      path: '/upload/downloadImage/:filename',
+      path: '/downloadImage/:filename',
       exact: true,
       strict: false
     })
@@ -41,6 +39,7 @@ class DownloadImage extends Component {
   render() {
     return (
       <Layout className="app-container">
+      <img id="image" src="" width="500" height="500"/>
       </Layout>
     );
   }
