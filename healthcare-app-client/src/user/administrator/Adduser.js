@@ -50,16 +50,16 @@ class Administrator_add_user extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const adduserRequest = {
-            nric: this.state.nric.value,
+            nric: encodeURIComponent(this.state.nric.value),
             name: this.state.name.value,
             email: this.state.email.value,
-            phone: this.state.phone.value,
-            address: this.state.address.value,
-            age: this.state.age.value,
-            gender: this.state.gender.value,
-            password: this.state.password.value,
+            phone: encodeURIComponent(this.state.phone.value),
+            address: encodeURIComponent(this.state.address.value),
+            age: encodeURIComponent(this.state.age.value),
+            gender: encodeURIComponent(this.state.gender.value),
+            password: encodeURIComponent(this.state.password.value),
             roles: this.state.roles.value,
-            publicKey: this.state.publicKey.value
+            publicKey: encodeURIComponent(this.state.publicKey.value)
         };
         signup(adduserRequest)
         .then(response => {
