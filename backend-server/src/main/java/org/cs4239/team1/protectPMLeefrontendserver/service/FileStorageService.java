@@ -26,11 +26,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import xyz.capybara.clamav.ClamavClient;
+import xyz.capybara.clamav.commands.scan.result.ScanResult;
+
 @Service
 public class FileStorageService {
 
     private final Path fileStorageLocation;
     private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("txt", "csv", "jpg", "png", "mp4");
+
+    private ClamavClient client = new ClamavClient("localhost");
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
@@ -45,6 +50,14 @@ public class FileStorageService {
     }
 
     public String storeFile(MultipartFile file, String nric) throws FileUploadException {
+        try {
+            if (client.scan(file.getInputStream()) instanceof ScanResult.VirusFound) {
+                throw new FileUploadException("WHAT R U TRYING TO UPLOAD?????");
+            }
+        } catch (IOException ioe) {
+            throw new FileUploadException("Error reading uploaded file.");
+        }
+
         if (!ALLOWED_FILE_TYPES.contains(FilenameUtils.getExtension(file.getOriginalFilename()))) {
             throw new FileUploadException("Invalid file type.");
         }
