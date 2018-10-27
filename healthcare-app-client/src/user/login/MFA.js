@@ -91,7 +91,7 @@ class MFA extends Component {
                         let ack = "ACK" + j;
                         ack = encoder.encode(ack);
                         return writeChar.writeValue(ack).then(function() {
-                          if (j==7) {
+                          if (j===7) {
                             dis(disconnectChar);
                             if (verifyTag()) {
                               context.setState({verifiedState:true, loading:false})
