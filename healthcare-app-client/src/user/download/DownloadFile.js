@@ -22,7 +22,6 @@ class DownloadFile extends Component {
         document.getElementById('contents').innerHTML = this.b64DecodeUnicode(response);
       })
       .catch(error => {
-        console.log(error)
         notification.error({
             message: 'Healthcare App',
             description: error.message || 'Sorry! Something went wrong. Please try again!'

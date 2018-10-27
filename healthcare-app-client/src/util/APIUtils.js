@@ -24,6 +24,29 @@ const request = (options) => {
     );
 };
 
+const requestLogs = (options) => {
+    const headers = new Headers({
+        'Content-Type': 'text/plain',
+    })
+
+    if(localStorage.getItem(AUTH_TOKEN)) {
+        headers.append('SessionId', localStorage.getItem(AUTH_TOKEN))
+    }
+
+    const defaults = {headers: headers};
+    const cred = {credentials: 'include'};
+    options = Object.assign({}, defaults, options, cred);
+
+    return fetch(options.url, options)
+    .then(response =>
+      response.arrayBuffer().then((buffer) => {
+      var txtStr = arrayBufferToBase64(buffer);
+
+      return txtStr;
+      })
+    );
+};
+
 const create = (options) => {
     const headers = new Headers({
     })
@@ -211,6 +234,13 @@ export function getUserRecords(nric, role) {
 export function getAllUsers() {
     return request({
         url: API + "/admin/showAllUsers",
+        method: 'GET'
+    });
+}
+
+export function getLogs() {
+    return requestLogs({
+        url: API + "/admin/logs/",
         method: 'GET'
     });
 }

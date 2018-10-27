@@ -10,7 +10,12 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CustomUserDetailsService;
+import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +30,12 @@ public class AdminController {
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    @Value("${logging.file}")
+    private String logPath;
 
     @GetMapping("/showAllUsers")
     public List<UserSummary> showAllUsers() {
@@ -42,5 +53,13 @@ public class AdminController {
 
         customUserDetailsService.deleteUserByUsername(nric);
         return ResponseEntity.ok(new ApiResponse(true, nric + " has been successfully deleted!"));
+    }
+
+    @GetMapping("logs")
+    public ResponseEntity<Resource> getLogs() {
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "logs.log" + "\"")
+                .body(fileStorageService.loadLogs());
     }
 }

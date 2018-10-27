@@ -11,6 +11,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.storage.FileStorageProperties;
+import org.cs4239.team1.protectPMLeefrontendserver.storage.LogsStorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,11 +25,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EntityScan(basePackageClasses = {
-		ProtectPmLeeFrontendServerApplication.class,
-		Jsr310JpaConverters.class
+        ProtectPmLeeFrontendServerApplication.class,
+        Jsr310JpaConverters.class
 })
 @EnableConfigurationProperties({
-		FileStorageProperties.class
+        FileStorageProperties.class,
+        LogsStorageProperties.class
 })
 public class ProtectPmLeeFrontendServerApplication {
 
