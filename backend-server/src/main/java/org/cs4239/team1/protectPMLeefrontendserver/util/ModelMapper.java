@@ -1,7 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.util;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 
 public class ModelMapper {
@@ -25,5 +27,14 @@ public class ModelMapper {
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),
                 permission.getUser().getNric());
+    }
+
+    public static NoteResponse mapNotetoNoteResponce(Note note) {
+
+        return new NoteResponse(note.getNoteID(),
+                note.getCreator().getNric(),
+                note.getPatient().getNric(),
+                note.getNoteContent());
+
     }
 }
