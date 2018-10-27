@@ -56,4 +56,14 @@ public class UserController {
 
         return new ApiResponse(true, "Successfully logged out!");
     }
+
+    @GetMapping("/users/{nric}")
+    public UserProfile getUserProfile(@PathVariable(value = "nric") String nric) {
+        User user = userRepository.findByNric(nric)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+
+        UserProfile userProfile = new UserProfile(user.getNric(), user.getName(), user.getPhone());
+
+        return userProfile;
+    }
 }
