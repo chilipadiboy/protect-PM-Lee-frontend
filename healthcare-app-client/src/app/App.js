@@ -14,7 +14,6 @@ import MFA from '../user/login/MFA';
 import CreateRecord from '../user/records/CreateRecord';
 import MyRecords from '../user/records/MyRecords';
 import AllRecords from '../user/records/AllRecords';
-import UploadFile from '../user/upload/UploadFile';
 import DownloadVideo from '../user/download/DownloadVideo';
 import DownloadImage from '../user/download/DownloadImage';
 import DownloadFile from '../user/download/DownloadFile';

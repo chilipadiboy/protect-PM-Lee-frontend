@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
-import { Link } from 'react-router-dom';
 import { AUTH_TOKEN } from '../../constants';
 import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';

@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { assign, unassign } from '../../util/APIUtils';
-import { Form, Input, Button, Select, notification } from 'antd';
+import { Form, Input, Button, notification } from 'antd';
 import './Linkusers.css';
 
 const FormItem = Form.Item;
-const Option = Select.Option;
 
 class Administrator_link_users extends Component {
   constructor(props) {

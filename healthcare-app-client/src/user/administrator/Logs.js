@@ -49,8 +49,6 @@ class Administrator_logs extends Component {
   }
 
     render() {
-        const { Header, Content } = Layout;
-
         return (
           <Layout className="layout">
           <div id="contents"></div>
