@@ -12,7 +12,8 @@ To run on VM (/home/sadm/Downloads/protect-PM-Lee-frontend/healthcare-app-client
 1. `vim package.json`
 1. change `start` to `PORT=80 react-app-rewired start`
 1. change `proxy` to `https://ifs4205-t1-3.comp.nus.edu.sg`
-1. add new file `.env.development.local` with a single line `DANGEROUSLY_DISABLE_HOST_CHECK=true`
+1. add `0.0.0.0 ifs4205-t1-2.comp.nus.edu.sg` to `/etc/hosts` (if not present)
+1. add new file (if it doesn't exist) `.env` with a single line `HOST=ifs4205-t1-2.comp.nus.edu.sg`
 1. `yarn start`
 
 ### Backend
@@ -24,12 +25,12 @@ To run the server, go to the backend directory and run:
 To run on VM (/home/sadm/Downloads/protect-PM-Lee-frontend/backend-server), login as root then run:
 1. `cd src/main/java/org/cs4239/team1/protectPMLeefrontendserver/config/`
 1. `vim WebMvcConfig.java`
-1. change `http://localhost:3000` to `ifs4205-t1-2.comp.nus.edu.sg`
-1. `cd /home/sadm/Downloads/protect-PM-Lee-frontend/backend-server/`
-1. `cd src/main/resources/`
+1. change `"http://localhost:3000"` to `"https://ifs4205-t1-2.comp.nus.edu.sg","https://ifs4205-t1-3.comp.nus.edu.sg`
+1. `cd /home/sadm/Downloads/protect-PM-Lee-frontend/backend-server/src/main/resources/`
 1. `vim application.properties`
 1. change `server.port` from `5000` to `80`
 1. `cd /home/sadm/Downloads/protect-PM-Lee-frontend/backend-server/`
 1. `./gradlew build`
 1. `cp ./build/libs/protect-PM-Lee-frontend-server-0.0.1-SNAPSHOT.jar .`
+1. confirm with `y`
 1. `java -jar protect-PM-Lee-frontend-server-0.0.1-SNAPSHOT.jar --jasypt.encryptor.password="QOa9cJMTJzwN0lPUj3gU"`
