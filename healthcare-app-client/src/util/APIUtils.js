@@ -199,7 +199,7 @@ export function verifyTagSignature(loginRequest) {
 
 export function getServerFileDataSignature(file) {
     return sendFile({
-        url: API_BASE_URL + "/file/getSignature",
+        url: API + "/file/getSignature",
         method: 'POST',
         body: file
     });

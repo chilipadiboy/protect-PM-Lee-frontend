@@ -20,7 +20,6 @@ const disconUid = "00002223";
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
->>>>>>> add bluetooth connect for upload front end - part one
 
 class UploadFile extends Component {
 

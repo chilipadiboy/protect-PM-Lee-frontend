@@ -91,10 +91,11 @@ class LoginForm extends Component {
            getServerSignature(loginRequest)
            .then(response => {
                ivStr = response.iv;
-               let encrypted = convertBase64StrToUint8Array(response.encrypted);
+               let combined = convertBase64StrToUint8Array(response.combined);
+               let signature = convertBase64StrToUint8Array(response.signature);
                let iv = convertBase64StrToUint8Array(ivStr);
                let stringEnder = encoder.encode("//");
-               let sendMsg = concatenate(Uint8Array, iv, encrypted, stringEnder);
+               let sendMsg = concatenate(Uint8Array, combined, signature, stringEnder);
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
                var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
                var prevPromise = Promise.resolve();
