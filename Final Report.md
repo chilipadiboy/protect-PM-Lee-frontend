@@ -52,16 +52,18 @@ Subsystems 2 to 4 will support the following functionalities with the following 
     1. Password
     1. Role
 
-##### Security for Client & Server Communication
-TBC
+##### Claims:
+Cross-Site Scripting will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we will be sanitising our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
-#### JSON Web Token (JWT)
+#### Security for Client & Server Communication
+
+##### JSON Web Token (JWT)
 Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under [HTML5 Web Storage](https://www.tutorialspoint.com/html5/html5_web_storage.htm). When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
 ##### Claims:
-Cross-Origin Resource Sharing (CORS) will not be a potential area for exploit.
+**Cross-Origin Resource Sharing (CORS)** will not be a potential area for exploit.
 
 The JWT will be:
 1. Signed with HMAC algorithm to prevent data tampering, thus preserving **integrity**
@@ -69,12 +71,15 @@ The JWT will be:
 
 In addition, using HTTPS as our only mode of transfer across channels will prevent any potential leaks from HTML5 Web Storage during transfers. It also serves as a more efficient method to ensure traffic is encrypted instead of having to deploy encryption algorithms when transferring over unsecured HTTP routes.
 
+The backend server will also only limit connection to our frontend server by specifying the IP address which it is on, hence other malicious sites would be blocked by the CORS origin policy.
+
 ### Security for Server & Database Communication
 
 ##### Claims:
 We will be protecting our system by:
 1. Using HTTPS to ensure confidentiality and integrity in data transfer.
-1. Allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database. 
+1. Allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
+1. Running an anti-virus check when a new data file is uploaded.
 1. Sanitising user input. This helps to prevent SQL injections & XSS (especially if the input field is a custom type, such as JSON).
 
 ---
@@ -129,6 +134,7 @@ This subsystem will support the functionality of retrieving anonymous data (impl
 The minimum, average and maximum values of `Age` & `Reading` will be automatically generated. Furthermore, with each retrieval, the order of the data will be randomised to make it harder to re-identify each person through piecing different parts of the data.
 
 ##### Claims:
+TBC
 
 ## Subsystem 4 (Secure Transfer)
 
