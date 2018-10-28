@@ -140,18 +140,20 @@ public class AuthController {
         try {
             byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
 
+            byte[] ivBytes = new byte[16];
+            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] loginCode = Integer.toString(0).getBytes();
+            byte[] combined = new byte[loginCode.length + ivBytes.length + encrypted.length];
+            System.arraycopy(loginCode, 0, combined, 0, loginCode.length);
+            System.arraycopy(ivBytes, 0, combined, loginCode.length, ivBytes.length);
+            System.arraycopy(encrypted, 0, combined, loginCode.length+ivBytes.length, encrypted.length);
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
             byte[] signature = signer.sign(msgHash);
 
-            byte[] combined = new byte[msgHash.length + signature.length];
-            System.arraycopy(msgHash, 0, combined, 0, msgHash.length);
-            System.arraycopy(signature, 0, combined, msgHash.length, signature.length);
 
-            byte[] ivBytes = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, combined, signature));
 
-            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
         } catch (NonceExceededException nce) {
             return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
