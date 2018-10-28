@@ -8,14 +8,14 @@ In your final demo, you will demonstrate the final system behaviour, and make cl
 #### Login:
 The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
-#### Claims:
+#### Security Claims:
 Since the 2FA tags are issued by the administrators, the administrators could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
 
 
 #### Health records:
 TBC
 
-#### Claims:
+#### Security Claims:
 TBC
 
 ---
@@ -29,8 +29,8 @@ Subsystems 2 to 4 will support the following functionalities with the following 
     1. Password
     1. Role
 
-#### Claims:
-Cross-Site Scripting will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we will be sanitising our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
+#### Security Claims:
+**Cross-Site Scripting** will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we will be sanitising our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
 ### Security for Client & Server Communication
 
@@ -39,7 +39,7 @@ Once the user is authenticated, a JWT will be generated in the client side for *
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
-#### Claims:
+#### Security Claims:
 **Cross-Origin Resource Sharing (CORS)** will not be a potential area for exploit.
 
 The JWT will be:
@@ -52,7 +52,7 @@ The backend server will also only limit connection to our frontend server by spe
 
 ### Security for Server & Database Communication
 
-#### Claims:
+#### Security Claims:
 We will be protecting our system by:
 1. Using HTTPS to ensure confidentiality and integrity in data transfer.
 1. Allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
@@ -62,7 +62,7 @@ We will be protecting our system by:
 ---
 
 ## Subsystem 2 (Interface for Therapists & Patients)
-This subsystem provides the web interface that will be used by Therapists, Patients and Administrators to access the Health Record System.
+This subsystem provides the web interface that will be used by `Therapists`, `Patients` and `Administrators` to access the Health Record System.
 
 #### Therapists Capabilities:
 1. List all patients under their charge
@@ -74,7 +74,7 @@ This subsystem provides the web interface that will be used by Therapists, Patie
 #### Therapist's Interface
 TBC
 
-#### Claims:
+#### Security Claims:
 TBC
 
 #### Patients Capabilities:
@@ -83,7 +83,7 @@ TBC
 #### Patient's Interface
 TBC
 
-#### Claims:
+#### Security Claims:
 TBC
 
 #### Administrators Capabilities:
@@ -94,11 +94,11 @@ TBC
 #### Administrator's Interface
 After logging in, an `Administrator` would be able to add new users under the `Manage Users` tab. He would also be able to delete any existing users except for the default `Administrator` account.
 
-Administrators would be able to assign a `Therapist` to a `Patient` under the `Link Users` tab.
+`Administrators` would be able to assign a `Therapist` to a `Patient` under the `Link Users` tab.
 
-Administrators would also be able to generate server logs by choosing the date range under the `Logs` tab.
+`Administrators` would also be able to generate server logs by choosing the date range under the `Logs` tab.
 
-#### Claims:
+#### Security Claims:
 The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
 
 ---
@@ -112,7 +112,7 @@ This subsystem will support the functionality of retrieving anonymous data (impl
 
 The minimum, average and maximum values of `Age` & `Reading` will be automatically generated. Furthermore, with each retrieval, the order of the data will be randomised to make it harder to re-identify each person through piecing different parts of the data.
 
-#### Claims:
+#### Security Claims:
 TBC
 
 ---
@@ -125,10 +125,13 @@ The other team will be given a special account that can only perform these actio
 #### Interface
 TBC
 
-#### Claims:
+#### Security Claims:
 The upload stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
 
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
+TBC
+
+#### Security Claims:
 TBC
