@@ -240,6 +240,21 @@ class Administrator_add_user extends Component {
     // Validation Functions
 
     validateNric = (nric) => {
+        if(!nric) {
+          return {
+            validateStatus: 'error',
+            errorMsg: 'NRIC may not be empty'
+          }
+        }
+
+        const NRIC_REGEX = RegExp('^[STFG]\\d{7}[A-Z]$');
+        if(!NRIC_REGEX.test(nric)) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'NRIC not valid'
+            }
+        }
+
         if(nric.length < NRIC_LENGTH) {
             return {
                 validateStatus: 'error',
@@ -384,6 +399,13 @@ class Administrator_add_user extends Component {
     }
 
     validatePassword = (password) => {
+      if(!password) {
+        return {
+          validateStatus: 'error',
+          errorMsg: 'Password may not be empty'
+        }
+      }
+
         if(password.length < PASSWORD_MIN_LENGTH) {
             return {
                 validateStatus: 'error',

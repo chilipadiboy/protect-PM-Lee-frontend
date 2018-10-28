@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
-import { AUTH_TOKEN } from '../../constants';
+import { AUTH_TOKEN, NRIC_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '../../constants';
 import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
@@ -41,6 +41,13 @@ class LoginForm extends Component {
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.isFormInvalid = this.isFormInvalid.bind(this);
+    }
+
+    isFormInvalid() {
+        return !(this.state.nric.validateStatus === 'success' &&
+            this.state.password.validateStatus === 'success'
+        );
     }
 
     startConnection() {
@@ -183,14 +190,15 @@ class LoginForm extends Component {
          }
 
 
-    handleInputChange(event) {
+    handleInputChange(event, validationFun) {
         const target = event.target;
         const inputName = target.name;
         const inputValue = target.value;
 
         this.setState({
             [inputName] : {
-                value: inputValue
+                value: inputValue,
+                ...validationFun(inputValue)
             }
         });
     }
@@ -225,22 +233,30 @@ class LoginForm extends Component {
         return (
            <Spin spinning={this.state.isLoading}>
             <Form onSubmit={this.handleSubmit} className="login-form">
-                <FormItem>
+                <FormItem
+                label="NRIC"
+                hasFeedback
+                validateStatus={this.state.nric.validateStatus}
+                help={this.state.nric.errorMsg}>
                     <Input
                         prefix={<Icon type="user" />}
                         size="large"
                         name="nric"
                         value={this.state.nric.value}
-                        onChange={(event) => {this.handleInputChange(event)}}
+                        onChange={(event) => {this.handleInputChange(event, this.validateNric)}}
                         placeholder="NRIC" />
                 </FormItem>
-                <FormItem>
+                <FormItem
+                label="Password"
+                hasFeedback
+                validateStatus={this.state.password.validateStatus}
+                help={this.state.password.errorMsg}>
                     <Input
                         prefix={<Icon type="lock" />}
                         size="large"
                         name="password"
                         type="password"
-                        onChange={(event) => {this.handleInputChange(event)}}
+                        onChange={(event) => {this.handleInputChange(event, this.validatePassword)}}
                         placeholder="Password"  />
                 </FormItem>
                 <FormItem
@@ -262,13 +278,62 @@ class LoginForm extends Component {
                     </Select>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" htmlType="submit" className="login-form-button">Login without your tag</Button>
-                    <Button type="primary" className="mfa-button" size="large" onClick={this.startConnection.bind(this)}> Connect Your Tag To Log In </Button>
+                    <Button type="primary" htmlType="submit" className="login-form-button" disabled={this.isFormInvalid()}>Login without your tag</Button>
+                    <Button type="primary" className="mfa-button" size="large" onClick={this.startConnection.bind(this)} disabled={this.isFormInvalid()}> Connect Your Tag To Log In </Button>
                 </FormItem>
             </Form>
             </Spin>
         );
     }
+
+    validateNric = (nric) => {
+      if(!nric) {
+        return {
+          validateStatus: 'error',
+          errorMsg: 'NRIC may not be empty'
+        }
+      }
+
+      const NRIC_REGEX = RegExp('^[STFG]\\d{7}[A-Z]$');
+      if(!NRIC_REGEX.test(nric)) {
+          return {
+              validateStatus: 'error',
+              errorMsg: 'NRIC not valid'
+          }
+      }
+
+        if(nric.length < NRIC_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `NRIC is too short (${NRIC_LENGTH} characters needed.)`
+            }
+        } else if (nric.length > NRIC_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `NRIC is too long (${NRIC_LENGTH} characters allowed.)`
+            }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null
+            }
+        }
+    }
+
+    validatePassword = (password) => {
+      if(!password) {
+        return {
+          validateStatus: 'error',
+          errorMsg: 'Password may not be empty'
+        }
+      } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+            };
+        }
+    }
+
 }
 
 function openNotificationError(type) {
