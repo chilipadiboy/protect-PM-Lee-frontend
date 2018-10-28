@@ -9,7 +9,7 @@ In your final demo, you will demonstrate the final system behaviour, and make cl
 The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
 ### Security Claims:
-Since the 2FA tags are issued by the administrators, the administrators could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
+Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
 
 
 ### Health records:
@@ -30,12 +30,12 @@ Subsystems 2 to 4 will support the following functionalities with the following 
     1. Role
 
 ### Security Claims:
-**Cross-Site Scripting** will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we will be sanitising our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
+**Cross-Site Scripting (XSS)** will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we will be sanitising our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
 ## Security for Client & Server Communication
 
 ### JSON Web Token (JWT)
-Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under [HTML5 Web Storage](https://www.tutorialspoint.com/html5/html5_web_storage.htm). When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
+Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
@@ -57,7 +57,7 @@ We will be protecting our system by:
 1. Using HTTPS to ensure confidentiality and integrity in data transfer.
 1. Allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
 1. Running an anti-virus check when a new data file is uploaded.
-1. Sanitising user input. This helps to prevent SQL injections & XSS (especially if the input field is a custom type, such as JSON).
+1. Sanitising user input. This helps to prevent **SQL injections** & **Cross-Site Scripting (XSS)** (especially if the input field is a custom type, such as JSON).
 
 ---
 
