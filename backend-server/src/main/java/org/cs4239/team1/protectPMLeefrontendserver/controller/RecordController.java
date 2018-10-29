@@ -3,7 +3,9 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.io.IOException;
 import java.net.URI;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Set;
 
@@ -13,6 +15,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 import com.google.crypto.tink.subtle.Ed25519Sign;
+import com.google.crypto.tink.subtle.Ed25519Verify;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
@@ -70,6 +73,9 @@ public class RecordController {
 
     @Value("${bluetooth.tag.encryptionKey}")
     private String tagKey;
+
+    @Autowired
+    private AESEncryptionDecryptionTool aesEncryptionDecryptionTool;
 
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
@@ -155,35 +161,48 @@ public class RecordController {
             Record record = createRecord(recordRequest1, file);
             RecordSignatureRequest recordSigRequest = validate(new ObjectMapper().readValue(sigRequest, RecordSignatureRequest.class));
 
-            recordSigRequest.getEncryptedString();
-            int nonceInServer = NonceGenerator.generateNonce(record.getPatientIC());
-            byte[] msgHash = Hasher.hash(nonceInServer);
+            byte[] decrypted = aesEncryptionDecryptionTool
+                    .decrypt(Base64.getDecoder().decode(recordSigRequest.getEncryptedString()), tagKey, recordSigRequest.getIv(), "AES/CBC/NOPADDING");
+            byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
+            byte[] fileSignature = Arrays.copyOfRange(decrypted, 64, 128);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
+            System.out.println(record.getPatientIC());
+            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(record.getPatientIC()));
 
-            byte[] ivBytes = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] uploadCode = Integer.toString(1).getBytes();
-            byte[] combinedNonceAndFile = new byte[msgHash.length + fileBytesHash.length];
-            System.arraycopy(msgHash, 0, combinedNonceAndFile, 0, msgHash.length);
-            System.arraycopy(fileBytesHash, 0, combinedNonceAndFile, msgHash.length, fileBytesHash.length);
-            byte[] encrypted = new AESEncryptionDecryptionTool().encrypt(combinedNonceAndFile, tagKey, ivBytes, "AES/CBC/NOPADDING");
 
-            byte[] combined = new byte[uploadCode.length + ivBytes.length + encrypted.length];
-            System.arraycopy(uploadCode, 0, combined, 0, uploadCode.length);
-            System.arraycopy(ivBytes, 0, combined, uploadCode.length, ivBytes.length);
-            System.arraycopy(encrypted, 0, combined, uploadCode.length+ivBytes.length, encrypted.length);
+            //TODO: err not sure am i supposed to throw it here like that?
+            if (!Arrays.equals(msgHash, verifyHash)) {
+                throw new GeneralSecurityException();
+            }
 
-            Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
-            byte[] signature = signer.sign(combined);
+            //TODO: need you to help me call user.getPublicKey or something...
+            Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode("MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss="));
+            verifier.verify(fileSignature, fileBytesHash);
 
-            return new ResponseEntity<>(new ServerSignatureResponse(ivBytes, encrypted, signature), HttpStatus.OK);
+            //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
+            //Need to be assigned to start treatment. Else record will be created but not auto permitted
+            Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
+            String endDate = treatment.getEndDate().toString().substring(0,10);
+            PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
+            User patient = userRepository.findByNric(record.getPatientIC())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
 
-        } catch (NonceExceededException nce) {
-            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new AssertionError("Errors should not happen.");
-        }
+            Permission permission = recordService.grantPermission(permissionRequest, patient);
+
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest().path("/{recordId}")
+                    .buildAndExpand(record.getRecordID()).toUri();
+
+            return ResponseEntity.created(location)
+                    .body(new ApiResponse(true, "Record Created Successfully"));
+
+            } catch (FileUploadException fue) {
+                return new ResponseEntity<>(new ApiResponse(false, "Invalid file type."), HttpStatus.BAD_REQUEST);
+            } catch (JsonParseException | JsonMappingException je) {
+                return new ResponseEntity<>(new ApiResponse(false, "Invalid JSON."), HttpStatus.BAD_REQUEST);
+            } catch (IOException | GeneralSecurityException ioe) {
+                throw new AssertionError("Not expected to happen.");
+            }
     }
 
     private <T> T validate(T input) {
