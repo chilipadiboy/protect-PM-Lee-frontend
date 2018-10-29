@@ -250,6 +250,30 @@ export function createRecord(newRecord, file) {
     });
 }
 
+export function createRecordSignature(newRecord, file) {
+    const formData = new FormData();
+    formData.append("recordRequest", JSON.stringify(newRecord))
+    formData.append("file", file, file.name)
+    return create({
+        url: API + "/records/create/signature",
+        method: 'POST',
+        body: formData
+    });
+}
+
+export function verifyCreateRecordTagSignature(newRecord, file, reqToSend) {
+    const formData = new FormData();
+    formData.append("recordRequest", JSON.stringify(newRecord));
+    formData.append("signatureRequest", JSON.stringify(reqToSend));
+    formData.append("file", file, file.name)
+    return create({
+        url: API + "/records/create/signature",
+        method: 'POST',
+        body: formData
+    });
+}
+
+
 export function getAllRecords() {
     return request({
         url: API + "/records/",
