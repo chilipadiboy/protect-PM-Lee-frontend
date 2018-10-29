@@ -159,7 +159,6 @@ class CreateRecord extends Component {
                                   let reqToSend =  Object.assign({}, encryptedMsg, ivMsg);
                                   verifyCreateRecordTagSignature(createRecordRequest, uploadedFile, reqToSend)
                                    .then(response => {
-
                                      context.setState({isLoading: false});
                                      context.props.onLogin();
                                    }).catch(error => {
@@ -181,19 +180,8 @@ class CreateRecord extends Component {
          })
        }).catch(error => {
          context.setState({isLoading: false});
-         if (!deviceConnected.gatt.connected) {
-           notification.error({
-               message: 'Healthcare App',
-               description: 'Device disconnected!'
-           });
-         } else {
-           notification.error({
-               message: 'Healthcare App',
-               description: error.message || 'Sorry! Something went wrong. Please try again!'
-           });
-         }
        })
-     }
+    }
 
 
     render() {
@@ -254,7 +242,6 @@ class CreateRecord extends Component {
                                 >Create Record</Button>
                         </FormItem>
                         <Button type="primary"
-                            htmlType="submit"
                             size="large"
                             className="createRecord-form-button"
                             onClick={this.startConnection.bind(this)}

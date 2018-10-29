@@ -267,7 +267,7 @@ export function verifyCreateRecordTagSignature(newRecord, file, reqToSend) {
     formData.append("signatureRequest", JSON.stringify(reqToSend));
     formData.append("file", file, file.name)
     return create({
-        url: API + "/records/create/signature",
+        url: API + "/records/create/signature/verify",
         method: 'POST',
         body: formData
     });
