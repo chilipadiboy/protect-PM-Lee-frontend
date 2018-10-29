@@ -6,6 +6,7 @@ import {
     NRIC_LENGTH,
     EMAIL_MAX_LENGTH,
     PHONE_LENGTH,
+    POSTALCODE_LENGTH,
     PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH,
 } from '../../constants';
 
@@ -23,6 +24,7 @@ class Administrator_add_user extends Component {
           email: '',
           phone: '',
           address: '',
+          postalCode: '',
           age: '',
           gender: '',
           password: '',
@@ -55,6 +57,7 @@ class Administrator_add_user extends Component {
             email: this.state.email.value,
             phone: encodeURIComponent(this.state.phone.value),
             address: encodeURIComponent(this.state.address.value),
+            postalCode: encodeURIComponent(this.state.postalCode.value),
             age: encodeURIComponent(this.state.age.value),
             gender: encodeURIComponent(this.state.gender.value),
             password: encodeURIComponent(this.state.password.value),
@@ -82,6 +85,7 @@ class Administrator_add_user extends Component {
             this.state.email.validateStatus === 'success' &&
             this.state.phone.validateStatus === 'success' &&
             this.state.address.validateStatus === 'success' &&
+            this.state.postalCode.validateStatus === 'success' &&
             this.state.age.validateStatus === 'success' &&
             this.state.password.validateStatus === 'success' &&
             this.state.publicKey.validateStatus === 'success'
@@ -155,6 +159,18 @@ class Administrator_add_user extends Component {
                                 autoComplete="off"
                                 value={this.state.address.value}
                                 onChange={(event) => {this.handleInputChange(event, this.validateAddress)}} />
+                        </FormItem>
+                        <FormItem
+                            label="Postal Code"
+                            hasFeedback
+                            validateStatus={this.state.postalCode.validateStatus}
+                            help={this.state.postalCode.errorMsg}>
+                            <Input
+                                size="large"
+                                name="postalCode"
+                                autoComplete="off"
+                                value={this.state.postalCode.value}
+                                onChange={(event) => {this.handleInputChange(event, this.validatePostalCode)}} />
                         </FormItem>
                         <FormItem
                             label="Age"
@@ -368,6 +384,40 @@ class Administrator_add_user extends Component {
                 validateStatus: 'error',
                 errorMsg: 'Address may not be empty'
               }
+        } else {
+            return {
+                validateStatus: 'success',
+                errorMsg: null,
+              };
+        }
+    }
+
+    validatePostalCode = (postalCode) => {
+        if(!postalCode) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Postal code may not be empty'
+              }
+        }
+
+        const POSTALCODE_REGEX = RegExp('^[0-9]*$');
+        if(!POSTALCODE_REGEX.test(postalCode)) {
+            return {
+                validateStatus: 'error',
+                errorMsg: 'Postal code not valid'
+            }
+        }
+
+        if(postalCode.length < POSTALCODE_LENGTH) {
+            return {
+                validateStatus: 'error',
+                errorMsg: `Postal code is too short (${POSTALCODE_LENGTH} characters needed.)`
+            }
+        } else if (postalCode.length > POSTALCODE_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Postal code is too long (${POSTALCODE_LENGTH} characters allowed.)`
+            }
         } else {
             return {
                 validateStatus: 'success',
