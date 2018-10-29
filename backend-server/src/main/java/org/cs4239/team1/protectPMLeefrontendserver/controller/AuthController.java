@@ -96,10 +96,9 @@ public class AuthController {
             Date now = new Date();
             Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
-            int sessionId = SecureRandom.getInstance("SHA1PRNG").nextInt(Integer.MAX_VALUE);
-
             byte[] ivBytes = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(ivBytes);
             String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = Jwts.builder()
                     .setSubject(user.getUsername())
@@ -112,7 +111,7 @@ public class AuthController {
             byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PKCS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
-            Cookie newCookie = new Cookie("testCookie", cookieValue);
+            Cookie newCookie = new Cookie("sessionCookie", cookieValue);
             newCookie.setPath("/api");
             newCookie.setHttpOnly(true);
 
@@ -183,13 +182,14 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             byte[] ivBytes = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(ivBytes);
             String iv = Base64.getEncoder().encodeToString(ivBytes);
             String jwt = tokenProvider.generateToken(iv, authentication);
             byte[] encrypted = aesEncryptionDecryptionTool.encrypt(jwt, jwtSecret, ivBytes, "AES/CBC/PKCS5PADDING");
 
             String cookieValue = Base64.getEncoder().encodeToString(encrypted);
-            Cookie newCookie = new Cookie("testCookie", cookieValue);
+            Cookie newCookie = new Cookie("sessionCookie", cookieValue);
             newCookie.setPath("/api");
             newCookie.setHttpOnly(true);
 
