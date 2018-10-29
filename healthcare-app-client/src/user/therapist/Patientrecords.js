@@ -4,7 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
-import { getPatients, getPatientPermittedRecords, getUserProfile } from '../../util/APIUtils';
+import { getPatients, getPatientPermittedRecords, getPatientProfile } from '../../util/APIUtils';
 import { Layout, Table, Icon, Button } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Patientrecords.css';
@@ -114,7 +114,7 @@ class Therapist_patientrecords extends Component {
             isLoading: true
         });
 
-        getUserProfile(pat_nric)
+        getPatientProfile(pat_nric)
         .then(response => {
             this.setState({
                 patient: response,
@@ -222,7 +222,7 @@ class Therapist_patientrecords extends Component {
                           <br />
                         </div>
                         <div className="title">
-                          Patient's Records & Notes
+                          Patient's Records
                         </div>
                         <Table dataSource={this.state.patdata.content} columns={patcolumns} />
                         <div className="title">

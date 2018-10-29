@@ -223,9 +223,9 @@ export function getCurrentUser() {
     });
 }
 
-export function getUserProfile(nric) {
+export function getPatientProfile(nric) {
     return request({
-        url: API + "/users/" + nric,
+        url: API + "/treatments/getUserSummary/" + nric,
         method: 'GET'
     });
 }
@@ -289,7 +289,7 @@ export function getPatientPermittedRecords(pat_nric) {
 
 export function getPatients() {
     return request({
-        url: API + "/treatments/getPatients",
+        url: API + "/treatments/getPatients/",
         method: 'GET'
     });
 }

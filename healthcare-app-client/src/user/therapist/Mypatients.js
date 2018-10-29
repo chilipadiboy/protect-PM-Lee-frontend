@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import update from 'immutability-helper';
 import findIndex from 'lodash.findindex';
 import { Layout, Table, Icon } from 'antd';
-import { getPatients, getUserProfile } from '../../util/APIUtils';
+import { getPatients, getPatientProfile } from '../../util/APIUtils';
 import './Mypatients.css';
 
 
@@ -41,7 +41,7 @@ class Therapist_mypatients extends Component {
                     var currentnric = response.content[i].treatmentId.patient;
                     console.log(currentnric);
 
-                    getUserProfile(currentnric)
+                    getPatientProfile(currentnric)
                     .then((result) => { var i = findIndex(this.state.patients, ['nric', result.nric]);
                                         this.setState({ patients: update(this.state.patients, {[i]: { name: {$set: result.name},
                                                                                                       phone: {$set: result.phone} }}) });
