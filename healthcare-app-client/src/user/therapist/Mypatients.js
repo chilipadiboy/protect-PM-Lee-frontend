@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
+import update from 'immutability-helper';
+import findIndex from 'lodash.findindex';
 import { Layout, Table, Icon } from 'antd';
+import { getPatients, getUserProfile } from '../../util/APIUtils';
 import './Mypatients.css';
 
 
@@ -7,67 +10,96 @@ class Therapist_mypatients extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: this.props.currentUser,
+            patients: [],
             isLoading: false
         }
+
+        this.loadPatients = this.loadPatients.bind(this);
+    }
+
+    loadPatients() {
+        this.setState({
+            isLoading: true
+        });
+
+        getPatients()
+        .then(response => {
+                const patdata = [];
+
+                for (var i = 0; i < response.content.length; i++) {
+                    var currentnric = response.content[i].treatmentId.patient;
+
+                    patdata[i] = ({ key: i,
+                                    nric: currentnric
+                                  });
+                }
+
+                this.setState({ patients: patdata });
+
+                for (var i = 0; i < response.content.length; i++) {
+
+                    var currentnric = response.content[i].treatmentId.patient;
+                    console.log(currentnric);
+
+                    getUserProfile(currentnric)
+                    .then((result) => { var i = findIndex(this.state.patients, ['nric', result.nric]);
+                                        this.setState({ patients: update(this.state.patients, {[i]: { name: {$set: result.name},
+                                                                                                      phone: {$set: result.phone} }}) });
+                                      }
+                    ).catch(error => {
+                        if(error.status === 404) {
+                            this.setState({
+                                notFound: true,
+                            });
+                        } else {
+                            this.setState({
+                                serverError: true,
+                            });
+                        }
+                    });
+
+                }
+              }
+        )
+        .catch(error => {
+            if(error.status === 404) {
+                this.setState({
+                    notFound: true,
+                });
+            } else {
+                this.setState({
+                    serverError: true,
+                });
+            }
+        });
+
+    }
+
+    componentDidMount() {
+        this.loadPatients();
     }
 
     render() {
+
         const columns = [{
-          title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
-        }, {
           title: 'NRIC',
           dataIndex: 'nric',
           key: 'nric',
-        }, {
-          title: 'Gender',
-          dataIndex: 'gender',
-          key: 'gender',
-        }, {
-          title: 'Age',
-          dataIndex: 'age',
-          key: 'age',
-        }, {
-          title: 'Start date',
-          dataIndex: 'start',
-          key: 'start',
-        }, {
-          title: 'Next appointment',
-          dataIndex: 'next_appt',
-          key: 'next_appt',
-        }, {
-          title: 'Phone number',
+        },  {
+          title: 'Name',
+          dataIndex: 'name',
+          key: 'name',
+        },  {
+          title: 'Phone',
           dataIndex: 'phone',
           key: 'phone',
-        }, {
-          title: 'Health issues',
-          dataIndex: 'health_issues',
-          key: 'health_issues',
-        }, {
-          title: 'Allergies',
-          dataIndex: 'allergies',
-          key: 'allergies',
-        }, {
+        },  {
           title: 'Documents & records',
           dataIndex: 'docs_recs',
           key: 'docs_recs',
-          render: text => <a href="#">View, Edit or Create</a>,
+          render: (text, row) => <a href={ "/mypatients/" + row.nric }>View, Edit or Create</a>,
         }];
 
-        const data = [{
-          key: '1',
-          name: 'Bobby Fisher',
-          nric: 'S8854321I',
-          gender: 'F',
-          age: 30,
-          start: '12 Aug 18',
-          next_appt: '1 Dec 18',
-          phone: '98144819',
-          health_issues: 'Diabetes',
-          allergies: 'Paracetamol',
-        }];
 
         const { Header, Content } = Layout;
 
@@ -77,7 +109,7 @@ class Therapist_mypatients extends Component {
                   <div className="title">My Patients</div>
                 </Header>
                 <Content>
-                  <Table dataSource={data} columns={columns} />
+                  <Table dataSource={this.state.patients} columns={columns} />
                 </Content>
               </Layout>
         );
