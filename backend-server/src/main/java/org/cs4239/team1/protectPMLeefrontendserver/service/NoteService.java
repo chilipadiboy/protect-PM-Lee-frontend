@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.service;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.UnauthorisedException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
@@ -65,7 +66,7 @@ public class NoteService {
             isVisibleToTherapist = true;
         }
         else{
-            throw new AssertionError("Should not happen.");
+            throw new UnauthorisedException("You are not allowed to create note for Patient_" + patient.getNric());
         }
 
         return noteRepository.save(new Note(creator, patient, noteRequest.getNoteContent(), isVisibleToPatient, isVisibleToTherapist));
@@ -86,7 +87,7 @@ public class NoteService {
             note.setIsVisibleToPatient(Boolean.parseBoolean(notePermissionRequest.getIsVisibleToPatient()));
         }
         else{
-            throw new AssertionError("Should not happen.");
+            throw new UnauthorisedException("Not authorised to change Note_" + note.getNoteID() + "'s permission");
         }
 
         return noteRepository.save(note);
@@ -100,9 +101,12 @@ public class NoteService {
         //check if valid patient
         User patient = userRepository.findByNric(patientNric) //current user is the creator
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", patientNric));
+        if (!patient.getRoles().contains(Role.ROLE_PATIENT)) {
+            throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
+        }
         //check if treatment pair is valid
         if (treatmentRepository.findByTreatmentId(new TreatmentId(currentUser.getNric(), patientNric)) == null){
-            throw new AssertionError("Should not happen.");
+            throw new UnauthorisedException("Do not have permission to get notes of Patient_" + patient.getNric());
         }
 
         // Retrieve Records
