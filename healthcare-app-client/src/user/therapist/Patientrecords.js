@@ -11,26 +11,6 @@ import './Patientrecords.css';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 
-class UploadRecordButton extends Component {
-  render() {
-    return (
-      <Link to={ this.props.history.location.pathname + "/uploadrecord"}>
-        <Button type="primary" icon="upload" size="default">Upload record</Button>
-      </Link>
-    );
-  }
-}
-
-class NewNoteButton extends Component {
-  render() {
-    return (
-      <Link to={ this.props.history.location.pathname + "/newnote"}>
-        <Button type="primary" icon="file-add" size="default">New note</Button>
-      </Link>
-    );
-  }
-}
-
 class Therapist_patientrecords extends Component {
     constructor(props) {
         super(props);
@@ -233,7 +213,7 @@ class Therapist_patientrecords extends Component {
           title: 'Document',
           dataIndex: 'noteContent'
         }];
-        // Add the buttons in
+
         return (
           <div className="patient-data">
             {  this.state.patient ? (
@@ -246,7 +226,10 @@ class Therapist_patientrecords extends Component {
                       <br />
                     </div>
                     <div className="title">
-                      Patient's Records
+                      Patient's Records &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <Link to={ this.props.history.location.pathname + "/uploadrecord"}>
+                        <Button type="primary" icon="upload" size="default">Upload record</Button>
+                      </Link>
                     </div>
                     <Table dataSource={this.state.patrecords} columns={patcolumns} />
                     <div className="title">
@@ -254,7 +237,10 @@ class Therapist_patientrecords extends Component {
                     </div>
                     <Table dataSource={this.state.othernotes} columns={othernotescolumns} />
                     <div className="title">
-                      My Notes
+                      My Notes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <Link to={ this.props.history.location.pathname + "/newnote"}>
+                        <Button type="primary" icon="file-add" size="default">New note</Button>
+                      </Link>
                     </div>
                     <Table dataSource={this.state.mynotes} columns={mynotescolumns} />
                   </Content>
