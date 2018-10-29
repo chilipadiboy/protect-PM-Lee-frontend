@@ -74,9 +74,7 @@ public class NoteService {
 
     @PreAuthorize("hasRole('THERAPIST')")
     public Note setNotePermission(NotePermissionRequest notePermissionRequest, User user) {
-
-        boolean isVisibleToPatient;
-
+        
         //valid note
         Note note = noteRepository.findByNoteID(notePermissionRequest.getNoteID())
                 .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", notePermissionRequest.getNoteID()));
