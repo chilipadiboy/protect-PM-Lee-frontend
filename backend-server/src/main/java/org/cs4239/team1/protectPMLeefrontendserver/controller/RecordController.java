@@ -117,10 +117,8 @@ public class RecordController {
 
     //Get all records
     @GetMapping
-    public PagedResponse<Record> getRecords(@CurrentUser User currentUser,
-                                                    @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                    @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getAllRecords(currentUser, page, size);
+    public PagedResponse<Record> getRecords(@CurrentUser User currentUser) {
+        return recordService.getAllRecords(currentUser, 0, 30);
     }
 
 
@@ -132,25 +130,19 @@ public class RecordController {
     }
 
     @GetMapping("/therapist/")
-    public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser,
-                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsCreatedBy(currentUser, page, size);
+    public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser) {
+        return recordService.getRecordsCreatedBy(currentUser, 0, 30);
     }
 
     @GetMapping("/patient/")
-    public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser,
-                                                              @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                              @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsBelongingTo(currentUser, page, size);
+    public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser) {
+        return recordService.getRecordsBelongingTo(currentUser, 0, 30);
     }
 
     //Therapist get patient-specific permitted records
     @GetMapping("/therapist/patient/{patient}")
     public PagedResponse<Record> getRecordsPermittedByPatient(@CurrentUser User currentUser,
-                                                                      @PathVariable String patient,
-                                                                      @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                                      @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getRecordsPermittedByPatient(currentUser, patient, page, size);
+                                                                      @PathVariable String patient) {
+        return recordService.getRecordsPermittedByPatient(currentUser, patient, 0, 30);
     }
 }

@@ -80,18 +80,14 @@ public class PermissionController {
 
     //Get all permissions that currentUser (the therapist) has been allowed to see
     @GetMapping("/therapist/allowed/")
-    public PagedResponse<Record> getAllowedRecords(@CurrentUser User currentUser,
-                                                   @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                   @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getAllowedRecords(currentUser, page, size);
+    public PagedResponse<Record> getAllowedRecords(@CurrentUser User currentUser) {
+        return recordService.getAllowedRecords(currentUser, 0, 30);
     }
 
     //Get all permissions that currentUser(the patient) has granted
     @GetMapping("/patient/given/")
-    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(@CurrentUser User currentUser,
-                                                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return recordService.getGivenRecords(currentUser, page, size);
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(@CurrentUser User currentUser) {
+        return recordService.getGivenRecords(currentUser, 0, 30);
     }
 
 }
