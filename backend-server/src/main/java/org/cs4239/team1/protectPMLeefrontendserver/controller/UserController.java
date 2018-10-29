@@ -31,7 +31,7 @@ public class UserController {
     @GetMapping("/logout")
     public ApiResponse logoutCurrentUser(HttpServletRequest req, HttpServletResponse res) {
         Cookie cookie = Stream.of(req.getCookies())
-                .filter(c -> c.getName().equals("testCookie"))
+                .filter(c -> c.getName().equals("sessionCookie"))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Logged in users should have cookies."));
 
