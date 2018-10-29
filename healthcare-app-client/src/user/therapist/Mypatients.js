@@ -86,7 +86,9 @@ class Therapist_mypatients extends Component {
           key: 'nric',
         },  {
           title: 'Name',
-          dataIndex: 'name'
+          dataIndex: 'name',
+          defaultSortOrder: 'ascend',
+          sorter: (a, b) => a.name - b.name
         },  {
           title: 'Phone',
           dataIndex: 'phone'

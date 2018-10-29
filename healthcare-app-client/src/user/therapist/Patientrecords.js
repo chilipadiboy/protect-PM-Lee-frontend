@@ -179,6 +179,8 @@ class Therapist_patientrecords extends Component {
           title: 'Record ID',
           dataIndex: 'recordID',
           key: 'recordID',
+          defaultSortOrder: 'ascend',
+          sorter: (a, b) => a.recordID - b.recordID
         }, {
           title: 'Title',
           dataIndex: 'title'
@@ -197,6 +199,8 @@ class Therapist_patientrecords extends Component {
           title: 'Note ID',
           dataIndex: 'noteID',
           key: 'noteID',
+          defaultSortOrder: 'ascend',
+          sorter: (a, b) => a.noteID - b.noteID
         }, {
           title: 'Written By',
           dataIndex: 'creatorName'
@@ -209,6 +213,8 @@ class Therapist_patientrecords extends Component {
           title: 'Note ID',
           dataIndex: 'noteID',
           key: 'noteID',
+          defaultSortOrder: 'ascend',
+          sorter: (a, b) => a.noteID - b.noteID
         }, {
           title: 'Document',
           dataIndex: 'noteContent'
