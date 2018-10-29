@@ -99,7 +99,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("ADMINISTRATOR")
                     .antMatchers("/api/treatments/getAll/")
                         .hasRole("ADMINISTRATOR")
-                    .antMatchers("/api/treatments/getPatients/")
+                    .antMatchers("/api/treatments/getPatients/", "/api/treatments/getUserSummary/*")
                         .hasRole("THERAPIST")
                     .antMatchers("/api/treatments/getTherapists/")
                         .hasRole("PATIENT")
