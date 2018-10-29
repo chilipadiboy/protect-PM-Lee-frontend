@@ -39,7 +39,6 @@ class Therapist_mypatients extends Component {
                 for (var i = 0; i < response.content.length; i++) {
 
                     var currentnric = response.content[i].treatmentId.patient;
-                    console.log(currentnric);
 
                     getPatientProfile(currentnric)
                     .then((result) => { var i = findIndex(this.state.patients, ['nric', result.nric]);

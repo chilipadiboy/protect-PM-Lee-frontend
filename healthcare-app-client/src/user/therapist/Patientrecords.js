@@ -4,7 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
-import { getPatients, getPatientPermittedRecords, getPatientProfile } from '../../util/APIUtils';
+import { getPatients, getPatientPermittedRecords, getPatientProfile, getAllTherapistNotes, getCurrentUser } from '../../util/APIUtils';
 import { Layout, Table, Icon, Button } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Patientrecords.css';
@@ -35,20 +35,89 @@ class Therapist_patientrecords extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            patdata: [],
-            mydata: [],
+            patrecords: [],
+            mynotes: [],
+            othernotes: [],
             patient: null,
-            verifyPatient: false,
-            isLoading: true
+            currentUser: null,
+            isLoading: false
         }
+        this.getCurrentTherapist = this.getCurrentTherapist.bind(this);
         this.loadPatientRecords = this.loadPatientRecords.bind(this);
         this.loadPatientProfile = this.loadPatientProfile.bind(this);
-        this.loadMyNotes = this.loadMyNotes.bind(this);
-        this.verifyPatient = this.verifyPatient.bind(this);
+        this.loadNotes = this.loadNotes.bind(this);
     }
-    // To implement: load notes of current user for the patient
-    loadMyNotes() {
 
+    getCurrentTherapist() {
+        this.setState({
+            isLoading: true
+        });
+
+        getCurrentUser()
+        .then((response) => {
+            this.setState({
+                currentUser: response,
+                isLoading: false
+            });
+        }).catch(error => {
+            if(error.status === 404) {
+                this.setState({
+                    notFound: true,
+                    isLoading: false
+                });
+            } else {
+                this.setState({
+                    serverError: true,
+                    isLoading: false
+                });
+            }
+        });
+    }
+
+    loadNotes(pat_nric) {
+      this.setState({
+          isLoading: true
+      });
+
+      getAllTherapistNotes(pat_nric)
+      .then((response) => {
+          console.log(response.content);
+
+          const mydata = [];
+          const otherdata = [];
+          const mynric = this.state.currentUser.nric;
+          var me = 0;
+          var other = 0;
+
+          for (var i = 0; i < response.content.length; i++) {
+              var currentnric = response.content[i].creatorNric;
+              if (mynric === currentnric) {
+                  mydata[me] = response.content[i];
+                  me++;
+              } else {
+                  otherdata[other] = response.content[i];
+                  other++;
+              }
+          }
+
+          this.setState({
+              mynotes: mydata,
+              othernotes: otherdata,
+              isLoading: false
+          });
+      }).catch(error => {
+          if(error.status === 404) {
+              this.setState({
+                  notFound: true,
+                  isLoading: false
+              });
+          } else {
+              this.setState({
+                  serverError: true,
+                  isLoading: false
+              });
+          }
+      });
     }
 
     loadPatientRecords(pat_nric) {
@@ -57,8 +126,10 @@ class Therapist_patientrecords extends Component {
         });
 
         getPatientPermittedRecords(pat_nric)
-        .then(patdata =>
-          this.setState({ patdata }))
+        .then((patdata) => {
+            this.setState({ patrecords: patdata.content,
+                            isLoading: false });
+        })
         .catch(error => {
             if(error.status === 404) {
                 this.setState({
@@ -72,43 +143,6 @@ class Therapist_patientrecords extends Component {
         });
     }
 
-    verifyPatient() {
-        this.setState({
-            isLoading: true
-        });
-
-        getPatients()
-        .then(response => {
-                            const patdata = [];
-
-                            for (var i = 0; i < response.content.length; i++) {
-                                patdata[i] = response.content[i].treatmentId.patient;
-                            }
-
-                            var i = patdata.indexOf(this.state.patient.nric);
-
-                            if (i >= 0) {
-                                this.setState({ verifyPatient: true });
-                            } else {
-                                this.setState({ verifyPatient: false });
-                            }
-                }
-        )
-        .catch(error => {
-            if(error.status === 404) {
-                this.setState({
-                    notFound: true,
-                });
-            } else {
-                this.setState({
-                    serverError: true,
-                });
-            }
-        });
-    }
-
-    // getUserProfile not working, wait for it to be implemented?, need to verify that patient IS assigned
-    // to the current therapist
     loadPatientProfile(pat_nric) {
         this.setState({
             isLoading: true
@@ -142,107 +176,93 @@ class Therapist_patientrecords extends Component {
           strict: false
         });
         const pat_nric = match.params.nric;
+        this.getCurrentTherapist();
         this.loadPatientProfile(pat_nric);
-        this.verifyPatient();
         this.loadPatientRecords(pat_nric);
-        this.setState({
-            isLoading: false
-        });
+        this.loadNotes(pat_nric);
     }
 
 
     componentWillReceiveProps(nextProps) {
         if(this.props.match.params.nric !== nextProps.match.params.nric) {
+            this.getCurrentTherapist();
             this.loadPatientProfile(nextProps.match.params.nric);
-            this.verifyPatient();
             this.loadPatientRecords(nextProps.match.params.nric);
-            this.setState({
-                isLoading: false
-            });
+            this.loadNotes(nextProps.match.params.nric);
         }
     }
     // Change the columns? Add links to the docs?
     render() {
         const { Header, Content } = Layout;
+
         const patcolumns = [{
           title: 'Record ID',
           dataIndex: 'recordID',
           key: 'recordID',
         }, {
+          title: 'Title',
+          dataIndex: 'title'
+        }, {
           title: 'Type',
-          dataIndex: 'type',
-          key: 'type',
+          dataIndex: 'type'
         }, {
           title: 'Subtype',
-          dataIndex: 'subtype',
-          key: 'subtype',
-        }, {
-          title: 'Title',
-          dataIndex: 'title',
-          key: 'title',
+          dataIndex: 'subtype'
         }, {
           title: 'Document',
-          dataIndex: 'document',
-          key: 'document',
+          dataIndex: 'document'
         }];
 
-        const mycolumns = [{
-          title: 'Record ID',
-          dataIndex: 'recordID',
-          key: 'recordID',
+        const othernotescolumns = [{
+          title: 'Note ID',
+          dataIndex: 'noteID',
+          key: 'noteID',
         }, {
-          title: 'Type',
-          dataIndex: 'type',
-          key: 'type',
-        }, {
-          title: 'Subtype',
-          dataIndex: 'subtype',
-          key: 'subtype',
-        }, {
-          title: 'Title',
-          dataIndex: 'title',
-          key: 'title',
+          title: 'Written By',
+          dataIndex: 'creatorName'
         }, {
           title: 'Document',
-          dataIndex: 'document',
-          key: 'document',
+          dataIndex: 'noteContent'
+        }];
+
+        const mynotescolumns = [{
+          title: 'Note ID',
+          dataIndex: 'noteID',
+          key: 'noteID',
+        }, {
+          title: 'Document',
+          dataIndex: 'noteContent'
         }];
         // Add the buttons in
-        if (!this.state.isLoading) {
-          if (this.state.verifyPatient) {
-            return (
-              <div className="patient-data">
-                {  this.state.patient ? (
-                    <Layout className="layout">
-                      <Content>
-                        <div style={{ background: '#ECECEC' }}>
-                          <div className="name">&nbsp;&nbsp;{this.state.patient.name}</div>
-                          <div className="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;NRIC: {this.state.patient.nric}
-                          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phone Number: {this.state.patient.phone}</div>
-                          <br />
-                        </div>
-                        <div className="title">
-                          Patient's Records
-                        </div>
-                        <Table dataSource={this.state.patdata.content} columns={patcolumns} />
-                        <div className="title">
-                          My Notes
-                        </div>
-                        <Table dataSource={this.state.mydata.content} columns={mycolumns} />
-                      </Content>
-                    </Layout>
-                  ): null
-                }
-              </div>
-            );
-          } else {
-              return (
-                <NotFound />
-              );
-          }
-        } else {
-           return null;
-        }
+        return (
+          <div className="patient-data">
+            {  this.state.patient ? (
+                <Layout className="layout">
+                  <Content>
+                    <div style={{ background: '#ECECEC' }}>
+                      <div className="name">&nbsp;&nbsp;{this.state.patient.name}</div>
+                      <div className="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;NRIC: {this.state.patient.nric}
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phone Number: {this.state.patient.phone}</div>
+                      <br />
+                    </div>
+                    <div className="title">
+                      Patient's Records
+                    </div>
+                    <Table dataSource={this.state.patrecords} columns={patcolumns} />
+                    <div className="title">
+                      Other Therapists' Notes
+                    </div>
+                    <Table dataSource={this.state.othernotes} columns={othernotescolumns} />
+                    <div className="title">
+                      My Notes
+                    </div>
+                    <Table dataSource={this.state.mynotes} columns={mynotescolumns} />
+                  </Content>
+                </Layout>
+              ): null
+            }
+          </div>
+        );
     }
 }
 
