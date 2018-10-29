@@ -10,10 +10,8 @@ To run the front-end, go to 'healthcare-app-client' and run:
 
 To run on VM (/home/sadm/Downloads/protect-PM-Lee-frontend/healthcare-app-client), login as root then run :
 1. `vim package.json`
-1. change `start` to `PORT=80 react-app-rewired start`
-1. change `proxy` to `https://ifs4205-t1-3.comp.nus.edu.sg`
-1. add `0.0.0.0 ifs4205-t1-2.comp.nus.edu.sg` to `/etc/hosts` (if not present)
-1. add new file (if it doesn't exist) `.env` with a single line `HOST=ifs4205-t1-2.comp.nus.edu.sg`
+1. under `scripts:`, change `start:` to `PORT=80 react-app-rewired start`
+1. under `proxy:`, change to `https://ifs4205-t1-3.comp.nus.edu.sg`
 1. `yarn start`
 
 ### Backend
