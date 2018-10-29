@@ -287,6 +287,13 @@ export function getPatientPermittedRecords(pat_nric) {
     });
 }
 
+export function getAllTherapistNotes(pat_nric) {
+    return request({
+        url: API + "/notes/getPatient/" + pat_nric + "/",
+        method: 'GET'
+    });
+}
+
 export function getPatients() {
     return request({
         url: API + "/treatments/getPatients/",
