@@ -149,8 +149,7 @@ public class AuthController {
             System.arraycopy(ivBytes, 0, combined, loginCode.length, ivBytes.length);
             System.arraycopy(encrypted, 0, combined, loginCode.length+ivBytes.length, encrypted.length);
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
-            byte[] signature = signer.sign(msgHash);
-
+            byte[] signature = signer.sign(combined);
 
             return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, combined, signature));
 
