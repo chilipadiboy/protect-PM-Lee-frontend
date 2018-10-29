@@ -279,6 +279,21 @@ export function getUserRecords(nric, role) {
     });
 }
 
+
+export function getPatientPermittedRecords(pat_nric) {
+    return request({
+        url: API + "/records/therapist/patient/" + pat_nric,
+        method: 'GET'
+    });
+}
+
+export function getPatients() {
+    return request({
+        url: API + "/treatments/getPatients",
+        method: 'GET'
+    });
+}
+
 export function getAllUsers() {
     return request({
         url: API + "/admin/showAllUsers",

@@ -18,7 +18,8 @@ import DownloadImage from '../user/download/DownloadImage';
 import DownloadFile from '../user/download/DownloadFile';
 import DownloadCSV from '../user/download/DownloadCSV';
 import AppHeader from '../common/AppHeader';
-// import Therapist_mypatients from '../user/therapist/Mypatients';
+import Therapist_mypatients from '../user/therapist/Mypatients';
+import Therapist_patientrecords from '../user/therapist/Patientrecords';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
@@ -171,7 +172,8 @@ class App extends Component {
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></TherapistRoute>
-                    <Route path="/chart" component={Chart}></Route>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric" component={Therapist_patientrecords}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients" component={Therapist_mypatients}></TherapistRoute>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>

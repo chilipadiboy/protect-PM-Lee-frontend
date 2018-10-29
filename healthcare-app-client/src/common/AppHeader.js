@@ -67,18 +67,6 @@ class AppHeader extends Component {
           } else if(this.props.currentUser.role === "patient") {
             menuItems = [
               <Menu.Item key="/">
-              <Link to="/">
-              <Icon type="home" className="nav-icon" />
-              </Link>
-              </Menu.Item>,
-              <Menu.Item key="/profile" className="profile-menu">
-              <ProfileDropdownMenu
-              currentUser={this.props.currentUser}
-              handleMenuClick={this.handleMenuClick}/>
-              </Menu.Item>
-            ];
-            /*menuItems = [
-              <Menu.Item key="/">
                 <Link to="/">
                   <Icon type="home" className="nav-icon" />
                 </Link>
@@ -88,22 +76,10 @@ class AppHeader extends Component {
                   currentUser={this.props.currentUser}
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
-            ];*/
+            ];
           } else if(this.props.currentUser.role === "therapist") {
             menuItems = [
-              <Menu.Item key="/">
-              <Link to="/">
-              <Icon type="home" className="nav-icon" />
-              </Link>
-              </Menu.Item>,
-              <Menu.Item key="/profile" className="profile-menu">
-              <ProfileDropdownMenu
-              currentUser={this.props.currentUser}
-              handleMenuClick={this.handleMenuClick}/>
-              </Menu.Item>
-            ];
-            /*menuItems = [
-              <Menu.Item key="/therapist/mypatients">
+              <Menu.Item key="/mypatients">
                 <Link to="/mypatients">
                   <Icon type="medicine-box" />
                 </Link>
@@ -118,7 +94,7 @@ class AppHeader extends Component {
                   currentUser={this.props.currentUser}
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
-            ];*/
+            ];
           } else if(this.props.currentUser.role === "administrator") {
             menuItems = [
               <Menu.Item key="/logs">
@@ -185,67 +161,23 @@ class AppHeader extends Component {
 
 function ProfileDropdownMenu(props) {
   var dropdownMenu = '';
-  if (props.currentUser.role === "patient") {
-    dropdownMenu = (
-      <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
-      <Menu.Item key="user-info" className="dropdown-item" disabled>
-      <div className="user-full-name-info">
-      {props.currentUser.name}
-      </div>
-      <div className="nric-info">
-      @{props.currentUser.nric}
-      </div>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="records" className="dropdown-item">
-      <Link to={`/records/${props.currentUser.role}/${props.currentUser.nric}`}>My Records</Link>
-      </Menu.Item>
-      <Menu.Item key="logout" className="dropdown-item">
-      Logout
-      </Menu.Item>
-      </Menu>
-    );
-  } else if (props.currentUser.role === "therapist") {
-    dropdownMenu = (
-      <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
-      <Menu.Item key="user-info" className="dropdown-item" disabled>
-      <div className="user-full-name-info">
-      {props.currentUser.name}
-      </div>
-      <div className="nric-info">
-      @{props.currentUser.nric}
-      </div>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="new record" className="dropdown-item">
-      <Link to={`/create`}>New Record</Link>
-      </Menu.Item>
-      <Menu.Item key="records" className="dropdown-item">
-      <Link to={`/all`}>All Records</Link>
-      </Menu.Item>
-      <Menu.Item key="logout" className="dropdown-item">
-      Logout
-      </Menu.Item>
-      </Menu>
-    );
-  } else {
-    dropdownMenu = (
-      <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
-      <Menu.Item key="user-info" className="dropdown-item" disabled>
-      <div className="user-full-name-info">
-      {props.currentUser.name}
-      </div>
-      <div className="nric-info">
-      @{props.currentUser.nric}
-      </div>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="logout" className="dropdown-item">
-      Logout
-      </Menu.Item>
-      </Menu>
-    );
-  }
+  
+  dropdownMenu = (
+    <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
+    <Menu.Item key="user-info" className="dropdown-item" disabled>
+    <div className="user-full-name-info">
+    {props.currentUser.name}
+    </div>
+    <div className="nric-info">
+    @{props.currentUser.nric}
+    </div>
+    </Menu.Item>
+    <Menu.Divider />
+    <Menu.Item key="logout" className="dropdown-item">
+    Logout
+    </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Dropdown
