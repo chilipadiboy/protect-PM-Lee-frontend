@@ -173,8 +173,8 @@ public class AuthController {
                             loginRequest.getNric(),
                             loginRequest.getPassword(),
                             Role.create(loginRequest.getRole()),
-                            Base64.getDecoder().decode(msgHash),
-                            Base64.getDecoder().decode(signature),
+                            msgHash,
+                            signature,
                             Base64.getDecoder().decode(loginRequest.getIv())
                     )
             );
