@@ -9,7 +9,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.NoteService;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -68,25 +66,19 @@ public class NoteController {
     @GetMapping("/getPatient/{patientNric}/")
     //Therapist get all other therapist notes of this patient
     public PagedResponse<NoteResponse> getNotesOf(@CurrentUser User currentUser,
-                                                  @PathVariable String patientNric,
-                                                  @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                  @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return noteService.getNotesOf(currentUser, patientNric, page, size);
+                                                  @PathVariable String patientNric) {
+        return noteService.getNotesOf(currentUser, patientNric, 0, 30);
     }
 
     @GetMapping("/getOwn/")
     //Patient get all his own notes
-    public PagedResponse<NoteResponse> getOwnNotes(@CurrentUser User currentUser,
-                                           @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                           @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return noteService.getOwnNotes(currentUser, page, size);
+    public PagedResponse<NoteResponse> getOwnNotes(@CurrentUser User currentUser) {
+        return noteService.getOwnNotes(currentUser, 0, 30);
     }
 
     @GetMapping("/getPermitted/")
     //Patient get notes permitted by any other therapists
-    public PagedResponse<NoteResponse> getPermittedNotes(@CurrentUser User currentUser,
-                                           @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                           @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return noteService.getPermittedNotes(currentUser, page, size);
+    public PagedResponse<NoteResponse> getPermittedNotes(@CurrentUser User currentUser) {
+        return noteService.getPermittedNotes(currentUser, 0, 30);
     }
 }

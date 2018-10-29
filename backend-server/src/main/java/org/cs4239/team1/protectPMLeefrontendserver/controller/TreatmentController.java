@@ -13,7 +13,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.TreatmentService;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -66,26 +64,20 @@ public class TreatmentController {
 
     //List ALL treatments
     @GetMapping("/getAll/")
-    public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser,
-                                                    @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                    @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getAllTreatments(page, size);
+    public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
+        return treatmentService.getAllTreatments(0, 30);
     }
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
-    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
-                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, page, size);
+    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser) {
+        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, 0, 30);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
-    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser,
-                                                  @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                  @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, page, size);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, 0, 30);
     }
 }
