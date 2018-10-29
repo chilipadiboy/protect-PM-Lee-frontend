@@ -133,7 +133,7 @@ public class RecordController {
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
             byte[] signature = signer.sign(combined);
 
-            return new ResponseEntity<>(new ServerSignatureResponse(ivBytes, encrypted, signature), HttpStatus.OK);
+            return new ResponseEntity<>(new ServerSignatureResponse(ivBytes, combined, signature), HttpStatus.OK);
 
         } catch (NonceExceededException nce) {
             return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
@@ -153,6 +153,9 @@ public class RecordController {
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             Record record = createRecord(recordRequest1, file);
+            RecordSignatureRequest recordSigRequest = validate(new ObjectMapper().readValue(sigRequest, RecordSignatureRequest.class));
+
+            recordSigRequest.getEncryptedString();
             int nonceInServer = NonceGenerator.generateNonce(record.getPatientIC());
             byte[] msgHash = Hasher.hash(nonceInServer);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
@@ -183,9 +186,9 @@ public class RecordController {
         }
     }
 
-    private RecordRequest validate(RecordRequest input) {
+    private <T> T validate(T input) {
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        Set<ConstraintViolation<RecordRequest>> constraintViolations = validator.validate(input);
+        Set<ConstraintViolation<T>> constraintViolations = validator.validate(input);
         if (constraintViolations.isEmpty()) {
             return input;
         } else {
