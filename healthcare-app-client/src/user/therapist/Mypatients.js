@@ -86,16 +86,13 @@ class Therapist_mypatients extends Component {
           key: 'nric',
         },  {
           title: 'Name',
-          dataIndex: 'name',
-          key: 'name',
+          dataIndex: 'name'
         },  {
           title: 'Phone',
-          dataIndex: 'phone',
-          key: 'phone',
+          dataIndex: 'phone'
         },  {
           title: 'Documents & records',
           dataIndex: 'docs_recs',
-          key: 'docs_recs',
           render: (text, row) => <a href={ "/mypatients/" + row.nric }>View, Edit or Create</a>,
         }];
 
