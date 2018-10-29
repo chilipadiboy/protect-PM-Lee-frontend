@@ -1,0 +1,5 @@
+language: node_js
+before_script:cd healthcare-app-client
+node_js:
+ - "stable"
+script: yarn start
