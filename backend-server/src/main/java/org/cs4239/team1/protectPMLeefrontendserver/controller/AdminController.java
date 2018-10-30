@@ -55,7 +55,7 @@ public class AdminController {
         return ResponseEntity.ok(new ApiResponse(true, nric + " has been successfully deleted!"));
     }
 
-    @GetMapping("logs")
+    @GetMapping("/logs")
     public ResponseEntity<Resource> getLogs() {
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
