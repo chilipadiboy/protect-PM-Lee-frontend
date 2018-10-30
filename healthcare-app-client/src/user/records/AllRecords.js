@@ -69,8 +69,8 @@ class MyRecords extends Component {
           key: 'patientIC',
         }, {
           title: 'File',
-          dataIndex: 'file',
-          key: 'file',
+          dataIndex: 'document',
+          key: 'document',
           render: text => {
             var url = text.split("/")
             url = url[url.length-1]
