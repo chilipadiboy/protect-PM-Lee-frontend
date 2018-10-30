@@ -102,7 +102,6 @@ class LoginForm extends Component {
                for (let i=0; i< numOfChunks; i++) {
                   prevPromise = prevPromise.then(function() {
                     return writeChar.writeValue(msgChunks[i]).then(function() {
-                      console.log(msgChunks[i]);
                       if (i === numOfChunks-1) {
                         wait(11000);
                           var prevWhilePromise = Promise.resolve();
@@ -110,7 +109,6 @@ class LoginForm extends Component {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
-                                 console.log(valueRec);
                                  if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
@@ -132,7 +130,6 @@ class LoginForm extends Component {
                                      let encryptedMsg = getTagSigAndMsg(valueRecArray);
                                      let ivMsg = {iv: ivStr};
                                      let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
-                                     console.log(reqToSend);
                                      verifyTagSignature(reqToSend)
                                       .then(response => {
                                         localStorage.setItem(AUTH_TOKEN, response.sessionId);

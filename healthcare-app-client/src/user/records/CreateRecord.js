@@ -41,6 +41,13 @@ class CreateRecord extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
+        if (this.state.selectedFilelist.length<=0) {
+          notification["error"]({
+           message: 'Healthcare App',
+           description: 'Please select a file first!',
+         });
+         return;
+        }
         const createRecordRequest = {
             type: this.state.type.value,
             subtype: this.state.subtype.value,
@@ -56,7 +63,6 @@ class CreateRecord extends Component {
             });
             this.props.history.push("/all");
         }).catch(error => {
-            console.log(error)
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -72,6 +78,13 @@ class CreateRecord extends Component {
     };
 
     startConnection() {
+      if (this.state.selectedFilelist.length<=0) {
+        notification["error"]({
+         message: 'Healthcare App',
+         description: 'Please select a file first!',
+       });
+       return;
+      }
       valueRecArray = [];
          let context = this;
          let ivStr;
@@ -119,7 +132,6 @@ class CreateRecord extends Component {
              let stringEnder = encoder.encode("//");
              let sendMsg = concatenate(Uint8Array, combined, signature, stringEnder);
              let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
-             console.log(numOfChunks);
              var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
              var prevPromise = Promise.resolve();
              for (let i=0; i< numOfChunks; i++) {
@@ -132,7 +144,6 @@ class CreateRecord extends Component {
                           prevWhilePromise = prevWhilePromise.then(function() {
                             return readChar.readValue().then(value => {
                               let valueRec = new Uint8Array(value.buffer);
-                              console.log(valueRec);
                               if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                 context.setState({isLoading: false});
                                 dis(disconnectChar);
@@ -151,7 +162,7 @@ class CreateRecord extends Component {
                               return writeChar.writeValue(ack).then(function() {
                                 if (j===6) {
                                   dis(disconnectChar);
-                                  let encryptedMsg = getTagSigAndMsg();
+                                  let encryptedMsg = getTagSigAndMsg(valueRecArray);
                                   let ivMsg = {iv: ivStr};
                                   let reqToSend =  Object.assign({}, encryptedMsg, ivMsg);
                                   verifyCreateRecordTagSignature(createRecordRequest, uploadedFile, reqToSend)
