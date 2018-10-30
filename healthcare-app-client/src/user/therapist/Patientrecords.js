@@ -277,7 +277,7 @@ class Therapist_patientrecords extends Component {
           title: 'Action',
           dataIndex: 'edit',
           align: 'center',
-          render: (text, row) => <a href={ this.props.history.location.pathname + "/edit" }>Edit</a>
+          render: (text, row) => <a href={ this.props.history.location.pathname + "/editnote/" + row.noteID }>Edit</a>
         }];
 
         return (

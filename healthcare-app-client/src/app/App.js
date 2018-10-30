@@ -20,6 +20,7 @@ import AppHeader from '../common/AppHeader';
 import Therapist_mypatients from '../user/therapist/Mypatients';
 import Therapist_patientrecords from '../user/therapist/Patientrecords';
 import Therapist_newnote from '../user/therapist/NewNote';
+import Therapist_editnote from '../user/therapist/EditNote';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
@@ -176,6 +177,7 @@ class App extends Component {
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric/editnote/:id" component={Therapist_editnote}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric/newnote" component={Therapist_newnote}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric" component={Therapist_patientrecords}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients" component={Therapist_mypatients}></TherapistRoute>
