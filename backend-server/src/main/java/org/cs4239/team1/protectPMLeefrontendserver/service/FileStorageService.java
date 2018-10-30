@@ -35,6 +35,8 @@ public class FileStorageService {
     private final Path logsStorageLocation;
     private static final Collection<String> ALLOWED_FILE_TYPES = Arrays.asList("txt", "csv", "jpg", "png", "mp4");
 
+    //private ClamavClient client = new ClamavClient("localhost");
+
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties, LogsStorageProperties logsStorageProperties) {
         fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
@@ -51,6 +53,14 @@ public class FileStorageService {
     }
 
     public String storeFile(MultipartFile file, String nric) throws FileUploadException {
+        /*try {
+            if (client.scan(file.getInputStream()) instanceof ScanResult.VirusFound) {
+                throw new FileUploadException("WHAT R U TRYING TO UPLOAD?????");
+            }
+        } catch (IOException ioe) {
+            throw new FileUploadException("Error reading uploaded file.");
+        }*/
+
         if (!ALLOWED_FILE_TYPES.contains(FilenameUtils.getExtension(file.getOriginalFilename()))) {
             throw new FileUploadException("Invalid file type.");
         }

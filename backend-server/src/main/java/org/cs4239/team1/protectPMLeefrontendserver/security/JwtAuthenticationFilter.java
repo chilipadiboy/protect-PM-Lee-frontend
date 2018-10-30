@@ -87,7 +87,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return Stream.of(cookies)
-                .filter(cookie -> cookie.getName().equals("testCookie"))
+                .filter(cookie -> cookie.getName().equals("sessionCookie"))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);

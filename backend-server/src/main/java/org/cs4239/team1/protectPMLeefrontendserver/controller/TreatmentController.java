@@ -1,9 +1,12 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
@@ -11,18 +14,19 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndTreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.TreatmentService;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,6 +36,9 @@ public class TreatmentController {
 
     @Autowired
     private TreatmentService treatmentService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
@@ -66,26 +73,38 @@ public class TreatmentController {
 
     //List ALL treatments
     @GetMapping("/getAll/")
-    public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser,
-                                                    @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                    @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getAllTreatments(page, size);
+    public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
+        return treatmentService.getAllTreatments(0, 30);
     }
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
-    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser,
-                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, page, size);
+    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser) {
+        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, 0, 30);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
-    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser,
-                                                  @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                  @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, page, size);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, 0, 30);
+    }
+
+    @GetMapping("/getUserSummary/{nric}")
+    public UserSummary getUserSummary(@CurrentUser User currentUser, @PathVariable(value = "nric") String nric) {
+        User user = userRepository.findByNric(nric)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+
+        if (!treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, 0, 30).getContent()
+                .stream()
+                .map(Treatment::getPatient)
+                .collect(Collectors.toList())
+                .contains(user)) {
+            throw new BadRequestException("Not allowed to retrieve this user.");
+        }
+
+        return new UserSummary(user.getNric(), user.getName(),
+                "Patient",
+                user.getPhone(), user.getEmail());
     }
 }
