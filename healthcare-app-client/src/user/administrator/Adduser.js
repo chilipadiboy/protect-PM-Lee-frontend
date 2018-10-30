@@ -400,7 +400,7 @@ class Administrator_add_user extends Component {
               }
         }
 
-        const POSTALCODE_REGEX = RegExp('^[0-9]*$');
+        const POSTALCODE_REGEX = RegExp('[0][1-9][0-9]{4}|[1-6][0-9]{5}|[7][012356789][0-9]{4}|[8][0-2][0-9]{4}');
         if(!POSTALCODE_REGEX.test(postalCode)) {
             return {
                 validateStatus: 'error',
