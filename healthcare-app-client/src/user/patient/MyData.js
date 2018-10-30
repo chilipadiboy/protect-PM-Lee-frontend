@@ -3,8 +3,8 @@ import {
     Link,
     withRouter
 } from 'react-router-dom';
-import { getPatients, getPatientPermittedRecords,
-         getAllTherapistNotes, getCurrentUser, setNotePermission } from '../../util/APIUtils';
+import { getMyRecords, giveTherapistPermission,
+         removeTherapistPermission, getMyNotes, getTherapistNotes } from '../../util/APIUtils';
 import { Layout, Table, Icon, Button, Input, Popconfirm, Form, Checkbox, notification } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './MyData.css';
@@ -123,7 +123,7 @@ class EditableCell extends Component {
   }
 }
 
-class Therapist_patientrecords extends Component {
+class Patient_mydata extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -500,4 +500,4 @@ class Therapist_patientrecords extends Component {
     }
 }
 
-export default Therapist_patientrecords;
+export default Patient_mydata;

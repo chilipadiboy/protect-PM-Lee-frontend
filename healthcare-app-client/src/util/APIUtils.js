@@ -353,6 +353,14 @@ export function getPatients() {
 }
 
 // Therapist and Patient API calls
+export function createNote(req) {
+    return request({
+        url: API + "/notes/create/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
 export function downloadFile(filename) {
     return requestFile({
         url: API + "/file/download/" + filename,

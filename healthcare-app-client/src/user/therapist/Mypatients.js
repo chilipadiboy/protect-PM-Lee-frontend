@@ -84,17 +84,21 @@ class Therapist_mypatients extends Component {
           title: 'NRIC',
           dataIndex: 'nric',
           key: 'nric',
+          align: 'center',
         },  {
           title: 'Name',
           dataIndex: 'name',
+          align: 'center',
           defaultSortOrder: 'ascend',
           sorter: (a, b) => a.name - b.name
         },  {
           title: 'Phone',
-          dataIndex: 'phone'
+          dataIndex: 'phone',
+          align: 'center',
         },  {
           title: 'Documents & records',
           dataIndex: 'docs_recs',
+          align: 'center',
           render: (text, row) => <a href={ "/mypatients/" + row.nric }>View, Edit or Create</a>,
         }];
 
