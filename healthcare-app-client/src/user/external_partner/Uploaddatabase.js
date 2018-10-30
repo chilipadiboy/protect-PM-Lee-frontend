@@ -35,9 +35,9 @@ class UploadDataForm extends Component {
 
   render() {
     const props = {
-      action: API + "/file/upload",
+      action: API + "",
       headers: {
-        Authorization: "Bearer " + localStorage.getItem(AUTH_TOKEN),
+        SessionId: localStorage.getItem(AUTH_TOKEN),
         enctype: "multipart/form-data"
       },
       onChange: this.handleChange,
@@ -59,7 +59,7 @@ class UploadDataForm extends Component {
                 <Form onSubmit={this.handleSubmit}>
                   <FormItem
                     {...formItemLayout}
-                    label="Patients database file"
+                    label="Hospital database file"
                     >
                     {getFieldDecorator('upload', {
                       valuePropName: 'file',
@@ -71,102 +71,6 @@ class UploadDataForm extends Component {
                         </Button>
                       </Upload>
                     )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Therapists database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Therapist-patient relationship database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Patients' records and documents database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Therapists' documents database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Patients' consent database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                  </FormItem>
-                  <FormItem
-                    {...formItemLayout}
-                    label="Therapists' consent database file"
-                    >
-                    {getFieldDecorator('upload', {
-                      valuePropName: 'file',
-                      getValueFromEvent: this.normFile,
-                    })(
-                      <Upload {...props} name="logo" action="/upload.do" listType="picture">
-                        <Button>
-                          <Icon type="search" /> Click to select file
-                        </Button>
-                      </Upload>
-                    )}
-                    <br /><br />
-                  </FormItem>
-                  <FormItem
-                    wrapperCol={{ span: 8, offset: 4 }}
-                  >
-                    <UploadButton />
                   </FormItem>
                 </Form>
               </Content>
