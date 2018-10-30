@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.TimeZone;
@@ -85,7 +86,7 @@ public class ProtectPmLeeFrontendServerApplication {
 				Gender.MALE,
 				passwordEncoder.encode("administrator"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-				new HashSet<>(Collections.singletonList(Role.ROLE_ADMINISTRATOR)));
+                new HashSet<>(Arrays.asList(Role.ROLE_ADMINISTRATOR, Role.ROLE_RESEARCHER)));
 		User external = new User("S1234567E",
 				"external",
 				"external@gmail.com",
