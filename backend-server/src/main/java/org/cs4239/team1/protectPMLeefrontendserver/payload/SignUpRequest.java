@@ -35,6 +35,11 @@ public class SignUpRequest {
     @Size(min = 1, max = 100)
     private String address;
 
+    @NotBlank
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = "[0][1-9][0-9]{4}|[1-6][0-9]{5}|[7][012356789][0-9]{4}|[8][0-2][0-9]{4}")
+    private String postalCode;
+
     @Min(0)
     @Max(110)
     private int age;

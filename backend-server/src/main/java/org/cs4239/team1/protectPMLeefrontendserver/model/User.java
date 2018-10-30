@@ -14,6 +14,7 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.persistence.ElementCollection;
 
@@ -70,6 +71,11 @@ public class User extends DateAudit implements UserDetails {
     private String address;
 
     @NonNull
+    @NotBlank
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = "[0][1-9][0-9]{4}|[1-6][0-9]{5}|[7][012356789][0-9]{4}|[8][0-2][0-9]{4}")
+    private String postalCode;
+
     private int age;
 
     @NonNull
