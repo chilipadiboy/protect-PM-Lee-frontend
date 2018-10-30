@@ -106,7 +106,7 @@ class LoginForm extends Component {
                       if (i === numOfChunks-1) {
                         wait(11000);
                           var prevWhilePromise = Promise.resolve();
-                          for (let j=0; j< 8; j++) {
+                          for (let j=0; j< 7; j++) {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
@@ -127,7 +127,7 @@ class LoginForm extends Component {
                                  let ack = "ACK" + j;
                                  ack = encoder.encode(ack);
                                  return writeChar.writeValue(ack).then(function() {
-                                   if (j===7) {
+                                   if (j===6) {
                                      dis(disconnectChar);
                                      let encryptedMsg = getTagSigAndMsg(valueRecArray);
                                      let ivMsg = {iv: ivStr};
@@ -145,7 +145,7 @@ class LoginForm extends Component {
                                             description: error.message || 'Sorry! Something went wrong. Please try again!'
                                         });
                                       })
-                                   }
+                                    }
                                  })
                                })
                              })

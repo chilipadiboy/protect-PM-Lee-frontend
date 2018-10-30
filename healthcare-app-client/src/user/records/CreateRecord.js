@@ -1,16 +1,12 @@
 import React, { Component } from 'react';
 import { Form, Input, Upload, Button, Icon, notification } from 'antd';
 import { createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
+import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import './CreateRecord.css';
 
 const FormItem = Form.Item;
 
-
-const messageHashLength = 64;
-const signatureLength = 64;
-const writeUid = "00002222";
-const readUid = "00002221";
-const disconUid = "00002223";
 
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
@@ -76,6 +72,7 @@ class CreateRecord extends Component {
     };
 
     startConnection() {
+      valueRecArray = [];
          let context = this;
          let ivStr;
          const createRecordRequest = {
@@ -115,14 +112,14 @@ class CreateRecord extends Component {
              }
            createRecordSignature(createRecordRequest, uploadedFile)
            .then(response => {
-            ivStr = response.iv;
-             console.log(response);
+             ivStr = response.iv;
              let combined = convertBase64StrToUint8Array(response.combined);
              let signature = convertBase64StrToUint8Array(response.signature);
              let iv = convertBase64StrToUint8Array(ivStr);
              let stringEnder = encoder.encode("//");
              let sendMsg = concatenate(Uint8Array, combined, signature, stringEnder);
              let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
+             console.log(numOfChunks);
              var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
              var prevPromise = Promise.resolve();
              for (let i=0; i< numOfChunks; i++) {
@@ -131,7 +128,7 @@ class CreateRecord extends Component {
                    if (i === numOfChunks-1) {
                      wait(11000);
                        var prevWhilePromise = Promise.resolve();
-                       for (let j=0; j< 8; j++) {
+                       for (let j=0; j< 7; j++) {
                           prevWhilePromise = prevWhilePromise.then(function() {
                             return readChar.readValue().then(value => {
                               let valueRec = new Uint8Array(value.buffer);
@@ -152,7 +149,7 @@ class CreateRecord extends Component {
                               let ack = "ACK" + j;
                               ack = encoder.encode(ack);
                               return writeChar.writeValue(ack).then(function() {
-                                if (j===7) {
+                                if (j===6) {
                                   dis(disconnectChar);
                                   let encryptedMsg = getTagSigAndMsg();
                                   let ivMsg = {iv: ivStr};
@@ -160,8 +157,12 @@ class CreateRecord extends Component {
                                   verifyCreateRecordTagSignature(createRecordRequest, uploadedFile, reqToSend)
                                    .then(response => {
                                      context.setState({isLoading: false});
-                                     context.props.onLogin();
-                                   }).catch(error => {
+                                     notification.success({
+                                         message: 'Healthcare App',
+                                         description: "Record created!",
+                                     });
+                                     context.props.history.push("/all");
+                                    }).catch(error => {
                                      context.setState({isLoading: false});
                                      notification.error({
                                          message: 'Healthcare App',
@@ -253,7 +254,7 @@ class CreateRecord extends Component {
     }
   }
 
-  function openNotificationError(type) {
+function openNotificationError(type) {
     if (type===0) {
       notification["error"]({
        message: 'Healthcare App',
@@ -267,74 +268,5 @@ class CreateRecord extends Component {
     }
   }
 
-  function convertBase64StrToUint8Array(str) {
-    var binary_string =  window.atob(str);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++)        {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes;
-  }
-
-  function convertUint8ArrayToStr(arr) {
-    let base64String = btoa(String.fromCharCode(...arr));
-    return base64String;
-  }
-
-
-  function getTagSigAndMsg() {
-    let i,j;
-    let encryptedMsg = new Uint8Array(128);
-    let tagMessageHash = new Uint8Array(64);
-    let tagSignature = new Uint8Array(64);
-    let tagPublicKey = new Uint8Array(32);
-
-    for(i=0; i<messageHashLength+signatureLength; i++) {
-       encryptedMsg[i] = valueRecArray[i];
-    }
-    let encryptedStr = convertUint8ArrayToStr(encryptedMsg);
-    return {encryptedString: encryptedStr};
-  }
-
-
-  function wait(ms){
-     var start = new Date().getTime();
-     var end = start;
-     while(end < start + ms) {
-       end = new Date().getTime();
-    }
-  }
-
-
-  function splitByMaxLength(sendMsg, numOfChunks) {
-      let chunks = new Array(numOfChunks);
-      let i, j, k;
-      for (i=0; i<numOfChunks; i++) {
-        chunks[i] = new Uint8Array(20);
-        for (j=0, k=i*20; j<20 && k<i*20+20; j++, k++) {
-            chunks[i][j] = sendMsg[k];
-        }
-      }
-      return chunks;
-  }
-
-  function dis(disconnectChar) {
-      disconnectChar.writeValue(new Uint8Array([1]));
-  }
-
-  function concatenate(resultConstructor, ...arrays) {
-      let totalLength = 0;
-      for (let arr of arrays) {
-          totalLength += arr.byteLength;
-      }
-      let result = new resultConstructor(totalLength);
-      let offset = 0;
-      for (let arr of arrays) {
-          result.set(arr, offset);
-          offset += arr.byteLength;
-      }
-      return result;
-  }
 
 export default CreateRecord;

@@ -3,9 +3,6 @@ export const signatureLength = 64;
 export const writeUid = "00002222";
 export const readUid = "00002221";
 export const disconUid = "00002223";
-export const LOGIN_CODE = "0";
-export const UPLOAD_CODE = "1";
-
 
 export function convertBase64StrToUint8Array(str) {
   var binary_string =  window.atob(str);
