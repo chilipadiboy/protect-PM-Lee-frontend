@@ -119,6 +119,9 @@ public class RecordController {
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             Record record = createRecord(recordRequest1, file);
+
+            User patient = userRepository.findByNric(record.getPatientIC())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
             int nonceInServer = NonceGenerator.generateNonce(record.getPatientIC());
             byte[] msgHash = Hasher.hash(nonceInServer);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
@@ -130,11 +133,12 @@ public class RecordController {
             System.arraycopy(msgHash, 0, combinedNonceAndFile, 0, msgHash.length);
             System.arraycopy(fileBytesHash, 0, combinedNonceAndFile, msgHash.length, fileBytesHash.length);
             byte[] encrypted = new AESEncryptionDecryptionTool().encrypt(combinedNonceAndFile, tagKey, ivBytes, "AES/CBC/NOPADDING");
-
-            byte[] combined = new byte[uploadCode.length + ivBytes.length + encrypted.length];
+            byte[] pubKey = Base64.getDecoder().decode(patient.getPublicKey());
+            byte[] combined = new byte[uploadCode.length + pubKey.length + ivBytes.length + encrypted.length];
             System.arraycopy(uploadCode, 0, combined, 0, uploadCode.length);
-            System.arraycopy(ivBytes, 0, combined, uploadCode.length, ivBytes.length);
-            System.arraycopy(encrypted, 0, combined, uploadCode.length+ivBytes.length, encrypted.length);
+            System.arraycopy(pubKey, 0, combined, uploadCode.length, pubKey.length);
+            System.arraycopy(ivBytes, 0, combined, uploadCode.length+pubKey.length, ivBytes.length);
+            System.arraycopy(encrypted, 0, combined, uploadCode.length+pubKey.length+ivBytes.length, encrypted.length);
 
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
             byte[] signature = signer.sign(combined);
@@ -166,7 +170,6 @@ public class RecordController {
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] fileSignature = Arrays.copyOfRange(decrypted, 64, 128);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
-            System.out.println(record.getPatientIC());
             byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(record.getPatientIC()));
 
 
@@ -178,6 +181,8 @@ public class RecordController {
             //TODO: need you to help me call user.getPublicKey or something...
             Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode("MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss="));
             verifier.verify(fileSignature, fileBytesHash);
+
+            NonceGenerator.increaseNonce(record.getPatientIC());
 
             //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
             //Need to be assigned to start treatment. Else record will be created but not auto permitted

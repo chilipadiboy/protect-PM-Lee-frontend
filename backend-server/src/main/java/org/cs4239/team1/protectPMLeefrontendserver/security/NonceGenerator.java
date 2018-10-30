@@ -25,7 +25,7 @@ public class NonceGenerator {
         nricToNonce.put(nric, nonce);
         nricToTime.put(nric, LocalTime.now());
         noncesIssued++;
-        return nonce++;
+        return nonce;
     }
 
     public static int getNonce(String nric) {
@@ -33,6 +33,10 @@ public class NonceGenerator {
         nricToNonce.remove(nric);
         nricToTime.remove(nric);
         return storedNonce;
+    }
+
+    public static void increaseNonce(String nric)  {
+        nonce++;
     }
 
     @Scheduled(fixedRate = 1000 * 60)

@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
@@ -138,16 +139,21 @@ public class AuthController {
         }
 
         try {
-            byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
+            User patient = userRepository.findByNric(serverSignatureRequest.getNric())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", serverSignatureRequest.getNric()));
+            byte[] pubKey = Base64.getDecoder().decode(patient.getPublicKey());
 
+            byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, tagKey, ivBytes, "AES/CBC/NOPADDING");
             byte[] loginCode = Integer.toString(0).getBytes();
-            byte[] combined = new byte[loginCode.length + ivBytes.length + encrypted.length];
+
+            byte[] combined = new byte[loginCode.length + pubKey.length + ivBytes.length + encrypted.length];
             System.arraycopy(loginCode, 0, combined, 0, loginCode.length);
-            System.arraycopy(ivBytes, 0, combined, loginCode.length, ivBytes.length);
-            System.arraycopy(encrypted, 0, combined, loginCode.length+ivBytes.length, encrypted.length);
+            System.arraycopy(pubKey, 0, combined, loginCode.length, pubKey.length);
+            System.arraycopy(ivBytes, 0, combined, loginCode.length+pubKey.length, ivBytes.length);
+            System.arraycopy(encrypted, 0, combined, loginCode.length+pubKey.length+ivBytes.length, encrypted.length);
             Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
             byte[] signature = signer.sign(combined);
 
@@ -181,6 +187,7 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            NonceGenerator.increaseNonce(loginRequest.getNric());
             byte[] ivBytes = new byte[16];
             SecureRandom random = new SecureRandom();
             random.nextBytes(ivBytes);
