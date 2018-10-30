@@ -24,7 +24,7 @@ public class ModelMapper {
         return new RecordResponseWithTherapistIdentifier(
                 permission.getRecord().getRecordID(),
                 permission.getRecord().getType(),
-                permission.getRecord().getSubtype(),
+                permission.getRecord().getSubtype().toString(),
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),
                 permission.getUser().getNric());

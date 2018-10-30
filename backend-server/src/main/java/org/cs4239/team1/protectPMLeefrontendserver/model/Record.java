@@ -33,9 +33,7 @@ public class Record extends UserDateAudit {
     private String type;
 
     @NonNull
-    @NotBlank
-    @Size(max = 140)
-    private String subtype;
+    private Subtype subtype;
 
     @NonNull
     @NotBlank

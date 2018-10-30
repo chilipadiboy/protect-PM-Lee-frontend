@@ -10,6 +10,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.PermissionId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
@@ -104,7 +105,7 @@ public class RecordService {
         }
 
         return recordRepository.save(new Record(recordRequest.getType(),
-                recordRequest.getSubtype(),
+                Subtype.valueOf(recordRequest.getSubtype()),
                 recordRequest.getTitle(),
                 fileName,
                 recordRequest.getPatientIC(), ""));

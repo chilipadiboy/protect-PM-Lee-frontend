@@ -13,6 +13,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
@@ -137,13 +138,13 @@ public class ProtectPmLeeFrontendServerApplication {
 				new HashSet<>(Collections.singletonList(Role.ROLE_PATIENT)));
 		Instant endDate = Instant.now().plus(10, ChronoUnit.DAYS);
 		Record recordP01 = new Record("Document",
-				"P",
+				Subtype.ALLERGY,
 				"Heart Beat",
 				"linkToP01Record",
 				"S1234501P",
 				"");
 		Record recordP02 = new Record("Document",
-				"B2P",
+				Subtype.ALLERGY,
 				"Heart Beat",
 				"linkToP02Record",
 				"S1234502P",
