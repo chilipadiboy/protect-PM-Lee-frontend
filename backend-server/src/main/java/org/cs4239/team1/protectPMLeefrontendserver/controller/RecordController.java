@@ -26,7 +26,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,7 +64,7 @@ public class RecordController {
 
     @PostMapping("/create/")
     public ResponseEntity<?> createRecord(@RequestPart(value = "recordRequest") String recordRequest,
-            @RequestPart(value = "file", required = false) MultipartFile file) {
+            @RequestPart(value = "file") MultipartFile file) {
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             Record record = createRecord(recordRequest1, file);
