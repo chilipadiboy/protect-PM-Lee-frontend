@@ -239,7 +239,7 @@ class CreateRecord extends Component {
                               <Option value="Document">Document</Option>
                               <Option value="Image">Image</Option>
                               <Option value="Reading">Reading</Option>
-                              <Option value="Video"></Option>
+                              <Option value="Video">Video</Option>
                           </Select>
                         </FormItem>
                         <FormItem
