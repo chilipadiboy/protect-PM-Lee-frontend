@@ -86,13 +86,6 @@ class CreateRecord extends Component {
     };
 
     startConnection() {
-      if (this.state.selectedFilelist.length<=0) {
-        notification["error"]({
-         message: 'Healthcare App',
-         description: 'Please select a file first!',
-       });
-       return;
-      }
       valueRecArray = [];
          let context = this;
          let ivStr;
@@ -248,8 +241,35 @@ class CreateRecord extends Component {
                                 size="large"
                                 name="subtype"
                                 autoComplete="off"
-                                value={this.state.subtype.value}
-                                onChange={(event) => {this.handleInputChange(event)}}  />
+                                onChange={(value) => this.setState({
+                                    subtype : {
+                                        value: value
+                                    }})}>
+                                <Option value="Allergy">Allergy</Option>
+                                <Option value="Asthma">Asthma</Option>
+                                <Option value="Back Pain">Back Pain</Option>
+                                <Option value="Blood Cholestrol">Blood Cholestrol</Option>
+                                <Option value="Bronchitis">Bronchitis</Option>
+                                <Option value="Cancer">Cancer</Option>
+                                <Option value="Cataracts">Cataracts</Option>
+                                <Option value="Caries">Caries</Option>
+                                <Option value="Chickenpox">Chickenpox</Option>
+                                <Option value="Cold">Cold</Option>
+                                <Option value="Depression">Depression</Option>
+                                <Option value="Diabetes">Diabetes</Option>
+                                <Option value="Eating Disorders">Eating Disorders</Option>
+                                <Option value="Gingivitis">Gingivitis</Option>
+                                <Option value="Gout">Gout</Option>
+                                <Option value="Haemorrhoids">Haemorrhoids</Option>
+                                <Option value="Headaches and Migraines">Headaches & Migraines</Option>
+                                <Option value="Heart Disease">Heart Disease</Option>
+                                <Option value="Hypertension">Hypertension</Option>
+                                <Option value="Panic Attack">Panic Attack</Option>
+                                <Option value="Obsessive Compulsive Disorder">Obsessive Compulsive Disorder</Option>
+                                <Option value="Schizophrenia">Schizophrenia</Option>
+                                <Option value="Stroke">Stroke</Option>
+                                <Option value="Urinary">Urinary</Option>
+                            </Select>
                         </FormItem>
                         <FormItem
                             label="Title">
