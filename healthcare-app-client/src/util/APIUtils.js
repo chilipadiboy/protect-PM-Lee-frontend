@@ -294,6 +294,14 @@ export function getAllTherapistNotes(pat_nric) {
     });
 }
 
+export function setNotePermission(req) {
+    return request({
+        url: API + "/notes/notePermission/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
 export function getPatients() {
     return request({
         url: API + "/treatments/getPatients/",

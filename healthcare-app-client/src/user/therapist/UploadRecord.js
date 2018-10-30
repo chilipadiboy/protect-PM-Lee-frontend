@@ -47,7 +47,7 @@ class Therapist_uploadRecord extends Component {
                 message: 'Healthcare App',
                 description: "Record created!",
             });
-            this.props.history.push("/all");
+            this.props.history.push({ "/mypatients/" + this.state.patientIC });
         }).catch(error => {
             console.log(error)
             notification.error({
@@ -63,6 +63,27 @@ class Therapist_uploadRecord extends Component {
         });
       return false;
     };
+
+    componentDidMount() {
+        const match = matchPath(this.props.history.location.pathname, {
+          path: '/mypatients/:nric/upload',
+          exact: true,
+          strict: false
+        });
+
+        this.setState({
+            patientIC: match.params.nric,
+          });
+    }
+
+
+    componentWillReceiveProps(nextProps) {
+        if(this.props.match.params.nric !== nextProps.match.params.nric) {
+          this.setState({
+              patientIC: nextProps.match.params.nric,
+            });
+        }
+    }
 
     render() {
         return (
