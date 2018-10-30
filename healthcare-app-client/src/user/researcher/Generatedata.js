@@ -47,11 +47,12 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
+                        <Option value="all">All</Option>
                         <Option value="below 13">Below 13</Option>
-                        <Option value="13 to 18">13 to 18</Option>
-                        <Option value="19 to 25">19 to 25</Option>
-                        <Option value="26 to 35">26 to 35</Option>
-                        <Option value="36 to 55">36 to 55</Option>
+                        <Option value="from 13 to 18">13 to 18</Option>
+                        <Option value="from 19 to 25">19 to 25</Option>
+                        <Option value="from 26 to 35">26 to 35</Option>
+                        <Option value="from 36 to 55">36 to 55</Option>
                         <Option value="above 55">Above 55</Option>
                       </Select>
                     )}
@@ -67,6 +68,7 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
+                        <Option value="all">All</Option>
                         <Option value="male">Male</Option>
                         <Option value="female">Female</Option>
                       </Select>
@@ -83,11 +85,15 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="central">Central</Option>
-                        <Option value="north">North</Option>
-                        <Option value="south">South</Option>
-                        <Option value="east">East</Option>
-                        <Option value="west">West</Option>
+                        <Option value="all">All</Option>
+                        <Option value="Central">Central</Option>
+                        <Option value="East">East</Option>
+                        <Option value="North">North</Option>
+                        <Option value="North-East">North-East</Option>
+                        <Option value="North-West">North-East</Option>
+                        <Option value="South">South</Option>
+                        <Option value="South-West">South-West</Option>
+                        <Option value="West">West</Option>
                       </Select>
                     )}
                   </FormItem>
@@ -102,8 +108,27 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="blood pressure">Blood Pressure</Option>
-                        <Option value="weight">Weight</Option>
+                      <Option value="Allergy">Allergy</Option>
+                      <Option value="Asthma">Asthma</Option>
+                      <Option value="Back Pain">Back Pain</Option>
+                      <Option value="Blood Cholestrol">Blood Cholestrol</Option>
+                      <Option value="Bronchitis">Bronchitis</Option>
+                      <Option value="Cancer">Cancer</Option>
+                      <Option value="Cataracts">Cataracts</Option>
+                      <Option value="Caries">Caries</Option>
+                      <Option value="Chickenpox">Chickenpox</Option>
+                      <Option value="Cold">Cold</Option>
+                      <Option value="Depression">Depression</Option>
+                      <Option value="Diabetes">Diabetes</Option>
+                      <Option value="Eating Disorders">Eating Disorders</Option>
+                      <Option value="Gingivitis">Gingivitis</Option>
+                      <Option value="Gout">Gout</Option>
+                      <Option value="Haemorrhoids">Haemorrhoids</Option>
+                      <Option value="Headaches and Migraines">Headaches & Migraines</Option>
+                      <Option value="Heart Disease">Heart Disease</Option>
+                      <Option value="Hypertension">Hypertension</Option>
+                      <Option value="Panic Attack">Panic Attack</Option>
+                      <Option value="Obsessive Compulsive Disorder">Obsessive Compulsive</Option>
                       </Select>
                     )}
                     <br /><br />
