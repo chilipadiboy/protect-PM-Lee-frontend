@@ -3,12 +3,11 @@ import {
     Link,
     withRouter
 } from 'react-router-dom';
-import { matchPath } from 'react-router';
-import { getPatients, getPatientPermittedRecords, getPatientProfile,
+import { getPatients, getPatientPermittedRecords,
          getAllTherapistNotes, getCurrentUser, setNotePermission } from '../../util/APIUtils';
 import { Layout, Table, Icon, Button, Input, Popconfirm, Form, Checkbox, notification } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
-import './Patientrecords.css';
+import './MyData.css';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 

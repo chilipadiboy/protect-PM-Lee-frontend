@@ -71,6 +71,11 @@ class AppHeader extends Component {
                   <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
+              <Menu.Item key="/mydata">
+                <Link to="/mydata">
+                  <Icon type="reconciliation" theme="outlined" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -161,7 +166,7 @@ class AppHeader extends Component {
 
 function ProfileDropdownMenu(props) {
   var dropdownMenu = '';
-  
+
   dropdownMenu = (
     <Menu onClick={props.handleMenuClick} className="profile-dropdown-menu">
     <Menu.Item key="user-info" className="dropdown-item" disabled>
