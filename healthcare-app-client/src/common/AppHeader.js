@@ -41,7 +41,7 @@ class AppHeader extends Component {
                   handleMenuClick={this.handleMenuClick}/>
               </Menu.Item>
             ];
-          } else if(this.props.currentUser.role === "external_partner") {
+          } else if(this.props.currentUser.role === "external partner") {
             menuItems = [
               <Menu.Item key="/uploaddatabase">
                 <Link to="/uploaddatabase">

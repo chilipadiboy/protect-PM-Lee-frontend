@@ -196,7 +196,7 @@ class App extends Component {
               </Content>
             </Layout>
         );
-      } else if(this.state.currentUser.role === "external_partner") {
+      } else if(this.state.currentUser.role === "external partner") {
         return (
             <Layout className="app-container">
               <AppHeader isAuthenticated={this.state.isAuthenticated}
