@@ -227,13 +227,20 @@ class CreateRecord extends Component {
                     <Form onSubmit={this.handleSubmit} className="createRecord-form">
                         <FormItem
                           label="Type">
-                          <Input
+                          <Select
                               size="large"
                               required="true"
                               name="type"
                               autoComplete="off"
-                              value={this.state.type.value}
-                              onChange={(event) => {this.handleInputChange(event)}}  />
+                              onChange={(value) => this.setState({
+                                  type : {
+                                      value: value
+                                  }})}>
+                              <Option value="Document">Document</Option>
+                              <Option value="Image">Image</Option>
+                              <Option value="Reading">Reading</Option>
+                              <Option value="Video"></Option>
+                          </Select>
                         </FormItem>
                         <FormItem
                             label="Subtype">
