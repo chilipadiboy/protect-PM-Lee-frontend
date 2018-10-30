@@ -111,7 +111,26 @@ public class RecordService {
                 recordRequest.getSubtype(),
                 recordRequest.getTitle(),
                 fileName,
-                recordRequest.getPatientIC()));
+                recordRequest.getPatientIC(), ""));
+    }
+
+    @PreAuthorize("hasRole('THERAPIST')")
+    public Record createRecordWithSignature(RecordRequest recordRequest, String fileName, String signature) {
+
+        //check if user exist
+        User user = userRepository.findByNric(recordRequest.getPatientIC())
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", recordRequest.getPatientIC()));
+        //check if user has role patient
+        if (!user.getRoles().contains(Role.ROLE_PATIENT)){
+            throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
+        }
+
+        return recordRepository.save(new Record(recordRequest.getType(),
+                recordRequest.getSubtype(),
+                recordRequest.getTitle(),
+                fileName,
+                recordRequest.getPatientIC(),
+                signature));
     }
 
     //TODO Do we still need this method? Or who will call this method

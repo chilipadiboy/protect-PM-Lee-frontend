@@ -17,13 +17,10 @@ import javax.validation.Validator;
 import com.google.crypto.tink.subtle.Ed25519Sign;
 import com.google.crypto.tink.subtle.Ed25519Verify;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
-import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
-import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.model.*;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.*;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
@@ -118,11 +115,12 @@ public class RecordController {
 
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
-            Record record = createRecord(recordRequest1, file);
-
-            User patient = userRepository.findByNric(record.getPatientIC())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
-            int nonceInServer = NonceGenerator.generateNonce(record.getPatientIC());
+            User patient = userRepository.findByNric(recordRequest1.getPatientIC())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", recordRequest1.getPatientIC()));
+            if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
+                throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
+            }
+            int nonceInServer = NonceGenerator.generateNonce(recordRequest1.getPatientIC());
             byte[] msgHash = Hasher.hash(nonceInServer);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
 
@@ -162,15 +160,19 @@ public class RecordController {
 
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
-            Record record = createRecord(recordRequest1, file);
             RecordSignatureRequest recordSigRequest = validate(new ObjectMapper().readValue(sigRequest, RecordSignatureRequest.class));
+            User patient = userRepository.findByNric(recordRequest1.getPatientIC())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", recordRequest1.getPatientIC()));
+            if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
+                throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
+            }
 
             byte[] decrypted = aesEncryptionDecryptionTool
                     .decrypt(Base64.getDecoder().decode(recordSigRequest.getEncryptedString()), tagKey, recordSigRequest.getIv(), "AES/CBC/NOPADDING");
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] fileSignature = Arrays.copyOfRange(decrypted, 64, 128);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
-            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(record.getPatientIC()));
+            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(recordRequest1.getPatientIC()));
 
 
             //TODO: err not sure am i supposed to throw it here like that?
@@ -178,19 +180,17 @@ public class RecordController {
                 throw new GeneralSecurityException();
             }
 
-            //TODO: need you to help me call user.getPublicKey or something...
-            Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode("MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss="));
+            Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(patient.getPublicKey()));
             verifier.verify(fileSignature, fileBytesHash);
-
-            NonceGenerator.increaseNonce(record.getPatientIC());
+            String fileSignatureStr = new String(Base64.getEncoder().encode(fileSignature));
+            NonceGenerator.increaseNonce(recordRequest1.getPatientIC());
+            Record record = createRecordWithSignature(recordRequest1, file, fileSignatureStr);
 
             //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
             //Need to be assigned to start treatment. Else record will be created but not auto permitted
             Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
             String endDate = treatment.getEndDate().toString().substring(0,10);
             PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
-            User patient = userRepository.findByNric(record.getPatientIC())
-                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", record.getPatientIC()));
 
             Permission permission = recordService.grantPermission(permissionRequest, patient);
 
@@ -219,13 +219,22 @@ public class RecordController {
             throw new ConstraintViolationException(constraintViolations);
         }
     }
-
+    
     private Record createRecord(RecordRequest recordRequest, MultipartFile file) throws FileUploadException {
         if (file == null) {
             return recordService.createRecord(recordRequest, "");
         } else {
             String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
             return recordService.createRecord(recordRequest, fileName);
+        }
+    }
+
+    private Record createRecordWithSignature(RecordRequest recordRequest, MultipartFile file, String signature) throws FileUploadException {
+        if (file == null) {
+            return recordService.createRecordWithSignature(recordRequest, "", signature);
+        } else {
+            String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
+            return recordService.createRecordWithSignature(recordRequest, fileName, signature);
         }
     }
 

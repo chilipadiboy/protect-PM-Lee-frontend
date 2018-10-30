@@ -16,7 +16,8 @@ public class ModelMapper {
                 permission.getRecord().getSubtype(),
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),
-                permission.getRecord().getPatientIC());
+                permission.getRecord().getPatientIC(),
+                permission.getRecord().getFileSignature());
     }
 
     public static RecordResponseWithTherapistIdentifier mapRecordToRecordResponseWithTherapistIdentifier(Permission permission) {

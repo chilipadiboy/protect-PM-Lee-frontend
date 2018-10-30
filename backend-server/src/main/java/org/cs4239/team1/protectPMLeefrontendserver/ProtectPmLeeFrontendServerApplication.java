@@ -130,12 +130,14 @@ public class ProtectPmLeeFrontendServerApplication {
 				"P",
 				"Heart Beat",
 				"linkToP01Record",
-				"S1234501P");
+				"S1234501P",
+				"");
 		Record recordP02 = new Record("Document",
 				"B2P",
 				"Heart Beat",
 				"linkToP02Record",
-				"S1234502P");
+				"S1234502P",
+				"");
 
 		return args -> {
 			userRepository.save(admin);
