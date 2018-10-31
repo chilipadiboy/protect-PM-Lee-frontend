@@ -129,7 +129,6 @@ class GenerateDataForm extends Component {
                       <Option value="allergy">Allergy</Option>
                       <Option value="asthma">Asthma</Option>
                       <Option value="back pain">Back Pain</Option>
-                      <Option value="high blood cholestrol">High Blood Cholestrol</Option>
                       <Option value="bronchitis">Bronchitis</Option>
                       <Option value="cancer">Cancer</Option>
                       <Option value="cataracts">Cataracts</Option>
@@ -144,6 +143,7 @@ class GenerateDataForm extends Component {
                       <Option value="haemorrhoids">Haemorrhoids</Option>
                       <Option value="headaches and migraines">Headaches & Migraines</Option>
                       <Option value="heart disease">Heart Disease</Option>
+                      <Option value="high blood cholestrol">High Blood Cholestrol</Option>
                       <Option value="hypertension">Hypertension</Option>
                       <Option value="panic attack">Panic Attack</Option>
                       <Option value="obsessive compulsive disorder">Obsessive Compulsive</Option>
