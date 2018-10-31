@@ -16,5 +16,6 @@ public class NoteRequest {
 
     @NonNull
     @NotBlank
+    @Size(max = 140)
     private String noteContent;
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @Getter
 public class NoteUpdateRequest {
@@ -13,5 +14,6 @@ public class NoteUpdateRequest {
 
     @NonNull
     @NotBlank
+    @Size(max = 140)
     private String noteContent;
 }

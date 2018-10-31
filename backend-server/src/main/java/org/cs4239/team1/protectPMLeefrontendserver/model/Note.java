@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Getter
 @Entity
@@ -30,6 +31,7 @@ public class Note extends UserDateAudit {
     private User patient;
 
     @Setter
+    @Size(max = 140)
     private String noteContent;
 
     @Setter
