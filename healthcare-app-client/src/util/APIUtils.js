@@ -361,6 +361,14 @@ export function createNote(req) {
     });
 }
 
+export function updateNote(req) {
+    return request({
+        url: API + "/notes/update/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
 export function downloadFile(filename) {
     return requestFile({
         url: API + "/file/download/" + filename,

@@ -4,7 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
-import { getPatientProfile, getCurrentUser, createNote, getAllTherapistNotes } from '../../util/APIUtils';
+import { getPatientProfile, getCurrentUser, updateNote, getAllTherapistNotes } from '../../util/APIUtils';
 import { Layout, Icon, Button, Input, Form, notification } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './EditNote.css';
@@ -18,7 +18,6 @@ class Therapist_editnote extends Component {
         super(props);
         this.state = {
             content: '',
-            prevcontent: '',
             noteid: '',
             patient: null,
             currentUser: null,
@@ -99,7 +98,6 @@ class Therapist_editnote extends Component {
               if ((currentid == this.state.noteid) && (currentcreator == this.state.currentUser.nric)) {
                 this.setState({
                     content: { value: response.content[i].noteContent },
-                    prevcontent: { value: response.content[i].noteContent },
                     isLoading: false
                 });
                 break;
@@ -136,11 +134,11 @@ class Therapist_editnote extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        const noteRequest = {
-            patientNric: this.state.patient.nric,
+        const updateRequest = {
+            noteID: this.state.noteid,
             noteContent: this.state.content.value
         };
-        createNote(noteRequest)
+        updateNote(updateRequest)
         .then(response => {
             notification.success({
                 message: 'Healthcare App',
