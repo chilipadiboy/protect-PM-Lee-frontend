@@ -22,6 +22,7 @@ class GenerateDataForm extends Component {
       if (!err) {
         console.log('Received values of form: ', values);
       }
+      console.log(values)
     });
   }
 
@@ -37,11 +38,11 @@ class GenerateDataForm extends Component {
               <Content>
                 <Form onSubmit={this.handleSubmit}>
                   <FormItem
-                    label="Age group"
+                    label="Age"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 8 }}
                   >
-                    {getFieldDecorator('age group', {
+                    {getFieldDecorator('age', {
                       rules: [{ required: true, message: 'Please select an age group!' }],
                     })(
                       <Select
@@ -86,52 +87,68 @@ class GenerateDataForm extends Component {
                         placeholder="Select an option"
                       >
                         <Option value="all">All</Option>
-                        <Option value="Central">Central</Option>
-                        <Option value="East">East</Option>
-                        <Option value="North">North</Option>
-                        <Option value="North-East">North-East</Option>
-                        <Option value="North-West">North-East</Option>
-                        <Option value="South">South</Option>
-                        <Option value="South-West">South-West</Option>
-                        <Option value="West">West</Option>
+                        <Option value="central">Central</Option>
+                        <Option value="east">East</Option>
+                        <Option value="north">North</Option>
+                        <Option value="north-east">North-East</Option>
+                        <Option value="north-west">North-East</Option>
+                        <Option value="south">South</Option>
+                        <Option value="south-west">South-West</Option>
+                        <Option value="west">West</Option>
                       </Select>
                     )}
                   </FormItem>
                   <FormItem
-                    label="Type of health data"
+                    label="Type"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 8 }}
                   >
-                    {getFieldDecorator('heath datatype', {
+                    {getFieldDecorator('type', {
                       rules: [{ required: true, message: 'Please select a type of health data!' }],
                     })(
                       <Select
                         placeholder="Select an option"
                       >
-                      <Option value="Allergy">Allergy</Option>
-                      <Option value="Asthma">Asthma</Option>
-                      <Option value="Back Pain">Back Pain</Option>
-                      <Option value="Blood Cholestrol">Blood Cholestrol</Option>
-                      <Option value="Bronchitis">Bronchitis</Option>
-                      <Option value="Cancer">Cancer</Option>
-                      <Option value="Cataracts">Cataracts</Option>
-                      <Option value="Caries">Caries</Option>
-                      <Option value="Chickenpox">Chickenpox</Option>
-                      <Option value="Cold">Cold</Option>
-                      <Option value="Depression">Depression</Option>
-                      <Option value="Diabetes">Diabetes</Option>
-                      <Option value="Eating Disorders">Eating Disorders</Option>
-                      <Option value="Gingivitis">Gingivitis</Option>
-                      <Option value="Gout">Gout</Option>
-                      <Option value="Haemorrhoids">Haemorrhoids</Option>
-                      <Option value="Headaches and Migraines">Headaches & Migraines</Option>
-                      <Option value="Heart Disease">Heart Disease</Option>
-                      <Option value="Hypertension">Hypertension</Option>
-                      <Option value="Panic Attack">Panic Attack</Option>
-                      <Option value="Obsessive Compulsive Disorder">Obsessive Compulsive</Option>
+                      <Option value="illness">Illness</Option>
+                      <Option value="reading">Reading</Option>
                       </Select>
                     )}
-                    <br /><br />
+                  </FormItem>
+                  <FormItem
+                    label="Subtype"
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 8 }}
+                  >
+                    {getFieldDecorator('subtype', {
+                      rules: [{ required: true, message: 'Please select a type of health data!' }],
+                    })(
+                      <Select
+                        placeholder="Select an option"
+                      >
+                      <Option value="all">All</Option>
+                      <Option value="allergy">Allergy</Option>
+                      <Option value="asthma">Asthma</Option>
+                      <Option value="back pain">Back Pain</Option>
+                      <Option value="high blood cholestrol">High Blood Cholestrol</Option>
+                      <Option value="bronchitis">Bronchitis</Option>
+                      <Option value="cancer">Cancer</Option>
+                      <Option value="cataracts">Cataracts</Option>
+                      <Option value="caries">Caries</Option>
+                      <Option value="chickenpox">Chickenpox</Option>
+                      <Option value="cold">Cold</Option>
+                      <Option value="depression">Depression</Option>
+                      <Option value="diabetes">Diabetes</Option>
+                      <Option value="eating disorders">Eating Disorders</Option>
+                      <Option value="gingivitis">Gingivitis</Option>
+                      <Option value="gout">Gout</Option>
+                      <Option value="haemorrhoids">Haemorrhoids</Option>
+                      <Option value="headaches and migraines">Headaches & Migraines</Option>
+                      <Option value="heart disease">Heart Disease</Option>
+                      <Option value="hypertension">Hypertension</Option>
+                      <Option value="panic attack">Panic Attack</Option>
+                      <Option value="obsessive compulsive disorder">Obsessive Compulsive</Option>
+                      </Select>
+                    )}
                   </FormItem>
                   <FormItem
                     wrapperCol={{ span: 8, offset: 4 }}
