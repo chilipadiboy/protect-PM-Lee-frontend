@@ -17,6 +17,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
@@ -143,13 +144,13 @@ public class ProtectPmLeeFrontendServerApplication {
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				new HashSet<>(Collections.singletonList(Role.ROLE_PATIENT)));
 		Instant endDate = Instant.now().plus(10, ChronoUnit.DAYS);
-		Record recordP01 = new Record("Document",
+		Record recordP01 = new Record(Type.ILLNESS,
 				Subtype.ALLERGY,
 				"Heart Beat",
 				"linkToP01Record",
 				"S1234501P",
 				"");
-		Record recordP02 = new Record("Document",
+		Record recordP02 = new Record(Type.ILLNESS,
 				Subtype.ALLERGY,
 				"Heart Beat",
 				"linkToP02Record",

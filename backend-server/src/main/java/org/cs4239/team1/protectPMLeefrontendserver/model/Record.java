@@ -8,6 +8,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
 
 import lombok.AllArgsConstructor;
@@ -28,9 +29,7 @@ public class Record extends UserDateAudit {
     private Long recordID;
 
     @NonNull
-    @NotBlank
-    @Size(max = 140)
-    private String type;
+    private Type type;
 
     @NonNull
     private Subtype subtype;

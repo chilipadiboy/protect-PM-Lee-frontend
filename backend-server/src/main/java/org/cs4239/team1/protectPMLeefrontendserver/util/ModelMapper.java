@@ -23,7 +23,7 @@ public class ModelMapper {
     public static RecordResponseWithTherapistIdentifier mapRecordToRecordResponseWithTherapistIdentifier(Permission permission) {
         return new RecordResponseWithTherapistIdentifier(
                 permission.getRecord().getRecordID(),
-                permission.getRecord().getType(),
+                permission.getRecord().getType().toString(),
                 permission.getRecord().getSubtype().toString(),
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),

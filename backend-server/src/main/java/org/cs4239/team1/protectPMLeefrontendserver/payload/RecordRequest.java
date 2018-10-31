@@ -11,6 +11,7 @@ public class RecordRequest {
 
     @NotBlank
     @Size(max = 140)
+    @Pattern(regexp = "reading|illness")
     private String type;
 
     @NotBlank
