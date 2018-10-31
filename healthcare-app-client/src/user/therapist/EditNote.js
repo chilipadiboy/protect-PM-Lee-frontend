@@ -92,11 +92,11 @@ class Therapist_editnote extends Component {
 
       getAllTherapistNotes(pat_nric)
       .then((response) => {
-          console.log(response.content);
 
           for (var i = 0; i < response.content.length; i++) {
               var currentid = response.content[i].noteID;
-              if (currentid == this.state.noteid) {
+              var currentcreator = response.content[i].creatorNric;
+              if ((currentid == this.state.noteid) && (currentcreator == this.state.currentUser.nric)) {
                 this.setState({
                     content: { value: response.content[i].noteContent },
                     prevcontent: { value: response.content[i].noteContent },
