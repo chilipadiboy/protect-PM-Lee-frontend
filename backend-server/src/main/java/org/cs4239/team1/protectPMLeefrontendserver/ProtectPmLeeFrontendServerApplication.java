@@ -85,6 +85,16 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("administrator"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				new HashSet<>(Collections.singletonList(Role.ROLE_ADMINISTRATOR)));
+		User external = new User("S1234567E",
+				"external",
+				"external@gmail.com",
+				"61111111",
+				"External's House",
+				21,
+				Gender.MALE,
+				passwordEncoder.encode("external"),
+				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+				new HashSet<>(Collections.singletonList(Role.ROLE_EXTERNAL_PARTNER)));
 		User therapist01 = new User("S1234501T",
 				"therapist01",
 				"therapist01@gmail.com",
@@ -139,6 +149,7 @@ public class ProtectPmLeeFrontendServerApplication {
 
 		return args -> {
 			userRepository.save(admin);
+			userRepository.save(external);
 			userRepository.save(therapist01);
 			userRepository.save(therapist02);
 			userRepository.save(patient01);
