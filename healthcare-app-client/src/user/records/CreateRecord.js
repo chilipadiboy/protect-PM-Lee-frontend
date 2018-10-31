@@ -260,6 +260,7 @@ class CreateRecord extends Component {
                                 <Option value="haemorrhoids">Haemorrhoids</Option>
                                 <Option value="headaches and migraines">Headaches & Migraines</Option>
                                 <Option value="heart disease">Heart Disease</Option>
+                                <Option value="high blood cholestrol">High Blood Cholestrol</Option>
                                 <Option value="hypertension">Hypertension</Option>
                                 <Option value="panic attack">Panic Attack</Option>
                                 <Option value="obsessive compulsive disorder">Obsessive Compulsive Disorder</Option>
