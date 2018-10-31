@@ -10,6 +10,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteUpdateRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
@@ -70,6 +71,19 @@ public class NoteService {
         }
 
         return noteRepository.save(new Note(creator, patient, noteRequest.getNoteContent(), isVisibleToPatient, isVisibleToTherapist));
+    }
+
+    @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
+    public Note updateNote(NoteUpdateRequest noteUpdateRequest, User creator) {
+
+        Note note = noteRepository.findByNoteID(noteUpdateRequest.getNoteID())
+                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteUpdateRequest.getNoteID()));
+        if (!note.getCreator().getNric().equals(creator.getNric())){
+            throw new UnauthorisedException("You do not have the permission to update Note_" + note.getNoteID());
+        }
+        note.setNoteContent(noteUpdateRequest.getNoteContent());
+
+        return noteRepository.save(note);
     }
 
     @PreAuthorize("hasRole('THERAPIST')")

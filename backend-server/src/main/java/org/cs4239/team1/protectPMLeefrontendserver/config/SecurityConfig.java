@@ -105,6 +105,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("PATIENT")
                     .antMatchers("/api/notes/create/**")
                         .hasAnyRole("THERAPIST","PATIENT")
+                    .antMatchers("/api/notes/update/")
+                        .hasAnyRole("THERAPIST","PATIENT")
                     .antMatchers("/api/notes/notePermission/")
                         .hasRole("THERAPIST")
                     .antMatchers("/api/notes/getPatient/")

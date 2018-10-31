@@ -6,6 +6,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteUpdateRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.NoteService;
@@ -46,6 +47,21 @@ public class NoteController {
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "Note_" + note.getNoteID() + " created"));
+    }
+
+    @PostMapping("/update/")
+    //therapist and patient can update their own notes
+    public ResponseEntity<?> updateNote(@Valid @RequestBody NoteUpdateRequest noteUpdateRequest, @CurrentUser User currentUser) {
+
+        Note note = noteService.updateNote(noteUpdateRequest, currentUser);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{noteID}")
+                .buildAndExpand(note.getNoteID())
+                .toUri();
+
+        return ResponseEntity.created(location)
+                .body(new ApiResponse(true, "Note_" + note.getNoteID() + " updated"));
     }
 
     @PostMapping("/notePermission/")

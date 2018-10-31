@@ -44,4 +44,8 @@ public class Note extends UserDateAudit {
     public void setIsVisibleToPatient(boolean option){
         this.isVisibleToPatient = option;
     }
+
+    public void setNoteContent(String noteContent){
+        this.noteContent = noteContent;
+    }
 }
