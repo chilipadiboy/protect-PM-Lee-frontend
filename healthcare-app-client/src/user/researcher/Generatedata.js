@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
-import { Form, Select, Button, Layout} from 'antd';
+import { Form, Select, Button, Layout, Table} from 'antd';
 import './Generatedata.css';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const firstData = ['illness', 'reading'];
+const secondData = {
+  illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
+  'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
+'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
+  reading: ['blood pressure', 'cholestrol'],
+};
 
 class GenerateButton extends Component {
   render() {
@@ -16,19 +23,58 @@ class GenerateButton extends Component {
 }
 
 class GenerateDataForm extends Component {
+  state = {
+    data: secondData[firstData[0]],
+    nextData: secondData[firstData[0]][0],
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
+        console.log(values)
       }
-      console.log(values)
     });
+  }
+
+  handleFirstDataChange = (value) => {
+    this.setState({
+      data: secondData[value],
+      nextData: secondData[value][0],
+    });
+  }
+
+  onSecondDataChange = (value) => {
+    this.setState({
+      nextData: value,
+    });
+  }
+
+  componentDidMount() {
+      //this.loadAllRecords();
   }
 
   render() {
       const { Header, Content } = Layout;
-      const { getFieldDecorator } = this.props.form;
+      const { getFieldDecorator } = this.props.form
+      const { data } = this.state;
+      const columns = [{
+        title: 'Location',
+        dataIndex: 'location',
+        key: 'location',
+      }, {
+        title: 'Age',
+        dataIndex: 'age',
+        key: 'age',
+      }, {
+        title: 'Gender',
+        dataIndex: 'gender',
+        key: 'gender',
+      }, {
+        title: 'Value',
+        dataIndex: 'value',
+        key: 'value',
+      }];
 
       return (
             <Layout className="layout">
@@ -36,6 +82,8 @@ class GenerateDataForm extends Component {
                 <div className="title">Research Data</div>
               </Header>
               <Content>
+              <Table columns={columns} />
+              <br /><br />
                 <Form onSubmit={this.handleSubmit}>
                   <FormItem
                     label="Age"
@@ -69,9 +117,9 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="all">All</Option>
-                        <Option value="male">Male</Option>
-                        <Option value="female">Female</Option>
+                        <Option value="all">all</Option>
+                        <Option value="male">male</Option>
+                        <Option value="female">female</Option>
                       </Select>
                     )}
                   </FormItem>
@@ -86,15 +134,15 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="all">All</Option>
-                        <Option value="central">Central</Option>
-                        <Option value="east">East</Option>
-                        <Option value="north">North</Option>
-                        <Option value="north-east">North-East</Option>
-                        <Option value="north-west">North-East</Option>
-                        <Option value="south">South</Option>
-                        <Option value="south-west">South-West</Option>
-                        <Option value="west">West</Option>
+                        <Option value="all">all</Option>
+                        <Option value="central">central</Option>
+                        <Option value="east">east</Option>
+                        <Option value="north">north</Option>
+                        <Option value="north-east">north-east</Option>
+                        <Option value="north-west">north-west</Option>
+                        <Option value="south">south</Option>
+                        <Option value="south-west">south-west</Option>
+                        <Option value="west">west</Option>
                       </Select>
                     )}
                   </FormItem>
@@ -108,9 +156,9 @@ class GenerateDataForm extends Component {
                     })(
                       <Select
                         placeholder="Select an option"
+                        onChange={this.handleFirstDataChange}
                       >
-                      <Option value="illness">Illness</Option>
-                      <Option value="reading">Reading</Option>
+                      {firstData.map(first => <Option key={first}>{first}</Option>)}
                       </Select>
                     )}
                   </FormItem>
@@ -124,32 +172,10 @@ class GenerateDataForm extends Component {
                     })(
                       <Select
                         placeholder="Select an option"
+                        value={this.state.nextData}
+                        onChange={this.onSecondDataChange}
                       >
-                      <Option value="all">All</Option>
-                      <Option value="allergy">Allergy</Option>
-                      <Option value="asthma">Asthma</Option>
-                      <Option value="back pain">Back Pain</Option>
-                      <Option value="bronchitis">Bronchitis</Option>
-                      <Option value="cancer">Cancer</Option>
-                      <Option value="cataracts">Cataracts</Option>
-                      <Option value="caries">Caries</Option>
-                      <Option value="chickenpox">Chickenpox</Option>
-                      <Option value="cold">Cold</Option>
-                      <Option value="depression">Depression</Option>
-                      <Option value="diabetes">Diabetes</Option>
-                      <Option value="eating disorders">Eating Disorders</Option>
-                      <Option value="gingivitis">Gingivitis</Option>
-                      <Option value="gout">Gout</Option>
-                      <Option value="haemorrhoids">Haemorrhoids</Option>
-                      <Option value="headaches and migraines">Headaches & Migraines</Option>
-                      <Option value="heart disease">Heart Disease</Option>
-                      <Option value="high blood cholestrol">High Blood Cholestrol</Option>
-                      <Option value="hypertension">Hypertension</Option>
-                      <Option value="panic attack">Panic Attack</Option>
-                      <Option value="obsessive compulsive disorder">Obsessive Compulsive</Option>
-                      <Option value="schizophrenia">Schizophrenia</Option>
-                      <Option value="stroke">Stroke</Option>
-                      <Option value="urinary">Urinary</Option>
+                      {data.map(second => <Option key={second}>{second}</Option>)}
                       </Select>
                     )}
                   </FormItem>
