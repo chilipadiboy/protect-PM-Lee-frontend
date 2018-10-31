@@ -3,6 +3,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteCheckPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
@@ -77,6 +78,26 @@ public class NoteController {
 
         return ResponseEntity.created(location)
                 .body(new ApiResponse(true, "Note_" + note.getNoteID() + " permission changed"));
+    }
+
+    @PostMapping("/checkNoteIdConsent/")
+    //Patient get notes permitted by any other therapists
+    public ResponseEntity<?> checkNoteIdConsent(@Valid @RequestBody NoteCheckPermissionRequest noteCheckPermission, @CurrentUser User currentUser) {
+
+        Note note = noteService.checkNoteIdConsent(noteCheckPermission, currentUser, 0, 30);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest().path("/{noteID}")
+                .buildAndExpand(note.getNoteID())
+                .toUri();
+
+        if (note.isVisibleToPatient()){
+            return ResponseEntity.created(location)
+                    .body(new ApiResponse(true, "Patient has permission to view Note_" + note.getNoteID()));
+        }else{
+            return ResponseEntity.created(location)
+                    .body(new ApiResponse(true, "Patient does NOT have permission to view Note_" + note.getNoteID()));
+        }
     }
 
     @GetMapping("/getPatient/{patientNric}/")

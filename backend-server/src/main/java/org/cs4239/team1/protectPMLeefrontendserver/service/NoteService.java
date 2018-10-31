@@ -7,6 +7,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteCheckPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
@@ -171,6 +172,16 @@ public class NoteService {
 
         return new PagedResponse<>(note, notes.getNumber(),
                 notes.getSize(), notes.getTotalElements(), notes.getTotalPages(), notes.isLast());
+    }
+
+    @PreAuthorize("hasRole('THERAPIST')")
+    public Note checkNoteIdConsent(NoteCheckPermissionRequest noteCheckPermission, User therapist, int page, int size) {
+        validatePageNumberAndSize(size);
+
+        //check if note exist and creatorship
+        Note note = noteRepository.findByNoteIDAndCreator(noteCheckPermission.getNoteID(), therapist)
+                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteCheckPermission.getNoteID()));
+        return note;
     }
 
 
