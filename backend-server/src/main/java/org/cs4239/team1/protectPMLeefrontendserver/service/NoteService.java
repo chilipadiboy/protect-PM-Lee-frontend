@@ -16,7 +16,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,8 +106,7 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<NoteResponse> getNotesOf(User currentUser, String patientNric, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getNotesOf(User currentUser, String patientNric) {
         boolean isVisbleToTherapist = true;
 
         //check if valid patient
@@ -123,7 +121,7 @@ public class NoteService {
         }
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndIsVisibleToTherapist(patient, isVisbleToTherapist, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -138,11 +136,10 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<NoteResponse> getOwnNotes(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getOwnNotes(User currentUser) {
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByCreator(currentUser, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -156,12 +153,11 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<NoteResponse> getPermittedNotes(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getPermittedNotes(User currentUser) {
         boolean isVisibleToPatient = true;
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndCreatorNotAndIsVisibleToPatient(currentUser, currentUser, isVisibleToPatient, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -175,19 +171,11 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public Note checkNoteIdConsent(NoteCheckPermissionRequest noteCheckPermission, User therapist, int page, int size) {
-        validatePageNumberAndSize(size);
+    public Note checkNoteIdConsent(NoteCheckPermissionRequest noteCheckPermission, User therapist) {
 
         //check if note exist and creatorship
         Note note = noteRepository.findByNoteIDAndCreator(noteCheckPermission.getNoteID(), therapist)
                 .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteCheckPermission.getNoteID()));
         return note;
-    }
-
-
-    private void validatePageNumberAndSize(int size) {
-        if(size > AppConstants.MAX_PAGE_SIZE) {
-            throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
-        }
     }
 }

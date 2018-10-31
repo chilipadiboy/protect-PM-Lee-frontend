@@ -84,7 +84,7 @@ public class NoteController {
     //Patient get notes permitted by any other therapists
     public ResponseEntity<?> checkNoteIdConsent(@Valid @RequestBody NoteCheckPermissionRequest noteCheckPermission, @CurrentUser User currentUser) {
 
-        Note note = noteService.checkNoteIdConsent(noteCheckPermission, currentUser, 0, 30);
+        Note note = noteService.checkNoteIdConsent(noteCheckPermission, currentUser);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest().path("/{noteID}")
@@ -104,18 +104,18 @@ public class NoteController {
     //Therapist get all other therapist notes of this patient
     public PagedResponse<NoteResponse> getNotesOf(@CurrentUser User currentUser,
                                                   @PathVariable String patientNric) {
-        return noteService.getNotesOf(currentUser, patientNric, 0, 30);
+        return noteService.getNotesOf(currentUser, patientNric);
     }
 
     @GetMapping("/getOwn/")
     //Patient get all his own notes
     public PagedResponse<NoteResponse> getOwnNotes(@CurrentUser User currentUser) {
-        return noteService.getOwnNotes(currentUser, 0, 30);
+        return noteService.getOwnNotes(currentUser);
     }
 
     @GetMapping("/getPermitted/")
     //Patient get notes permitted by any other therapists
     public PagedResponse<NoteResponse> getPermittedNotes(@CurrentUser User currentUser) {
-        return noteService.getPermittedNotes(currentUser, 0, 30);
+        return noteService.getPermittedNotes(currentUser);
     }
 }

@@ -116,7 +116,7 @@ public class RecordController {
     //Get all records
     @GetMapping
     public PagedResponse<Record> getRecords(@CurrentUser User currentUser) {
-        return recordService.getAllRecords(currentUser, 0, 30);
+        return recordService.getAllRecords(currentUser);
     }
 
 
@@ -129,18 +129,18 @@ public class RecordController {
 
     @GetMapping("/therapist/")
     public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser) {
-        return recordService.getRecordsCreatedBy(currentUser, 0, 30);
+        return recordService.getRecordsCreatedBy(currentUser);
     }
 
     @GetMapping("/patient/")
     public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser) {
-        return recordService.getRecordsBelongingTo(currentUser, 0, 30);
+        return recordService.getRecordsBelongingTo(currentUser);
     }
 
     //Therapist get patient-specific permitted records
     @GetMapping("/therapist/patient/{patient}")
     public PagedResponse<Record> getRecordsPermittedByPatient(@CurrentUser User currentUser,
                                                                       @PathVariable String patient) {
-        return recordService.getRecordsPermittedByPatient(currentUser, patient, 0, 30);
+        return recordService.getRecordsPermittedByPatient(currentUser, patient);
     }
 }

@@ -74,20 +74,20 @@ public class TreatmentController {
     //List ALL treatments
     @GetMapping("/getAll/")
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
-        return treatmentService.getAllTreatments(0, 30);
+        return treatmentService.getAllTreatments(currentUser);
     }
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
     public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser) {
-        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, 0, 30);
+        return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
     public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, 0, 30);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST);
     }
 
     @GetMapping("/getUserSummary/{nric}")
@@ -95,7 +95,7 @@ public class TreatmentController {
         User user = userRepository.findByNric(nric)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
 
-        if (!treatmentService.getUsers(currentUser, Role.ROLE_PATIENT, 0, 30).getContent()
+        if (!treatmentService.getUsers(currentUser, Role.ROLE_PATIENT).getContent()
                 .stream()
                 .map(Treatment::getPatient)
                 .collect(Collectors.toList())
