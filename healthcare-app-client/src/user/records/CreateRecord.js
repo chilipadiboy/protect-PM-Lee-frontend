@@ -229,10 +229,8 @@ class CreateRecord extends Component {
                                   type : {
                                       value: value
                                   }})}>
-                              <Option value="Document">Document</Option>
-                              <Option value="Image">Image</Option>
-                              <Option value="Reading">Reading</Option>
-                              <Option value="Video">Video</Option>
+                              <Option value="illness">Illness</Option>
+                              <Option value="reading">Reading</Option>
                           </Select>
                         </FormItem>
                         <FormItem
@@ -245,30 +243,29 @@ class CreateRecord extends Component {
                                     subtype : {
                                         value: value
                                     }})}>
-                                <Option value="Allergy">Allergy</Option>
-                                <Option value="Asthma">Asthma</Option>
-                                <Option value="Back Pain">Back Pain</Option>
-                                <Option value="Blood Cholestrol">Blood Cholestrol</Option>
-                                <Option value="Bronchitis">Bronchitis</Option>
-                                <Option value="Cancer">Cancer</Option>
-                                <Option value="Cataracts">Cataracts</Option>
-                                <Option value="Caries">Caries</Option>
-                                <Option value="Chickenpox">Chickenpox</Option>
-                                <Option value="Cold">Cold</Option>
-                                <Option value="Depression">Depression</Option>
-                                <Option value="Diabetes">Diabetes</Option>
-                                <Option value="Eating Disorders">Eating Disorders</Option>
-                                <Option value="Gingivitis">Gingivitis</Option>
-                                <Option value="Gout">Gout</Option>
-                                <Option value="Haemorrhoids">Haemorrhoids</Option>
-                                <Option value="Headaches and Migraines">Headaches & Migraines</Option>
-                                <Option value="Heart Disease">Heart Disease</Option>
-                                <Option value="Hypertension">Hypertension</Option>
-                                <Option value="Panic Attack">Panic Attack</Option>
-                                <Option value="Obsessive Compulsive Disorder">Obsessive Compulsive Disorder</Option>
-                                <Option value="Schizophrenia">Schizophrenia</Option>
-                                <Option value="Stroke">Stroke</Option>
-                                <Option value="Urinary">Urinary</Option>
+                                <Option value="allergy">Allergy</Option>
+                                <Option value="asthma">Asthma</Option>
+                                <Option value="back pain">Back Pain</Option>
+                                <Option value="bronchitis">Bronchitis</Option>
+                                <Option value="cancer">Cancer</Option>
+                                <Option value="cataracts">Cataracts</Option>
+                                <Option value="caries">Caries</Option>
+                                <Option value="chickenpox">Chickenpox</Option>
+                                <Option value="cold">Cold</Option>
+                                <Option value="depression">Depression</Option>
+                                <Option value="diabetes">Diabetes</Option>
+                                <Option value="eating disorders">Eating Disorders</Option>
+                                <Option value="gingivitis">Gingivitis</Option>
+                                <Option value="gout">Gout</Option>
+                                <Option value="haemorrhoids">Haemorrhoids</Option>
+                                <Option value="headaches and migraines">Headaches & Migraines</Option>
+                                <Option value="heart disease">Heart Disease</Option>
+                                <Option value="hypertension">Hypertension</Option>
+                                <Option value="panic attack">Panic Attack</Option>
+                                <Option value="obsessive compulsive disorder">Obsessive Compulsive Disorder</Option>
+                                <Option value="schizophrenia">Schizophrenia</Option>
+                                <Option value="stroke">Stroke</Option>
+                                <Option value="urinary">Urinary</Option>
                             </Select>
                         </FormItem>
                         <FormItem
