@@ -147,6 +147,9 @@ class GenerateDataForm extends Component {
                       <Option value="hypertension">Hypertension</Option>
                       <Option value="panic attack">Panic Attack</Option>
                       <Option value="obsessive compulsive disorder">Obsessive Compulsive</Option>
+                      <Option value="schizophrenia">Schizophrenia</Option>
+                      <Option value="stroke">Stroke</Option>
+                      <Option value="urinary">Urinary</Option>
                       </Select>
                     )}
                   </FormItem>
