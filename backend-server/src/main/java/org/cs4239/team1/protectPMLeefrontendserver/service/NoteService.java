@@ -15,6 +15,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,7 +88,7 @@ public class NoteService {
 
     @PreAuthorize("hasRole('THERAPIST')")
     public Note setNotePermission(NotePermissionRequest notePermissionRequest, User user) {
-        
+
         //valid note
         Note note = noteRepository.findByNoteID(notePermissionRequest.getNoteID())
                 .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", notePermissionRequest.getNoteID()));
@@ -120,7 +121,7 @@ public class NoteService {
         }
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndIsVisibleToTherapist(patient, isVisbleToTherapist, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -138,7 +139,7 @@ public class NoteService {
     public PagedResponse<NoteResponse> getOwnNotes(User currentUser) {
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByCreator(currentUser, pageable);
 
         if(notes.getNumberOfElements() == 0) {

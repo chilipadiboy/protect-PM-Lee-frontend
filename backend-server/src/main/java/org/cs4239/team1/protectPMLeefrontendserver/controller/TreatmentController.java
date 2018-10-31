@@ -80,7 +80,7 @@ public class TreatmentController {
     //List ALL treatments
     @GetMapping("/getAll/")
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
-        return treatmentService.getAllTreatments(currentUser);
+        return treatmentService.getAllTreatments(0, 30);
     }
 
     //Therapist get list of all his patients
@@ -93,7 +93,7 @@ public class TreatmentController {
     @GetMapping("/getTherapists/")
     public PagedResponse<TreatmentResponseWithName> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, 0, 30);
     }
 
     @GetMapping("/getUserSummary/{nric}")

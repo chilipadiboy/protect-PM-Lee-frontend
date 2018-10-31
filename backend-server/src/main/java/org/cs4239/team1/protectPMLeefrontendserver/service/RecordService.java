@@ -60,7 +60,7 @@ public class RecordService {
     public PagedResponse<Record> getAllRecords(User currentUser) {
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findAll(pageable);
 
         if(records.getNumberOfElements() == 0) {
@@ -76,7 +76,7 @@ public class RecordService {
     public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
 
         // Retrieve all records created by the current user
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
@@ -92,7 +92,7 @@ public class RecordService {
     public PagedResponse<Record> getRecordsBelongingTo(User currentUser) {
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findByPatientIC(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
@@ -196,7 +196,7 @@ public class RecordService {
     public PagedResponse<Record> getAllowedRecords(User currentUser) {
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Permission> permission = permissionRepository.findByUser(currentUser, pageable);
 
         if (permission.getNumberOfElements() == 0) {
@@ -212,11 +212,16 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User patient) {
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser) {
+
+        String nric = currentUser.getNric();
+
+        User user = userRepository.findByNric(nric)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByPatientNric(patient.getNric(), pageable);
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByPatientNric(nric, pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
@@ -233,9 +238,8 @@ public class RecordService {
 
     @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric) {
-
         // Retrieve all records that matches the user and patient Nric pair
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNric, pageable);
 
         if (permission.getNumberOfElements() == 0) {

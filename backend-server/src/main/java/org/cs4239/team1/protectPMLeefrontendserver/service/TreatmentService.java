@@ -16,6 +16,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponseWithName;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
@@ -40,14 +41,11 @@ public class TreatmentService {
     private static final Logger logger = LoggerFactory.getLogger(TreatmentService.class);
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")
-    public PagedResponse<Treatment> getAllTreatments(User user) {
-
-        if (!user.getRoles().contains(Role.ROLE_ADMINISTRATOR)){
-            throw new BadRequestException(user.getNric() + " is not a Administrator!");
-        }
+    public PagedResponse<Treatment> getAllTreatments(int page, int size) {
+        validatePageNumberAndSize(size);
 
         // Retrieve all treatments
-        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
         Page<Treatment> treatments = treatmentRepository.findAll(pageable);
 
         if(treatments.getNumberOfElements() == 0) {
@@ -104,7 +102,7 @@ public class TreatmentService {
     @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
     public PagedResponse<TreatmentResponseWithName> getUsers(User currentUser, Role role) {
 
-        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 
         Page<Treatment> treatments = getTreatments(currentUser, role, pageable);
 
@@ -128,6 +126,12 @@ public class TreatmentService {
             return treatmentRepository.findByPatient(currentUser, pageable);
         } else {
             throw new AssertionError("Should not happen.");
+        }
+    }
+
+    private void validatePageNumberAndSize(int size) {
+        if(size > AppConstants.MAX_PAGE_SIZE) {
+            throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
     }
 }
