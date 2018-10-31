@@ -345,6 +345,14 @@ export function setNotePermission(req) {
     });
 }
 
+export function checkNotePermission(req) {
+    return request({
+        url: API + "/notes/checkNoteIdConsent/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
 export function getPatients() {
     return request({
         url: API + "/treatments/getPatients/",

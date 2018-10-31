@@ -5,8 +5,9 @@ import {
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
 import { getPatients, getPatientPermittedRecords, getPatientProfile,
-         getAllTherapistNotes, getCurrentUser, setNotePermission, createNote } from '../../util/APIUtils';
+         getAllTherapistNotes, getCurrentUser, setNotePermission, checkNotePermission } from '../../util/APIUtils';
 import { Layout, Table, Icon, Button, Checkbox, notification } from 'antd';
+import update from 'immutability-helper';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Patientrecords.css';
 import NotFound from '../../common/NotFound';
@@ -21,6 +22,7 @@ class Therapist_patientrecords extends Component {
             othernotes: [],
             patient: null,
             currentUser: null,
+            permissionadded: false,
             isLoading: false
         }
         this.getCurrentTherapist = this.getCurrentTherapist.bind(this);
@@ -28,6 +30,7 @@ class Therapist_patientrecords extends Component {
         this.loadPatientProfile = this.loadPatientProfile.bind(this);
         this.loadNotes = this.loadNotes.bind(this);
         this.radioOnChange = this.radioOnChange.bind(this);
+
     }
 
     getCurrentTherapist() {
@@ -63,7 +66,6 @@ class Therapist_patientrecords extends Component {
 
       getAllTherapistNotes(pat_nric)
       .then((response) => {
-          console.log(response.content);
 
           const mydata = [];
           const otherdata = [];
@@ -87,6 +89,37 @@ class Therapist_patientrecords extends Component {
               othernotes: otherdata,
               isLoading: false
           });
+
+          for (var i = 0; i < mydata.length; i++) {
+              const currentid = mydata[i].noteID;
+              const checkNotePermissionRequest = {
+                  noteID: currentid,
+                  patientNric: this.state.patient.nric
+              };
+
+              const index = i;
+              const final_count = mydata.length - 1;
+
+              checkNotePermission(checkNotePermissionRequest)
+              .then(response => {
+
+                  if (response.message.includes("does NOT")) {
+                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
+                  } else {
+                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: true} }}) });
+                  }
+
+                  if (index == final_count) {
+                    this.setState({
+                        permissionadded: true
+                    });
+                  }
+              }).catch(error => {
+                  console.log(error);
+                  this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
+              });
+          }
+
       }).catch(error => {
           if(error.status === 404) {
               this.setState({
@@ -160,7 +193,7 @@ class Therapist_patientrecords extends Component {
         };
         setNotePermission(notePermissionRequest)
         .then(response => {
-            window.location.reload();
+
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
@@ -175,13 +208,13 @@ class Therapist_patientrecords extends Component {
         };
         setNotePermission(notePermissionRequest)
         .then(response => {
-            window.location.reload();
+
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
                 description: error.message || 'Sorry! Something went wrong. Please try again!'
             });
-            e.target.checked = "false";
+            e.target.checked = "true";
         });
       }
     }
@@ -195,17 +228,17 @@ class Therapist_patientrecords extends Component {
         const pat_nric = match.params.nric;
         this.getCurrentTherapist();
         this.loadPatientProfile(pat_nric);
-        this.loadPatientRecords(pat_nric);
         this.loadNotes(pat_nric);
+        this.loadPatientRecords(pat_nric);
     }
-
 
     componentWillReceiveProps(nextProps) {
         if(this.props.match.params.nric !== nextProps.match.params.nric) {
             this.getCurrentTherapist();
             this.loadPatientProfile(nextProps.match.params.nric);
-            this.loadPatientRecords(nextProps.match.params.nric);
             this.loadNotes(nextProps.match.params.nric);
+            this.loadPatientRecords(nextProps.match.params.nric);
+
         }
     }
     // Change the columns? Add links to the docs?
@@ -217,8 +250,6 @@ class Therapist_patientrecords extends Component {
           dataIndex: 'recordID',
           key: 'recordID',
           align: 'center',
-          defaultSortOrder: 'ascend',
-          sorter: (a, b) => a.recordID - b.recordID
         }, {
           title: 'Title',
           dataIndex: 'title',
@@ -242,8 +273,6 @@ class Therapist_patientrecords extends Component {
           dataIndex: 'noteID',
           key: 'noteID',
           align: 'center',
-          defaultSortOrder: 'ascend',
-          sorter: (a, b) => a.noteID - b.noteID
         }, {
           title: 'Content',
           dataIndex: 'noteContent',
@@ -260,19 +289,22 @@ class Therapist_patientrecords extends Component {
           dataIndex: 'noteID',
           key: 'noteID',
           align: 'center',
-          defaultSortOrder: 'ascend',
-          sorter: (a, b) => a.noteID - b.noteID
         }, {
           title: 'Content',
           dataIndex: 'noteContent',
           align: 'center',
           width: '50%'
         }, {
+          title: '',
+          dataIndex: 'defaultPermission',
+          render: text => ''
+        },{
           title: 'Allow patient to view?',
           dataIndex: 'consent',
           width: '20%',
           align: 'center',
-          render: (text, row) => <Checkbox value={row.noteID} onChange={this.radioOnChange}></Checkbox> //Implement variable defaultChecked
+          render: (text, row) => <Checkbox value={row.noteID} defaultChecked={row.defaultPermission}
+                                  onChange={this.radioOnChange}></Checkbox>
         }, {
           title: 'Action',
           dataIndex: 'edit',
@@ -282,7 +314,7 @@ class Therapist_patientrecords extends Component {
 
         return (
           <div className="patient-data">
-            {  this.state.patient ? (
+            {  (this.state.permissionadded && this.state.patient && this.state.patrecords) ? (
                 <Layout className="layout">
                   <Content>
                     <div style={{ background: '#ECECEC' }}>
