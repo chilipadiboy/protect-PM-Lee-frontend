@@ -6,11 +6,17 @@ dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../uti
 import './CreateRecord.css';
 
 const FormItem = Form.Item;
-
-
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
+const Option = Select.Option;
+const firstData = ['illness', 'reading'];
+const secondData = {
+  illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
+  'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
+'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
+  reading: ['blood pressure', 'cholesterol'],
+};
 
 class CreateRecord extends Component {
   constructor(props) {
@@ -20,9 +26,15 @@ class CreateRecord extends Component {
           subtype: '',
           title: '',
           patientIC: '',
-          selectedFileList: [],
           isLoading: false,
+          selectedFilelist: [],
+          data: {
+            startData: secondData[firstData[0]],
+            nextData: secondData[firstData[0]][0],
+          }
         }
+        this.handleFirstDataChange = this.handleFirstDataChange.bind(this);
+        this.onSecondDataChange = this.onSecondDataChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
@@ -46,6 +58,30 @@ class CreateRecord extends Component {
             }
         });
     }
+
+    handleFirstDataChange = (value) => {
+    this.setState({
+      type: {
+        value: value
+      },
+      data: {
+        startData: secondData[value],
+        nextData: secondData[value][0],
+      }
+    });
+  }
+
+  onSecondDataChange = (value) => {
+    this.setState({
+      subtype: {
+        value: value
+      },
+      data: {
+        startData: this.state.data.startData,
+        nextData: value,
+      }
+    });
+  }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -224,13 +260,8 @@ class CreateRecord extends Component {
                               size="large"
                               required="true"
                               name="type"
-                              autoComplete="off"
-                              onChange={(value) => this.setState({
-                                  type : {
-                                      value: value
-                                  }})}>
-                              <Option value="illness">Illness</Option>
-                              <Option value="reading">Reading</Option>
+                              onChange={this.handleFirstDataChange}>
+                              {firstData.map(first => <Option key={first}>{first}</Option>)}
                           </Select>
                         </FormItem>
                         <FormItem
@@ -238,35 +269,9 @@ class CreateRecord extends Component {
                             <Input
                                 size="large"
                                 name="subtype"
-                                autoComplete="off"
-                                onChange={(value) => this.setState({
-                                    subtype : {
-                                        value: value
-                                    }})}>
-                                <Option value="allergy">Allergy</Option>
-                                <Option value="asthma">Asthma</Option>
-                                <Option value="back pain">Back Pain</Option>
-                                <Option value="bronchitis">Bronchitis</Option>
-                                <Option value="cancer">Cancer</Option>
-                                <Option value="cataracts">Cataracts</Option>
-                                <Option value="caries">Caries</Option>
-                                <Option value="chickenpox">Chickenpox</Option>
-                                <Option value="cold">Cold</Option>
-                                <Option value="depression">Depression</Option>
-                                <Option value="diabetes">Diabetes</Option>
-                                <Option value="eating disorders">Eating Disorders</Option>
-                                <Option value="gingivitis">Gingivitis</Option>
-                                <Option value="gout">Gout</Option>
-                                <Option value="haemorrhoids">Haemorrhoids</Option>
-                                <Option value="headaches and migraines">Headaches & Migraines</Option>
-                                <Option value="heart disease">Heart Disease</Option>
-                                <Option value="high blood cholestrol">High Blood Cholestrol</Option>
-                                <Option value="hypertension">Hypertension</Option>
-                                <Option value="panic attack">Panic Attack</Option>
-                                <Option value="obsessive compulsive disorder">Obsessive Compulsive Disorder</Option>
-                                <Option value="schizophrenia">Schizophrenia</Option>
-                                <Option value="stroke">Stroke</Option>
-                                <Option value="urinary">Urinary</Option>
+                                value={this.state.data.nextData}
+                                onChange={this.onSecondDataChange}>
+                                {this.state.data.startData.map(second => <Option key={second}>{second}</Option>)}
                             </Select>
                         </FormItem>
                         <FormItem
