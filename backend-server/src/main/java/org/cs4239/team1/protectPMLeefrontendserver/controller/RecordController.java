@@ -105,12 +105,8 @@ public class RecordController {
     }
 
     private Record createRecord(RecordRequest recordRequest, MultipartFile file) throws FileUploadException {
-        if (file == null) {
-            return recordService.createRecord(recordRequest, "");
-        } else {
-            String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
-            return recordService.createRecord(recordRequest, fileName);
-        }
+        String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
+        return recordService.createRecord(recordRequest, fileName);
     }
 
     //Get all records
