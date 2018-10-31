@@ -95,7 +95,7 @@ public class NoteService {
         //if user created the note and treatment period is still valid
         if( note.getCreator().getNric().equals(user.getNric()) &&
                 treatmentRepository.findByTreatmentId(new TreatmentId(user.getNric(), note.getPatient().getNric())) != null){
-            note.setIsVisibleToPatient(Boolean.parseBoolean(notePermissionRequest.getIsVisibleToPatient()));
+            note.setVisibleToPatient(Boolean.parseBoolean(notePermissionRequest.getIsVisibleToPatient()));
         }
         else{
             throw new UnauthorisedException("Not authorised to change Note_" + note.getNoteID() + "'s permission");
