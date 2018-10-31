@@ -7,7 +7,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteCheckPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
@@ -171,11 +170,11 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public Note checkNoteIdConsent(NoteCheckPermissionRequest noteCheckPermission, User therapist) {
+    public Note checkNoteIdConsent(Long noteID, User therapist) {
 
         //check if note exist and creatorship
-        Note note = noteRepository.findByNoteIDAndCreator(noteCheckPermission.getNoteID(), therapist)
-                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteCheckPermission.getNoteID()));
+        Note note = noteRepository.findByNoteIDAndCreator(noteID, therapist)
+                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteID));
         return note;
     }
 }

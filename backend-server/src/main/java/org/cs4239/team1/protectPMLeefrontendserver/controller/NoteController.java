@@ -3,7 +3,6 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteCheckPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
@@ -14,6 +13,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.service.NoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,23 +80,16 @@ public class NoteController {
                 .body(new ApiResponse(true, "Note_" + note.getNoteID() + " permission changed"));
     }
 
-    @PostMapping("/checkNoteIdConsent/")
+    @GetMapping("/checkNoteIdConsent/{noteID}/")
     //Patient get notes permitted by any other therapists
-    public ResponseEntity<?> checkNoteIdConsent(@Valid @RequestBody NoteCheckPermissionRequest noteCheckPermission, @CurrentUser User currentUser) {
+    public ResponseEntity<?> checkNoteIdConsent(@Valid @PathVariable Long noteID, @CurrentUser User currentUser) {
 
-        Note note = noteService.checkNoteIdConsent(noteCheckPermission, currentUser);
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest().path("/{noteID}")
-                .buildAndExpand(note.getNoteID())
-                .toUri();
+        Note note = noteService.checkNoteIdConsent(noteID, currentUser);
 
         if (note.isVisibleToPatient()){
-            return ResponseEntity.created(location)
-                    .body(new ApiResponse(true, "Patient has permission to view Note_" + note.getNoteID()));
+            return new ResponseEntity(new ApiResponse(true, "Patient has permission to view Note_" + note.getNoteID()), HttpStatus.FOUND);
         }else{
-            return ResponseEntity.created(location)
-                    .body(new ApiResponse(true, "Patient does NOT have permission to view Note_" + note.getNoteID()));
+            return new ResponseEntity(new ApiResponse(true, "Patient does NOT have permission to view Note_" + note.getNoteID()), HttpStatus.FOUND);
         }
     }
 
