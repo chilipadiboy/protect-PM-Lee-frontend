@@ -14,6 +14,7 @@ import './MyData.css';
 import NotFound from '../../common/NotFound';
 import ServerError from '../../common/ServerError';
 
+const Option = Select.Option;
 
 class Patient_mydata extends Component {
     constructor(props) {
@@ -26,16 +27,30 @@ class Patient_mydata extends Component {
             myrecordscompleted: false,
             mytherapistscompleted: false,
             mynotescompleted: false,
-            mytherapistsnotescompleted: false,
+            therapistsnotescompleted: false,
             isLoading: false
         }
 
         this.loadMyTherapists = this.loadMyTherapists.bind(this);
         this.loadMyRecords = this.loadMyRecords.bind(this);
         this.loadNotes = this.loadNotes.bind(this);
-        this.handleSelectChange = this.handleSelectChange.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
+        this.handleDeselect = this.handleDeselect.bind(this);
+        this.generateTherapistOptions = this.generateTherapistOptions.bind(this);
 
     }
+
+    // Change the value shown to be Name of therapist instead
+    generateTherapistOptions(rec_id) {
+      const mytherapistoptions = [];
+
+      for (var i = 0; i < this.state.mytherapists.length; i++) {
+          mytherapistoptions.push(<Option key={rec_id} value={this.state.mytherapists[i]}>{this.state.mytherapists[i]}</Option>);
+      }
+
+      return mytherapistoptions;
+    }
+
 
     loadMyTherapists() {
         this.setState({
@@ -46,6 +61,7 @@ class Patient_mydata extends Component {
         .then(response => {
 
             const mytherapists = [];
+            const mytherapistoptions = [];
 
             for (var i = 0; i < response.content.length; i++) {
                 mytherapists[i] = response.content[i].treatmentId.therapist;
@@ -157,7 +173,7 @@ class Patient_mydata extends Component {
 
           this.setState({
               therapistsnotes: therapnotes,
-              mytherapistsnotescompleted: true
+              therapistsnotescompleted: true
           });
 
       }).catch(error => {
@@ -207,40 +223,45 @@ class Patient_mydata extends Component {
       });
     }
 
-    handleSelectChange(e) {
-      const currvalue = e.target.value;
-      console.log(currvalue);
-      // if (checked) {
-      //   const notePermissionRequest = {
-      //       noteID: e.target.value,
-      //       isVisibleToPatient: "true"
-      //   };
-      //   setNotePermission(notePermissionRequest)
-      //   .then(response => {
-      //
-      //   }).catch(error => {
-      //       notification.error({
-      //           message: 'Healthcare App',
-      //           description: error.message || 'Sorry! Something went wrong. Please try again!'
-      //       });
-      //       e.target.checked = "false";
-      //   });
-      // } else {
-      //   const notePermissionRequest = {
-      //       noteID: e.target.value,
-      //       isVisibleToPatient: "false"
-      //   };
-      //   setNotePermission(notePermissionRequest)
-      //   .then(response => {
-      //
-      //   }).catch(error => {
-      //       notification.error({
-      //           message: 'Healthcare App',
-      //           description: error.message || 'Sorry! Something went wrong. Please try again!'
-      //       });
-      //       e.target.checked = "true";
-      //   });
-      // }
+    handleSelect(therapist_nric, option) {
+      const record_id = option.key;
+
+      const recordPermissionRequest = {
+          recordID: record_id,
+          therapistNric: therapist_nric,
+          endDate: "9999-12-30"
+      };
+
+      giveTherapistPermission(recordPermissionRequest)
+      .then(response => {
+
+      }).catch(error => {
+          console.log(error);
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+      });
+    }
+
+    handleDeselect(therapist_nric, option) {
+      const record_id = option.key;
+
+      const revokePermissionRequest = {
+          recordID: record_id,
+          therapistNric: therapist_nric
+      };
+
+      removeTherapistPermission(revokePermissionRequest)
+      .then(response => {
+
+      }).catch(error => {
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+          console.log(error);
+      });
     }
 
     componentDidMount() {
@@ -252,30 +273,6 @@ class Patient_mydata extends Component {
     // Change the columns? Add links to the docs?
     render() {
         const { Header, Content } = Layout;
-        const Option = Select.Option;
-
-        const mytherapistoptions = [];
-
-        for (var i = 0; i < this.state.mytherapists.length; i++) {
-            const currentTherapist = this.state.mytherapists[i];
-            mytherapistoptions.push(<Option key={currentTherapist}
-                                     value={currentTherapist}>{currentTherapist}</Option>);
-        }
-
-        const children = [];
-
-        for (let i = 10; i < 36; i++) {
-          children.push(<Option key={i.toString(36) + i}>{i.toString(36) + i}</Option>);
-        }
-
-        console.log("start");
-        console.log(this.state.datacomplete);
-        console.log(this.state.mytherapists);
-        console.log(this.state.mynotes);
-        console.log(this.state.myrecords);
-        console.log(mytherapistoptions);
-        console.log(this.state.myrecordscompleted && this.state.mynotescompleted && this.state.mytherapists && this.state.mytherapistsnotescompleted);
-        console.log("end");
 
         const reccolumns = [{
           title: 'Record ID',
@@ -296,18 +293,18 @@ class Patient_mydata extends Component {
           align: 'center',
         }, {
           title: '',
-          dataIndex: 'defaultList',
+          dataIndex: 'permittedTherapists',
           render: text => ''
         },{
-          title: 'Allow therapist(s) to view?',
+          title: 'Allow therapist(s) to view',
           dataIndex: 'consent',
           width: '20%',
           align: 'center',
-          render: (text, row) =>  <div>
-                                      <Select mode="multiple" placeholder="Select therapist(s) to view"
-                                      onChange={this.handleSelectChange}
-                                      style={{ width: '100%' }}> <Option key={"hi"}>{"hi"}</Option> </Select>
-                                  </div>
+          render: (text, row) => <Select mode="multiple" placeholder="Select therapist(s)" style={{ width: '100%' }}
+                                  onSelect={this.handleSelect} onDeselect={this.handleDeselect}
+                                  defaultValue={row.permittedTherapists}>
+                                      {this.generateTherapistOptions(row.recordID)}
+                                 </Select>
         }, {
           title: 'File',
           dataIndex: 'document',
@@ -349,7 +346,7 @@ class Patient_mydata extends Component {
 
         return (
           <div className="patient-data">
-           {  (this.state.myrecordscompleted && this.state.mynotescompleted && this.state.mytherapists && this.state.mytherapistsnotescompleted) ? (
+           {  (this.state.myrecordscompleted && this.state.mynotescompleted && this.state.mytherapists && this.state.therapistsnotescompleted) ? (
                  <Layout className="layout">
                    <Content>
                      <div className="title">
