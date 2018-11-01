@@ -94,6 +94,7 @@ public class ProtectPmLeeFrontendServerApplication {
 				"external@gmail.com",
 				"61111111",
 				"External's House",
+				"381112",
 				21,
 				Gender.MALE,
 				passwordEncoder.encode("external"),
