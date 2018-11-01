@@ -236,6 +236,13 @@ export function getCurrentUser() {
 }
 
 // Patient API calls
+export function getAllMyTherapists() {
+    return request({
+        url: API + "/treatments/getTherapists/",
+        method: 'GET'
+    });
+}
+
 export function getAllRecords() {
     return request({
         url: API + "/records/",
@@ -279,6 +286,13 @@ export function verifyCreateRecordTagSignature(newRecord, file, reqToSend) {
         method: 'POST',
         body: formData
     });
+}
+
+export function getGivenPermissions() {
+      return request({
+          url: API + "/permissions/patient/given/",
+          method: 'GET'
+      });
 }
 
 export function removeTherapistPermission(req) {

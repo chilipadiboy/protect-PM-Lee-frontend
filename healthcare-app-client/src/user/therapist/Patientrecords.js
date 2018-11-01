@@ -86,8 +86,7 @@ class Therapist_patientrecords extends Component {
 
           this.setState({
               mynotes: mydata,
-              othernotes: otherdata,
-              isLoading: false
+              othernotes: otherdata
           });
 
           for (var i = 0; i < mydata.length; i++) {
@@ -119,6 +118,10 @@ class Therapist_patientrecords extends Component {
                   this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
               });
           }
+
+          this.setState({
+              isLoading: false
+          });
 
       }).catch(error => {
           if(error.status === 404) {

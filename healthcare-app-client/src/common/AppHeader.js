@@ -66,14 +66,14 @@ class AppHeader extends Component {
             ];
           } else if(this.props.currentUser.role === "patient") {
             menuItems = [
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/mydata">
                 <Link to="/mydata">
                   <Icon type="reconciliation" theme="outlined" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
