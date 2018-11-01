@@ -209,7 +209,7 @@ class Administrator_add_user extends Component {
                                 <Option value="patient">Patient</Option>
                                 <Option value="therapist">Therapist</Option>
                                 <Option value="researcher">Researcher</Option>
-                                <Option value="external_partner">External Partner</Option>
+                                <Option value="external partner">External Partner</Option>
                                 <Option value="administrator">Administrator</Option>
                             </Select>
                         </FormItem>
