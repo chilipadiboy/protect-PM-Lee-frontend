@@ -213,6 +213,7 @@ class App extends Component {
                       render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                     <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/uploaddatabase" component={External_upload_database}></ExternalPartnerRoute>
                     <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={External_add_user}></ExternalPartnerRoute>
+                    <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/link" component={Administrator_link_users}></ExternalPartnerRoute>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>
