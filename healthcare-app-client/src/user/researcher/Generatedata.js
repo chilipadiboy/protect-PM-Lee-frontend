@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
-import { Form, Select, Button, Layout} from 'antd';
+import { Form, Select, Button, Layout, Table, notification} from 'antd';
 import './Generatedata.css';
+import { getAnonymousData } from '../../util/APIUtils';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
+const firstData = ['illness', 'reading'];
+const secondData = {
+  illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
+  'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
+'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
+  reading: ['blood pressure', 'cholesterol'],
+};
 
 class GenerateButton extends Component {
   render() {
@@ -16,18 +24,61 @@ class GenerateButton extends Component {
 }
 
 class GenerateDataForm extends Component {
+  state = {
+    data: secondData[firstData[0]],
+    nextData: secondData[firstData[0]][0],
+    tableData: ''
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log('Received values of form: ', values);
-      }
+      getAnonymousData(values)
+      .then(response => {
+        this.setState({tableData: response})
+      }).catch(error => {
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+      });
+    });
+  }
+
+  handleFirstDataChange = (value) => {
+    this.setState({
+      data: secondData[value],
+      nextData: secondData[value][0],
+    });
+  }
+
+  onSecondDataChange = (value) => {
+    this.setState({
+      nextData: value,
     });
   }
 
   render() {
       const { Header, Content } = Layout;
-      const { getFieldDecorator } = this.props.form;
+      const { getFieldDecorator } = this.props.form
+      const { data } = this.state;
+      const columns = [{
+        title: 'Location',
+        dataIndex: 'location',
+        key: 'location',
+      }, {
+        title: 'Age',
+        dataIndex: 'age',
+        key: 'age',
+      }, {
+        title: 'Gender',
+        dataIndex: 'gender',
+        key: 'gender',
+      }, {
+        title: 'Value',
+        dataIndex: 'value',
+        key: 'value',
+      }];
 
       return (
             <Layout className="layout">
@@ -35,24 +86,27 @@ class GenerateDataForm extends Component {
                 <div className="title">Research Data</div>
               </Header>
               <Content>
+              <Table dataSource={this.state.tableData} columns={columns} />
+              <br /><br />
                 <Form onSubmit={this.handleSubmit}>
                   <FormItem
-                    label="Age group"
+                    label="Age"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 8 }}
                   >
-                    {getFieldDecorator('age group', {
+                    {getFieldDecorator('age', {
                       rules: [{ required: true, message: 'Please select an age group!' }],
                     })(
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="below 13">Below 13</Option>
-                        <Option value="13 to 18">13 to 18</Option>
-                        <Option value="19 to 25">19 to 25</Option>
-                        <Option value="26 to 35">26 to 35</Option>
-                        <Option value="36 to 55">36 to 55</Option>
-                        <Option value="above 55">Above 55</Option>
+                        <Option value="all">all</Option>
+                        <Option value="below 13">below 13</Option>
+                        <Option value="from 13 to 18">from 13 to 18</Option>
+                        <Option value="from 19 to 25">from 19 to 25</Option>
+                        <Option value="from 26 to 35">from 26 to 35</Option>
+                        <Option value="from 36 to 55">from 36 to 55</Option>
+                        <Option value="above 55">above 55</Option>
                       </Select>
                     )}
                   </FormItem>
@@ -67,8 +121,9 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="male">Male</Option>
-                        <Option value="female">Female</Option>
+                        <Option value="all">all</Option>
+                        <Option value="male">male</Option>
+                        <Option value="female">female</Option>
                       </Select>
                     )}
                   </FormItem>
@@ -83,30 +138,50 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="central">Central</Option>
-                        <Option value="north">North</Option>
-                        <Option value="south">South</Option>
-                        <Option value="east">East</Option>
-                        <Option value="west">West</Option>
+                        <Option value="all">all</Option>
+                        <Option value="central">central</Option>
+                        <Option value="east">east</Option>
+                        <Option value="north">north</Option>
+                        <Option value="north-east">north-east</Option>
+                        <Option value="north-west">north-west</Option>
+                        <Option value="south">south</Option>
+                        <Option value="south-west">south-west</Option>
+                        <Option value="west">west</Option>
                       </Select>
                     )}
                   </FormItem>
                   <FormItem
-                    label="Type of health data"
+                    label="Type"
                     labelCol={{ span: 4 }}
                     wrapperCol={{ span: 8 }}
                   >
-                    {getFieldDecorator('heath datatype', {
+                    {getFieldDecorator('type', {
                       rules: [{ required: true, message: 'Please select a type of health data!' }],
                     })(
                       <Select
                         placeholder="Select an option"
+                        onChange={this.handleFirstDataChange}
                       >
-                        <Option value="blood pressure">Blood Pressure</Option>
-                        <Option value="weight">Weight</Option>
+                      {firstData.map(first => <Option key={first}>{first}</Option>)}
                       </Select>
                     )}
-                    <br /><br />
+                  </FormItem>
+                  <FormItem
+                    label="Subtype"
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 8 }}
+                  >
+                    {getFieldDecorator('subtype', {
+                      rules: [{ required: true, message: 'Please select a type of health data!' }],
+                    })(
+                      <Select
+                        placeholder="Select an option"
+                        value={this.state.nextData}
+                        onChange={this.onSecondDataChange}
+                      >
+                      {data.map(second => <Option key={second}>{second}</Option>)}
+                      </Select>
+                    )}
                   </FormItem>
                   <FormItem
                     wrapperCol={{ span: 8, offset: 4 }}
