@@ -23,7 +23,7 @@ public class AnonymisedRecordRequest {
     @NotBlank
     @Pattern(regexp = "all|allergy|cold|headaches and migraines|asthma|high blood cholesterol|cancer|diabetes|heart disease|" +
             "hypertension|stroke|panic attack|depression|eating disorders|obsessive compulsive disorder|schizophrenia|" +
-            "bronchitis|back pain|cataracts|caries|chickenpox|gingivitis|gout|haemorrhoids|urinary|blood pressure|cholesterol")
+            "bronchitis|back pain|cataracts|caries|chickenpox|gingivitis|gout|haemorrhoids|urinary|blood pressure")
     private String subtype;
 
     @NotBlank

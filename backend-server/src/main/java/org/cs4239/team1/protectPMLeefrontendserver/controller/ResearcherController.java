@@ -62,12 +62,10 @@ public class ResearcherController {
     }
 
     private Value getFilter(Type type, Subtype subtype) {
-        if (type.equals(Type.ILLNESS) && !subtype.equals(Subtype.BLOOD_PRESSURE) && !subtype.equals(Subtype.CHOLESTEROL)) {
+        if (type.equals(Type.ILLNESS) && !subtype.equals(Subtype.BLOOD_PRESSURE)) {
             return new Value(getIllness(), this::getIllness);
         } else if (type.equals(Type.READING) && subtype.equals(Subtype.BLOOD_PRESSURE)) {
             return new Value(getBloodPressure(), this::getBloodPressure);
-        } else if (type.equals(Type.READING) && subtype.equals(Subtype.CHOLESTEROL)) {
-            return new Value(getCholesterol(), this::getCholesterol);
         } else {
             throw new BadRequestException("Invalid Type and Subtype pairs.");
         }
@@ -129,11 +127,6 @@ public class ResearcherController {
         }
 
         return bpHierarchy;
-    }
-
-    private Hierarchy getCholesterol() { //TODO:
-        return HierarchyBuilderIntervalBased.create(DataType.INTEGER)
-                .build();
     }
 
     private HierarchyBuilderIntervalBased<Long> getLocation() {
@@ -223,24 +216,6 @@ public class ResearcherController {
             }
 
             return avgSystolic + "/" + avgDiastolic;
-        } catch (IOException ioe) {
-            throw new AssertionError("Should not happen.");
-        }
-    }
-
-    private String getCholesterol(Record record) { // TODO
-        try (BufferedReader br = new BufferedReader(
-                new FileReader(fileStorageService.loadFileAsResource(record.getDocument()).getFile()))) {
-            String line;
-            int numLines = 0;
-            double sum = 0;
-            while ((line = br.readLine()) != null) {
-                String value = line.split(",")[1];
-                numLines++;
-                sum += Double.valueOf(value);
-            }
-
-            return String.valueOf(sum / numLines);
         } catch (IOException ioe) {
             throw new AssertionError("Should not happen.");
         }
