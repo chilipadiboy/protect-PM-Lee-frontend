@@ -123,13 +123,21 @@ Hongkai TBC
 ## Subsystem 4 (Secure Transfer)
 
 ### Overview
-The other team will be given a special account that can only perform these actions: Upload their database to our database, and creating other users except the `Administrator` roles for purpose of testing
+The other team will be given a special account that can only perform these actions: Request patients information from a special page. The page will then fetch a specially generated CSV file for the purposes of uploading to their own database.
 
 ### Interface
-Adeeb TBC
+The interface will be accessible by a special login. 
 
 #### Security Claims:
 The upload stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
+
+Malicious code implanted in any malicious files will not be executed as the files will be scanned.
+
+The backend server cannot be accessed directly to read the contents of the database.
+
+SQL injection XSS via the provided csv file cannot be done.
+
+
 
 ---
 
