@@ -15,7 +15,7 @@ const secondData = {
   illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
   'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
 'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
-  reading: ['blood pressure', 'cholesterol'],
+  reading: ['blood pressure'],
 };
 
 class CreateRecord extends Component {
@@ -38,13 +38,6 @@ class CreateRecord extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
-        this.verifyFieldsFilled = this.verifyFieldsFilled.bind(this);
-    }
-
-    verifyFieldsFilled() {
-      return (this.state.type.length==0 || this.state.subtype.length==0 || this.state.title.length==0 ||
-         this.state.patientIC.length==0 || this.state.selectedFileList.length ==0)
-      return false;
     }
 
     handleInputChange(event) {
@@ -305,13 +298,11 @@ class CreateRecord extends Component {
                                 htmlType="submit"
                                 size="large"
                                 className="createRecord-form-button"
-                                disabled ={this.verifyFieldsFilled()}
                                 >Create Record</Button>
                             <Button type="primary"
                                 size="large"
                                 className="createRecord-form-button"
                                 onClick={this.startConnection.bind(this)}
-                                disabled ={this.verifyFieldsFilled()}
                                 >Connect Patient Tag To Create Record</Button>
                         </FormItem>
                     </Form>

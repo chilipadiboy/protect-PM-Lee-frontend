@@ -10,7 +10,7 @@ const secondData = {
   illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
   'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
 'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
-  reading: ['blood pressure', 'cholesterol'],
+  reading: ['blood pressure'],
 };
 
 class GenerateButton extends Component {
