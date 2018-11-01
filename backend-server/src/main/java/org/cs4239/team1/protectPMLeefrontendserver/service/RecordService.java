@@ -105,8 +105,8 @@ public class RecordService {
             throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
         }
 
-        return recordRepository.save(new Record(Type.valueOf(recordRequest.getType()),
-                Subtype.valueOf(recordRequest.getSubtype()),
+        return recordRepository.save(new Record(Type.create(recordRequest.getType()),
+                Subtype.create(recordRequest.getSubtype()),
                 recordRequest.getTitle(),
                 fileName,
                 recordRequest.getPatientIC(), ""));
