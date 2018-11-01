@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
 import { AUTH_TOKEN, NRIC_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '../../constants';
-import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
-dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
+import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid } from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
-import {sign, hash} from 'tweetnacl';
+import { sign, hash } from 'tweetnacl';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -64,11 +64,9 @@ class LoginForm extends Component {
            return device.gatt.connect();
          })
          .then(server => {
-           console.log('Getting Device Information Service...');
            return server.getPrimaryService(0x2220);
          })
          .then(service => {
-           console.log('Getting Device Information Characteristics...');
            return service.getCharacteristics();
          })
          .then(charArray => {
@@ -150,18 +148,11 @@ class LoginForm extends Component {
                          }
                       })
                     }).catch(error => {
-                      context.setState({isLoading: false});
-                      if (!deviceConnected.gatt.connected) {
-                        notification.error({
-                            message: 'Healthcare App',
-                            description: 'Device disconnected!'
-                        });
-                      } else {
+                        context.setState({isLoading: false});
                         notification.error({
                             message: 'Healthcare App',
                             description: error.message || 'Sorry! Something went wrong. Please try again!'
                         });
-                      }
                     })
                   }
                 }).catch(error => {

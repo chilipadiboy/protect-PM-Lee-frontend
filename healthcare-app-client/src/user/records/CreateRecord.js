@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Form, Input, Upload, Button, Icon, notification } from 'antd';
+import { Form, Input, Upload, Button, Icon, notification, Spin  } from 'antd';
 import { createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
-import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import './CreateRecord.css';
 
@@ -20,11 +20,19 @@ class CreateRecord extends Component {
           subtype: '',
           title: '',
           patientIC: '',
-          selectedFilelist: []
+          selectedFileList: [],
+          isLoading: false,
         }
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
+        this.verifyFieldsFilled = this.verifyFieldsFilled.bind(this);
+    }
+
+    verifyFieldsFilled() {
+      return (this.state.type.length==0 || this.state.subtype.length==0 || this.state.title.length==0 ||
+         this.state.patientIC.length==0 || this.state.selectedFileList.length ==0)
+      return false;
     }
 
     handleInputChange(event) {
@@ -41,7 +49,7 @@ class CreateRecord extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        if (this.state.selectedFilelist.length<=0) {
+        if (this.state.selectedFileList.length<=0) {
           notification["error"]({
            message: 'Healthcare App',
            description: 'Please select a file first!',
@@ -104,11 +112,9 @@ class CreateRecord extends Component {
              return device.gatt.connect();
            })
            .then(server => {
-             console.log('Getting Device Information Service...');
              return server.getPrimaryService(0x2220);
            })
            .then(service => {
-             console.log('Getting Device Information Characteristics...');
              return service.getCharacteristics();
            })
            .then(charArray => {
@@ -187,11 +193,27 @@ class CreateRecord extends Component {
                         }
                       }
                    })
-                 })
-               }
-         })
+                 }).catch(error => {
+                   context.setState({isLoading: false});
+                   notification.error({
+                      message: 'Healthcare App',
+                      description: error.message || 'Sorry! Something went wrong. Please try again!'
+                  });
+                })
+            }
+          }).catch(error => {
+             context.setState({isLoading: false});
+             notification.error({
+                message: 'Healthcare App',
+                description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+        })
        }).catch(error => {
-         context.setState({isLoading: false});
+           context.setState({isLoading: false});
+           notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+        });
        })
     }
 
@@ -201,11 +223,13 @@ class CreateRecord extends Component {
             <div className="createRecord-container">
                 <h1 className="page-title">Create New Record</h1>
                 <div className="createRecord-content">
+                <Spin spinning={this.state.isLoading}>
                     <Form onSubmit={this.handleSubmit} className="createRecord-form">
                         <FormItem
                           label="Type">
                           <Input
                               size="large"
+                              required="true"
                               name="type"
                               autoComplete="off"
                               value={this.state.type.value}
@@ -251,14 +275,17 @@ class CreateRecord extends Component {
                                 htmlType="submit"
                                 size="large"
                                 className="createRecord-form-button"
+                                disabled ={this.verifyFieldsFilled()}
                                 >Create Record</Button>
+                            <Button type="primary"
+                                size="large"
+                                className="createRecord-form-button"
+                                onClick={this.startConnection.bind(this)}
+                                disabled ={this.verifyFieldsFilled()}
+                                >Connect Patient Tag To Create Record</Button>
                         </FormItem>
-                        <Button type="primary"
-                            size="large"
-                            className="createRecord-form-button"
-                            onClick={this.startConnection.bind(this)}
-                            >Connect Patient Tag</Button>
                     </Form>
+                  </Spin>
                 </div>
             </div>
         );

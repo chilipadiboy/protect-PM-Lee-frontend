@@ -21,13 +21,9 @@ export function convertUint8ArrayToStr(arr) {
 
 
 export function getTagSigAndMsg(valueRecArray) {
-  let i,j;
   let encryptedMsg = new Uint8Array(128);
-  let tagMessageHash = new Uint8Array(64);
-  let tagSignature = new Uint8Array(64);
-  let tagPublicKey = new Uint8Array(32);
 
-  for(i=0; i<messageHashLength+signatureLength; i++) {
+  for(let i=0; i<messageHashLength+signatureLength; i++) {
      encryptedMsg[i] = valueRecArray[i];
   }
   let encryptedStr = convertUint8ArrayToStr(encryptedMsg);
