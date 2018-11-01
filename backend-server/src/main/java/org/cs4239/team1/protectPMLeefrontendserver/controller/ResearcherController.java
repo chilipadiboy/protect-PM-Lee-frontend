@@ -16,7 +16,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Location;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Value;
-import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;

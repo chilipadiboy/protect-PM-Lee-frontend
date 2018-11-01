@@ -17,7 +17,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
-import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;

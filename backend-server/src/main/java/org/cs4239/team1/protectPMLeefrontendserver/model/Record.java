@@ -8,7 +8,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
 
 import lombok.AllArgsConstructor;
