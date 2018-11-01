@@ -234,12 +234,8 @@ public class RecordController {
     }
 
     private Record createRecordWithSignature(RecordRequest recordRequest, MultipartFile file, String signature) throws FileUploadException {
-        if (file == null) {
-            return recordService.createRecordWithSignature(recordRequest, "", signature);
-        } else {
-            String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
-            return recordService.createRecordWithSignature(recordRequest, fileName, signature);
-        }
+        String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
+        return recordService.createRecordWithSignature(recordRequest, fileName, signature);
     }
 
     //Get all records
