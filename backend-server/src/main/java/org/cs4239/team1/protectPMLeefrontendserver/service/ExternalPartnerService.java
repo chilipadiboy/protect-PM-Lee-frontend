@@ -56,7 +56,7 @@ public class ExternalPartnerService {
         switch (recordsType){
             case "records":
                 //check input headers are correct.
-                if (!bufferedReader.readLine().equals("type,subtype,title,document,patientIC")){
+                if (!bufferedReader.readLine().equals("type,subtype,title,document,patientIC,signature")){
                     throw new BadRequestException("Bad column headers");
                 }
                 String newRecord;
@@ -68,6 +68,7 @@ public class ExternalPartnerService {
                     String title = parts[2];
                     String document = parts[3];
                     String patientNric =parts[4];
+                    String signature = parts[5];
 
                     //No point taking in a record if it does not belong to any patient in this hospital
                     User patient = userRepository.findByNric(patientNric)
@@ -76,7 +77,7 @@ public class ExternalPartnerService {
                         throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
                     }
 
-                    recordRepository.save(new Record(type,subtype,title,document,patientNric));
+                    recordRepository.save(new Record(type,subtype,title,document,patientNric,signature));
                 }
                 break;
             case "users":
