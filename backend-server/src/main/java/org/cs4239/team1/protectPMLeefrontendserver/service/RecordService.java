@@ -10,7 +10,9 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.PermissionId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
@@ -103,8 +105,8 @@ public class RecordService {
             throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
         }
 
-        return recordRepository.save(new Record(recordRequest.getType(),
-                recordRequest.getSubtype(),
+        return recordRepository.save(new Record(Type.valueOf(recordRequest.getType()),
+                Subtype.valueOf(recordRequest.getSubtype()),
                 recordRequest.getTitle(),
                 fileName,
                 recordRequest.getPatientIC(), ""));
@@ -121,8 +123,8 @@ public class RecordService {
             throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
         }
 
-        return recordRepository.save(new Record(recordRequest.getType(),
-                recordRequest.getSubtype(),
+        return recordRepository.save(new Record(Type.create(recordRequest.getType()),
+                Subtype.create(recordRequest.getSubtype()),
                 recordRequest.getTitle(),
                 fileName,
                 recordRequest.getPatientIC(),

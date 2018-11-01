@@ -16,10 +16,10 @@ public enum Role implements GrantedAuthority {
 
     @Override
     public String toString() {
-        return this.name().substring(5).toLowerCase().replace("_", " ");
+        return this.name().substring(5).toLowerCase().replaceAll("_", " ");
     }
 
     public static Role create(String role) {
-        return Role.valueOf("ROLE_" + role.toUpperCase().replace(" ", "_"));
+        return Role.valueOf("ROLE_" + role.toUpperCase().replaceAll(" ", "_"));
     }
 }

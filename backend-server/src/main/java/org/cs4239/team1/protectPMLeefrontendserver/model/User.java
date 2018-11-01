@@ -3,19 +3,22 @@ package org.cs4239.team1.protectPMLeefrontendserver.model;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import javax.persistence.ElementCollection;
 
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.DateAudit;
 import org.hibernate.annotations.NaturalId;
@@ -70,6 +73,14 @@ public class User extends DateAudit implements UserDetails {
     private String address;
 
     @NonNull
+    @NotBlank
+    @Size(min = 6, max = 6)
+    @Pattern(regexp = "[0][1-9][0-9]{4}|[1-6][0-9]{5}|[7][012356789][0-9]{4}|[8][0-2][0-9]{4}")
+    private String postalCode;
+
+    @NonNull
+    @Min(0)
+    @Max(100)
     private int age;
 
     @NonNull

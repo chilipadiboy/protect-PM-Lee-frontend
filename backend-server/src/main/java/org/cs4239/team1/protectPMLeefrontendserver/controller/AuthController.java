@@ -238,6 +238,7 @@ public class AuthController {
                 signUpRequest.getEmail(),
                 signUpRequest.getPhone(),
                 signUpRequest.getAddress(),
+                signUpRequest.getPostalCode(),
                 signUpRequest.getAge(),
                 Gender.valueOf(signUpRequest.getGender().toUpperCase()),
                 passwordEncoder.encode(signUpRequest.getPassword()),

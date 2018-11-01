@@ -28,14 +28,10 @@ public class Record extends UserDateAudit {
     private Long recordID;
 
     @NonNull
-    @NotBlank
-    @Size(max = 140)
-    private String type;
+    private Type type;
 
     @NonNull
-    @NotBlank
-    @Size(max = 140)
-    private String subtype;
+    private Subtype subtype;
 
     @NonNull
     @NotBlank
