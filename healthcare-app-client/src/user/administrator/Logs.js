@@ -22,7 +22,6 @@ class Administrator_logs extends Component {
   getServerLogs() {
       getLogs()
       .then(response => {
-        console.log(this.b64DecodeUnicode(response))
         var str = this.b64DecodeUnicode(response)
         var arr = str.split("2018")
         var i
