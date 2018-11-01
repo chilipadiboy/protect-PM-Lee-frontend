@@ -51,7 +51,6 @@ public class Record extends UserDateAudit {
     @Size(max = 140)
     private String patientIC;
 
-   //TODO: to add back the notblank? (but currently not everyone has tags)
     @NonNull
     @Size(max = 300)
     private String fileSignature;
