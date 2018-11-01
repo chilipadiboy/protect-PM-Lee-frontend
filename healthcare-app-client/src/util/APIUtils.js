@@ -353,3 +353,11 @@ export function getAnonymousData(data) {
         body: JSON.stringify(data)
     });
 }
+
+export function externalUpload(type, file) {
+    return request({
+        url: API + "/external/upload/csv",
+        method: 'POST',
+        body: JSON.stringify(file)
+    });
+}
