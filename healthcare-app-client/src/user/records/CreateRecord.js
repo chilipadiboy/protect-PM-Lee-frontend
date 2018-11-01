@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Input, Upload, Button, Icon, notification, Spin  } from 'antd';
+import { Form, Input, Upload, Button, Icon, Select, notification, Spin  } from 'antd';
 import { createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
 import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
@@ -266,7 +266,7 @@ class CreateRecord extends Component {
                         </FormItem>
                         <FormItem
                             label="Subtype">
-                            <Input
+                            <Select
                                 size="large"
                                 name="subtype"
                                 value={this.state.data.nextData}
