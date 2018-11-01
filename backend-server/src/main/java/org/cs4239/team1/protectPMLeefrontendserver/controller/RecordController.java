@@ -14,14 +14,22 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import com.google.crypto.tink.subtle.Ed25519Sign;
-import com.google.crypto.tink.subtle.Ed25519Verify;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
-import org.cs4239.team1.protectPMLeefrontendserver.model.*;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.*;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.PermissionRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordSignatureRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecryptionTool;
@@ -48,6 +56,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.crypto.tink.subtle.Ed25519Sign;
+import com.google.crypto.tink.subtle.Ed25519Verify;
 
 @RestController
 @RequestMapping("/api/records")
@@ -154,7 +164,7 @@ public class RecordController {
 
     @PostMapping("/create/signature/verify")
     public ResponseEntity<?> verifyCreateRecordTagSignature(@RequestPart(value = "recordRequest") String recordRequest,
-                                                            @RequestPart(value = "file", required = false) MultipartFile file,
+                                                            @RequestPart(value = "file") MultipartFile file,
                                                             @RequestPart(value = "signatureRequest") String sigRequest) {
 
         try {
