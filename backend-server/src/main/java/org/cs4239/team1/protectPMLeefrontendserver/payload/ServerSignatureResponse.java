@@ -7,5 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ServerSignatureResponse {
     private byte[] iv;
-    private byte[] encrypted;
+    private byte[] combined;
+    private byte[] signature;
 }

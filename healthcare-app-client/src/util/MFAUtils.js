@@ -3,9 +3,6 @@ export const signatureLength = 64;
 export const writeUid = "00002222";
 export const readUid = "00002221";
 export const disconUid = "00002223";
-export const LOGIN_CODE = "0";
-export const UPLOAD_CODE = "1";
-
 
 export function convertBase64StrToUint8Array(str) {
   var binary_string =  window.atob(str);
@@ -24,13 +21,9 @@ export function convertUint8ArrayToStr(arr) {
 
 
 export function getTagSigAndMsg(valueRecArray) {
-  let i,j;
   let encryptedMsg = new Uint8Array(128);
-  let tagMessageHash = new Uint8Array(64);
-  let tagSignature = new Uint8Array(64);
-  let tagPublicKey = new Uint8Array(32);
 
-  for(i=0; i<messageHashLength+signatureLength; i++) {
+  for(let i=0; i<messageHashLength+signatureLength; i++) {
      encryptedMsg[i] = valueRecArray[i];
   }
   let encryptedStr = convertUint8ArrayToStr(encryptedMsg);

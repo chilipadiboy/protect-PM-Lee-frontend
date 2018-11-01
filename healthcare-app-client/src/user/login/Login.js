@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
 import { AUTH_TOKEN, NRIC_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '../../constants';
-import {convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
-dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
+import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid } from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
-import {sign, hash} from 'tweetnacl';
+import { sign, hash } from 'tweetnacl';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -56,7 +56,7 @@ class LoginForm extends Component {
        var ivStr;
        this.setState({isLoading:true});
        navigator.bluetooth.requestDevice({
-         filters: [ {services:[0x2220]}, {name:'ifs'},]
+         filters: [ {services:[0x2220]}]
        })
          .then(device => {
            deviceConnected = device;
@@ -64,11 +64,9 @@ class LoginForm extends Component {
            return device.gatt.connect();
          })
          .then(server => {
-           console.log('Getting Device Information Service...');
            return server.getPrimaryService(0x2220);
          })
          .then(service => {
-           console.log('Getting Device Information Characteristics...');
            return service.getCharacteristics();
          })
          .then(charArray => {
@@ -91,25 +89,24 @@ class LoginForm extends Component {
            getServerSignature(loginRequest)
            .then(response => {
                ivStr = response.iv;
-               let encrypted = convertBase64StrToUint8Array(response.encrypted);
+               let combined = convertBase64StrToUint8Array(response.combined);
+               let signature = convertBase64StrToUint8Array(response.signature);
                let iv = convertBase64StrToUint8Array(ivStr);
                let stringEnder = encoder.encode("//");
-               let sendMsg = concatenate(Uint8Array, iv, encrypted, stringEnder);
+               let sendMsg = concatenate(Uint8Array, combined, signature, stringEnder);
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
                var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
                var prevPromise = Promise.resolve();
                for (let i=0; i< numOfChunks; i++) {
                   prevPromise = prevPromise.then(function() {
                     return writeChar.writeValue(msgChunks[i]).then(function() {
-                      console.log(msgChunks[i]);
                       if (i === numOfChunks-1) {
                         wait(11000);
                           var prevWhilePromise = Promise.resolve();
-                          for (let j=0; j< 8; j++) {
+                          for (let j=0; j< 7; j++) {
                              prevWhilePromise = prevWhilePromise.then(function() {
                                return readChar.readValue().then(value => {
                                  let valueRec = new Uint8Array(value.buffer);
-                                 console.log(valueRec);
                                  if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
                                    context.setState({isLoading: false});
                                    dis(disconnectChar);
@@ -126,12 +123,11 @@ class LoginForm extends Component {
                                  let ack = "ACK" + j;
                                  ack = encoder.encode(ack);
                                  return writeChar.writeValue(ack).then(function() {
-                                   if (j===7) {
+                                   if (j===6) {
                                      dis(disconnectChar);
                                      let encryptedMsg = getTagSigAndMsg(valueRecArray);
                                      let ivMsg = {iv: ivStr};
                                      let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
-                                     console.log(reqToSend);
                                      verifyTagSignature(reqToSend)
                                       .then(response => {
                                         localStorage.setItem(AUTH_TOKEN, response.sessionId);
@@ -144,7 +140,7 @@ class LoginForm extends Component {
                                             description: error.message || 'Sorry! Something went wrong. Please try again!'
                                         });
                                       })
-                                   }
+                                    }
                                  })
                                })
                              })
@@ -152,18 +148,11 @@ class LoginForm extends Component {
                          }
                       })
                     }).catch(error => {
-                      context.setState({isLoading: false});
-                      if (!deviceConnected.gatt.connected) {
-                        notification.error({
-                            message: 'Healthcare App',
-                            description: 'Device disconnected!'
-                        });
-                      } else {
+                        context.setState({isLoading: false});
                         notification.error({
                             message: 'Healthcare App',
                             description: error.message || 'Sorry! Something went wrong. Please try again!'
                         });
-                      }
                     })
                   }
                 }).catch(error => {

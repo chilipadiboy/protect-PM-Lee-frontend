@@ -51,4 +51,8 @@ public class Record extends UserDateAudit {
     @Size(max = 140)
     private String patientIC;
 
+    @NonNull
+    @Size(max = 300)
+    private String fileSignature;
+
 }

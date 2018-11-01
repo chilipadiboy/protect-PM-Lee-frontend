@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
@@ -139,20 +140,26 @@ public class AuthController {
         }
 
         try {
+            User patient = userRepository.findByNric(serverSignatureRequest.getNric())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", serverSignatureRequest.getNric()));
+            byte[] pubKey = Base64.getDecoder().decode(patient.getPublicKey());
+
             byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
-
-            Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
-            byte[] signature = signer.sign(msgHash);
-
-            byte[] combined = new byte[msgHash.length + signature.length];
-            System.arraycopy(msgHash, 0, combined, 0, msgHash.length);
-            System.arraycopy(signature, 0, combined, msgHash.length, signature.length);
-
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(combined, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] loginCode = Integer.toString(0).getBytes();
 
-            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, encrypted));
+            byte[] combined = new byte[loginCode.length + pubKey.length + ivBytes.length + encrypted.length];
+            System.arraycopy(loginCode, 0, combined, 0, loginCode.length);
+            System.arraycopy(pubKey, 0, combined, loginCode.length, pubKey.length);
+            System.arraycopy(ivBytes, 0, combined, loginCode.length+pubKey.length, ivBytes.length);
+            System.arraycopy(encrypted, 0, combined, loginCode.length+pubKey.length+ivBytes.length, encrypted.length);
+            Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
+            byte[] signature = signer.sign(combined);
+
+            return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, combined, signature));
+
         } catch (NonceExceededException nce) {
             return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -164,8 +171,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(loginRequest.getEncryptedString(), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING")
-                    .getBytes();
+                    .decrypt(Base64.getDecoder().decode(loginRequest.getEncryptedString()), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING");
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
 
@@ -174,14 +180,15 @@ public class AuthController {
                             loginRequest.getNric(),
                             loginRequest.getPassword(),
                             Role.create(loginRequest.getRole()),
-                            Base64.getDecoder().decode(msgHash),
-                            Base64.getDecoder().decode(signature),
+                            msgHash,
+                            signature,
                             Base64.getDecoder().decode(loginRequest.getIv())
                     )
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            NonceGenerator.increaseNonce(loginRequest.getNric());
             byte[] ivBytes = new byte[16];
             SecureRandom random = new SecureRandom();
             random.nextBytes(ivBytes);
