@@ -111,7 +111,7 @@ public class RecordController {
 
     @PostMapping("/create/signature")
     public ResponseEntity<?> createRecordSignature(@RequestPart(value = "recordRequest") String recordRequest,
-                                          @RequestPart(value = "file", required = false) MultipartFile file) {
+                                          @RequestPart(value = "file") MultipartFile file) {
 
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
