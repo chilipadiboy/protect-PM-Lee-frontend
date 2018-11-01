@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Form, Select, Button, Layout, Table} from 'antd';
+import { Form, Select, Button, Layout, Table, notification} from 'antd';
 import './Generatedata.css';
+import { getAnonymousData } from '../../util/APIUtils';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -26,14 +27,21 @@ class GenerateDataForm extends Component {
   state = {
     data: secondData[firstData[0]],
     nextData: secondData[firstData[0]][0],
+    tableData: ''
   }
 
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFields((err, values) => {
-      if (!err) {
-        console.log(values)
-      }
+      getAnonymousData(values)
+      .then(response => {
+        this.setState({tableData: response})
+      }).catch(error => {
+          notification.error({
+              message: 'Healthcare App',
+              description: error.message || 'Sorry! Something went wrong. Please try again!'
+          });
+      });
     });
   }
 
@@ -48,10 +56,6 @@ class GenerateDataForm extends Component {
     this.setState({
       nextData: value,
     });
-  }
-
-  componentDidMount() {
-      //this.loadAllRecords();
   }
 
   render() {
@@ -82,7 +86,7 @@ class GenerateDataForm extends Component {
                 <div className="title">Research Data</div>
               </Header>
               <Content>
-              <Table columns={columns} />
+              <Table dataSource={this.state.tableData} columns={columns} />
               <br /><br />
                 <Form onSubmit={this.handleSubmit}>
                   <FormItem
@@ -96,13 +100,13 @@ class GenerateDataForm extends Component {
                       <Select
                         placeholder="Select an option"
                       >
-                        <Option value="all">All</Option>
-                        <Option value="below 13">Below 13</Option>
-                        <Option value="from 13 to 18">13 to 18</Option>
-                        <Option value="from 19 to 25">19 to 25</Option>
-                        <Option value="from 26 to 35">26 to 35</Option>
-                        <Option value="from 36 to 55">36 to 55</Option>
-                        <Option value="above 55">Above 55</Option>
+                        <Option value="all">all</Option>
+                        <Option value="below 13">below 13</Option>
+                        <Option value="from 13 to 18">from 13 to 18</Option>
+                        <Option value="from 19 to 25">from 19 to 25</Option>
+                        <Option value="from 26 to 35">from 26 to 35</Option>
+                        <Option value="from 36 to 55">from 36 to 55</Option>
+                        <Option value="above 55">above 55</Option>
                       </Select>
                     )}
                   </FormItem>
