@@ -152,7 +152,6 @@ public class RecordController {
     }
 
 
-    //TODO: not done
     @PostMapping("/create/signature/verify")
     public ResponseEntity<?> verifyCreateRecordTagSignature(@RequestPart(value = "recordRequest") String recordRequest,
                                                             @RequestPart(value = "file", required = false) MultipartFile file,
@@ -175,7 +174,6 @@ public class RecordController {
             byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(recordRequest1.getPatientIC()));
 
 
-            //TODO: err not sure am i supposed to throw it here like that?
             if (!Arrays.equals(msgHash, verifyHash)) {
                 throw new GeneralSecurityException();
             }

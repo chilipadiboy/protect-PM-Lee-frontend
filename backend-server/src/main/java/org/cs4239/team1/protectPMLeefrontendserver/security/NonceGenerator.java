@@ -9,51 +9,45 @@ import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededExcept
 import org.springframework.scheduling.annotation.Scheduled;
 
 public class NonceGenerator {
-    private static int nonce = 0;
-    private static int noncesIssued = 0;
     private static Map<String, Integer> nricToNonce = new HashMap<>();
+    private static Map<String, Integer> nricToNumOfNonce = new HashMap<>();
     private static Map<String, LocalTime> nricToTime = new HashMap<>();
 
     /**
      * Generates a nonce for {@code nric} and returns it.
      */
     public static int generateNonce(String nric) throws NonceExceededException {
-        if (noncesIssued > 30) {
+        if(nricToNumOfNonce.get(nric) == null) {
+            int noncesIssued = 0;
+            nricToNumOfNonce.put(nric, noncesIssued);
+            nricToNonce.put(nric, 0);
+        }
+        if (nricToNumOfNonce.get(nric) > 30) {
             throw new NonceExceededException();
         }
-
-        nricToNonce.put(nric, nonce);
         nricToTime.put(nric, LocalTime.now());
-        noncesIssued++;
-        return nonce;
+
+        return nricToNonce.get(nric);
     }
 
     public static int getNonce(String nric) {
         int storedNonce = nricToNonce.get(nric);
-        nricToNonce.remove(nric);
-        nricToTime.remove(nric);
         return storedNonce;
     }
 
     public static void increaseNonce(String nric)  {
+        int noncesIssued = nricToNumOfNonce.get(nric);
+        noncesIssued++;
+        nricToNumOfNonce.put(nric, noncesIssued);
+        int nonce = nricToNonce.get(nric);
         nonce++;
-    }
-
-    @Scheduled(fixedRate = 1000 * 60)
-    private static void clearMap() {
-        LocalTime now = LocalTime.now();
-        for (String nric : nricToNonce.keySet()) {
-            if (Duration.between(nricToTime.get(nric), now).getSeconds() <= 60) {
-                continue;
-            }
-
-            nricToNonce.remove(nric);
-            nricToTime.remove(nric);
-        }
+        nricToNonce.put(nric, nonce);
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
     private static void resetDailyNonceLimit() {
-        noncesIssued = 0;
+        for (String key : nricToNumOfNonce.keySet()) {
+            nricToNumOfNonce.replace(key, 0);
+        }
     }
 }
