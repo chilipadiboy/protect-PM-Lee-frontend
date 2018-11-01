@@ -15,4 +15,5 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     Page<Note> findByCreator(User creator, Pageable pageable);
     Page<Note> findByPatientAndIsVisibleToTherapist (User patient, boolean isVisibleToTherapist, Pageable pageable);
     Optional<Note> findByNoteID(long noteID);
+    Optional<Note> findByNoteIDAndCreator(long noteID, User creator);
 }

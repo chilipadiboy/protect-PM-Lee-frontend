@@ -107,7 +107,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("PATIENT")
                     .antMatchers("/api/notes/create/**")
                         .hasAnyRole("THERAPIST","PATIENT")
+                    .antMatchers("/api/notes/update/")
+                        .hasAnyRole("THERAPIST","PATIENT")
                     .antMatchers("/api/notes/notePermission/")
+                        .hasRole("THERAPIST")
+                    .antMatchers("/api/notes/checkNoteIdConsent/**/")
                         .hasRole("THERAPIST")
                     .antMatchers("/api/notes/getPatient/")
                         .hasRole("THERAPIST")
@@ -115,6 +119,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("PATIENT")
                     .antMatchers("/api/notes/getPermitted/")
                         .hasRole("PATIENT")
+                    .antMatchers("/api/external/upload/**")
+                        .hasRole("EXTERNAL_PARTNER")
                     .anyRequest()
                         .authenticated();
 

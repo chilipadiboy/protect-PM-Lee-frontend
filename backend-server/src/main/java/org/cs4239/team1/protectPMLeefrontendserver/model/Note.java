@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.UserDateAudit;
 
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 @Getter
 @Entity
@@ -28,8 +30,11 @@ public class Note extends UserDateAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     private User patient;
 
+    @Setter
+    @Size(max = 140)
     private String noteContent;
 
+    @Setter
     private boolean isVisibleToPatient;
     private boolean isVisibleToTherapist;
 
@@ -39,9 +44,5 @@ public class Note extends UserDateAudit {
         this.noteContent = noteContent;
         this.isVisibleToPatient = isVisibleToPatient;
         this.isVisibleToTherapist = isVisibleToTherapist;
-    }
-
-    public void setIsVisibleToPatient(boolean option){
-        this.isVisibleToPatient = option;
     }
 }

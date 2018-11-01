@@ -10,11 +10,11 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NotePermissionRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteUpdateRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +72,19 @@ public class NoteService {
         return noteRepository.save(new Note(creator, patient, noteRequest.getNoteContent(), isVisibleToPatient, isVisibleToTherapist));
     }
 
+    @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
+    public Note updateNote(NoteUpdateRequest noteUpdateRequest, User creator) {
+
+        Note note = noteRepository.findByNoteID(noteUpdateRequest.getNoteID())
+                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteUpdateRequest.getNoteID()));
+        if (!note.getCreator().getNric().equals(creator.getNric())){
+            throw new UnauthorisedException("You do not have the permission to update Note_" + note.getNoteID());
+        }
+        note.setNoteContent(noteUpdateRequest.getNoteContent());
+
+        return noteRepository.save(note);
+    }
+
     @PreAuthorize("hasRole('THERAPIST')")
     public Note setNotePermission(NotePermissionRequest notePermissionRequest, User user) {
         
@@ -82,7 +95,7 @@ public class NoteService {
         //if user created the note and treatment period is still valid
         if( note.getCreator().getNric().equals(user.getNric()) &&
                 treatmentRepository.findByTreatmentId(new TreatmentId(user.getNric(), note.getPatient().getNric())) != null){
-            note.setIsVisibleToPatient(Boolean.parseBoolean(notePermissionRequest.getIsVisibleToPatient()));
+            note.setVisibleToPatient(Boolean.parseBoolean(notePermissionRequest.getIsVisibleToPatient()));
         }
         else{
             throw new UnauthorisedException("Not authorised to change Note_" + note.getNoteID() + "'s permission");
@@ -92,8 +105,7 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<NoteResponse> getNotesOf(User currentUser, String patientNric, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getNotesOf(User currentUser, String patientNric) {
         boolean isVisbleToTherapist = true;
 
         //check if valid patient
@@ -108,7 +120,7 @@ public class NoteService {
         }
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndIsVisibleToTherapist(patient, isVisbleToTherapist, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -123,11 +135,10 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<NoteResponse> getOwnNotes(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getOwnNotes(User currentUser) {
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByCreator(currentUser, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -141,12 +152,11 @@ public class NoteService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<NoteResponse> getPermittedNotes(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<NoteResponse> getPermittedNotes(User currentUser) {
         boolean isVisibleToPatient = true;
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndCreatorNotAndIsVisibleToPatient(currentUser, currentUser, isVisibleToPatient, pageable);
 
         if(notes.getNumberOfElements() == 0) {
@@ -159,10 +169,12 @@ public class NoteService {
                 notes.getSize(), notes.getTotalElements(), notes.getTotalPages(), notes.isLast());
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
+    public Note checkNoteIdConsent(Long noteID, User therapist) {
 
-    private void validatePageNumberAndSize(int size) {
-        if(size > AppConstants.MAX_PAGE_SIZE) {
-            throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
-        }
+        //check if note exist and creatorship
+        Note note = noteRepository.findByNoteIDAndCreator(noteID, therapist)
+                .orElseThrow(() -> new ResourceNotFoundException("Note", "noteID", noteID));
+        return note;
     }
 }

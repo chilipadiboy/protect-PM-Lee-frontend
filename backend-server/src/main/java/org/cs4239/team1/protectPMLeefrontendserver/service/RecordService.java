@@ -19,7 +19,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithThe
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
@@ -46,11 +45,10 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-    public PagedResponse<Record> getAllRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<Record> getAllRecords(User currentUser) {
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findAll(pageable);
 
         if(records.getNumberOfElements() == 0) {
@@ -63,11 +61,10 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Record> getRecordsCreatedBy(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
 
         // Retrieve all records created by the current user
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
@@ -80,11 +77,10 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<Record> getRecordsBelongingTo(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<Record> getRecordsBelongingTo(User currentUser) {
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Record> records = recordRepository.findByPatientIC(currentUser.getNric(), pageable);
 
         if (records.getNumberOfElements() == 0) {
@@ -187,11 +183,10 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Record> getAllowedRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<Record> getAllowedRecords(User currentUser) {
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Permission> permission = permissionRepository.findByUser(currentUser, pageable);
 
         if (permission.getNumberOfElements() == 0) {
@@ -207,17 +202,11 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser, int page, int size) {
-        validatePageNumberAndSize(size);
-
-        String nric = currentUser.getNric();
-
-        User user = userRepository.findByNric(nric)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User patient) {
 
         // Retrieve all records belong to the given nric
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByPatientNric(nric, pageable);
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Page<Permission> permission = permissionRepository.findByPatientNric(patient.getNric(), pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
@@ -233,11 +222,10 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric, int page, int size) {
-        validatePageNumberAndSize(size);
+    public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric) {
 
         // Retrieve all records that matches the user and patient Nric pair
-        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNric, pageable);
 
         if (permission.getNumberOfElements() == 0) {
@@ -250,12 +238,5 @@ public class RecordService {
 
         return new PagedResponse<>(records, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
-    }
-
-
-    private void validatePageNumberAndSize(int size) {
-        if(size > AppConstants.MAX_PAGE_SIZE) {
-            throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
-        }
     }
 }

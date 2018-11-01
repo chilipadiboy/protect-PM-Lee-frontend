@@ -7,12 +7,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
-public class NoteRequest {
+public class NoteUpdateRequest {
 
     @NonNull
-    @NotBlank
-    @Size(min = 9, max = 9)
-    private String patientNric;
+    private Long noteID;
 
     @NonNull
     @NotBlank
