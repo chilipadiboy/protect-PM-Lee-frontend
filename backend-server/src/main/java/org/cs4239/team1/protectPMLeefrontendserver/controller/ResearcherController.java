@@ -209,7 +209,7 @@ public class ResearcherController {
             int avgDiastolic = 0;
             int t = 1;
             while ((line = br.readLine()) != null) {
-                BloodPressure pressure = BloodPressure.create(line.split(",")[1]);
+                BloodPressure pressure = BloodPressure.create(line.split(",")[1].trim());
                 avgSystolic += (pressure.getSystolic() - avgSystolic) / t;
                 avgDiastolic += (pressure.getDiastolic() - avgDiastolic) / t;
                 t++;
