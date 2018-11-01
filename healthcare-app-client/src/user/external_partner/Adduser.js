@@ -67,7 +67,7 @@ class External_add_user extends Component {
                 message: 'Healthcare App',
                 description: "You've successfully registered a new user!",
             });
-            this.props.history.push("/manageusers");
+            this.props.history.push("/");
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
