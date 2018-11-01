@@ -17,6 +17,7 @@ import AllRecords from '../user/records/AllRecords';
 import DownloadVideo from '../user/download/DownloadVideo';
 import DownloadImage from '../user/download/DownloadImage';
 import DownloadFile from '../user/download/DownloadFile';
+import DownloadCSV from '../user/download/DownloadCSV';
 import AppHeader from '../common/AppHeader';
 // import Therapist_mypatients from '../user/therapist/Mypatients';
 import Administrator_logs from '../user/administrator/Logs';
@@ -146,6 +147,8 @@ class App extends Component {
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></PatientRoute>
+                    <Route path="/chart" component={Chart}></Route>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>
@@ -170,6 +173,8 @@ class App extends Component {
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></TherapistRoute>
+                    <Route path="/chart" component={Chart}></Route>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>
@@ -191,7 +196,6 @@ class App extends Component {
                     <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
                     <ResearcherRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/generatedata" component={Researcher_generate_data}></ResearcherRoute>
                     <Route component={NotFound}></Route>
-                    <Route path="/chart" component={Chart}></Route>
                   </Switch>
                 </div>
               </Content>
@@ -237,7 +241,6 @@ class App extends Component {
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/link" component={Administrator_link_users}></AdministratorRoute>
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={Administrator_manage_users}></AdministratorRoute>
                     <AdministratorRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={Administrator_add_user}></AdministratorRoute>
-                    <Route path="/chart" component={Chart}></Route>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>
