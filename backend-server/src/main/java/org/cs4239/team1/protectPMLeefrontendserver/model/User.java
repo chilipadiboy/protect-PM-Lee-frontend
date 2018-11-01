@@ -95,6 +95,9 @@ public class User extends DateAudit implements UserDetails {
     private String publicKey;
 
     @NonNull
+    private String symmetricKey;
+
+    @NonNull
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;

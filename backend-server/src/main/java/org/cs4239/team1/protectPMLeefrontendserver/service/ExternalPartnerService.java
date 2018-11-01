@@ -108,6 +108,7 @@ public class ExternalPartnerService {
                             Gender.valueOf(parts[7].toUpperCase()), //gender
                             parts[8], //password Assume already encrypted?
                             parts[9], //key
+                            "",
                             new HashSet<>(Arrays.stream(parts[9] //roles
                                     .split("\\|"))
                                     .map(Role::create)

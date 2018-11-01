@@ -243,6 +243,7 @@ public class AuthController {
                 Gender.valueOf(signUpRequest.getGender().toUpperCase()),
                 passwordEncoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getPublicKey(),
+                "",
                 new HashSet<>(signUpRequest.getRoles().stream()
                         .map(Role::create)
                         .collect(Collectors.toList()))
