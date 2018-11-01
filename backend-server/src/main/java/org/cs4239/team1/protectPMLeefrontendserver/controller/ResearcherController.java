@@ -3,8 +3,6 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,12 +10,11 @@ import javax.validation.Valid;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Age;
+import org.cs4239.team1.protectPMLeefrontendserver.model.BloodPressure;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Location;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
-import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Value;
 import org.cs4239.team1.protectPMLeefrontendserver.model.audit.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordRequest;
@@ -90,7 +87,6 @@ public class ResearcherController {
         Gender requestedGender = Gender.create(request.getGender());
         Subtype requestedSubtype = Subtype.create(request.getSubtype());
 
-        generateData();
         userRepository.findAll().stream()
                 .filter(user -> requestedLocation == Location.ALL
                         || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
@@ -99,7 +95,7 @@ public class ResearcherController {
                 .forEach(user -> recordRepository.findByPatientIC(user.getNric()).stream()
                         .filter(record -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(record.getSubtype()))
                         .forEach(record -> data.add(user.getPostalCode().substring(0, 2), String.valueOf(user.getAge()),
-                                user.getGender().toString(), record.getSubtype().toString())));
+                                user.getGender().toString(), value.getValueSupplier().apply(record))));
 
         return data;
     }
@@ -117,9 +113,17 @@ public class ResearcherController {
         }
     }
 
-    private Hierarchy getBloodPressure() { //TODO:
-        return HierarchyBuilderIntervalBased.create(DataType.INTEGER)
-                .build();
+    private Hierarchy getBloodPressure() {
+        DefaultHierarchy bpHierarchy = Hierarchy.create();
+
+        for (int i = 0; i < 200; i++) {
+            for (int j = 0; j < 200; j++) {
+                BloodPressure bp = new BloodPressure(i, j);
+                bpHierarchy.add(bp.toString(), bp.getCategory().toString());
+            }
+        }
+
+        return bpHierarchy;
     }
 
     private Hierarchy getCholesterol() { //TODO:
@@ -199,19 +203,21 @@ public class ResearcherController {
         return record.getSubtype().toString();
     }
 
-    private String getBloodPressure(Record record) { // TODO
+    private String getBloodPressure(Record record) {
         try (BufferedReader br = new BufferedReader(
                 new FileReader(fileStorageService.loadFileAsResource(record.getDocument()).getFile()))) {
             String line;
-            int numLines = 0;
-            double sum = 0;
+            int avgSystolic = 0;
+            int avgDiastolic = 0;
+            int t = 1;
             while ((line = br.readLine()) != null) {
-                String value = line.split(",")[1];
-                numLines++;
-                sum += Double.valueOf(value);
+                BloodPressure pressure = BloodPressure.create(line.split(",")[1]);
+                avgSystolic += (pressure.getSystolic() - avgSystolic) / t;
+                avgDiastolic += (pressure.getDiastolic() - avgDiastolic) / t;
+                t++;
             }
 
-            return String.valueOf(sum / numLines);
+            return avgSystolic + "/" + avgDiastolic;
         } catch (IOException ioe) {
             throw new AssertionError("Should not happen.");
         }
@@ -233,175 +239,5 @@ public class ResearcherController {
         } catch (IOException ioe) {
             throw new AssertionError("Should not happen.");
         }
-    }
-
-    private void generateData() {
-        userRepository.save(new User("S1111111A",
-                "foo",
-                "foo1@bar.com",
-                "61111111",
-                "foo",
-                "010000",
-                21,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111B",
-                "foo",
-                "foo2@bar.com",
-                "61111111",
-                "foo",
-                "023930",
-                22,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111C",
-                "foo",
-                "foo3@bar.com",
-                "61111111",
-                "foo",
-                "035412",
-                23,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111D",
-                "foo",
-                "foo4@bar.com",
-                "61111111",
-                "foo",
-                "150012",
-                24,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111E",
-                "foo",
-                "foo7@bar.com",
-                "61111111",
-                "foo",
-                "162012",
-                35,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111F",
-                "foo",
-                "foo8@bar.com",
-                "61111111",
-                "foo",
-                "172012",
-                37,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        userRepository.save(new User("S1111111G",
-                "foo",
-                "foo6@bar.com",
-                "61111111",
-                "foo",
-                "200000",
-                38,
-                Gender.MALE,
-                passwordEncoder.encode("foobarbaz"),
-                "MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
-                new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.ALLERGY,
-                "foo",
-                "linkToP01Record",
-                "S1111111A"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.CANCER,
-                "foo",
-                "linkToP01Record",
-                "S1111111A"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.ALLERGY,
-                "foo",
-                "linkToP01Record",
-                "S1111111B"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.CANCER,
-                "foo",
-                "linkToP01Record",
-                "S1111111B"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.COLD,
-                "foo",
-                "linkToP01Record",
-                "S1111111C"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.DIABETES,
-                "foo",
-                "linkToP01Record",
-                "S1111111C"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.COLD,
-                "foo",
-                "linkToP01Record",
-                "S1111111D"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.DIABETES,
-                "foo",
-                "linkToP01Record",
-                "S1111111D"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HEADACHES_AND_MIGRAINES,
-                "foo",
-                "linkToP01Record",
-                "S1111111E"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HYPERTENSION,
-                "foo",
-                "linkToP01Record",
-                "S1111111E"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HEADACHES_AND_MIGRAINES,
-                "foo",
-                "linkToP01Record",
-                "S1111111F"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HYPERTENSION,
-                "foo",
-                "linkToP01Record",
-                "S1111111F"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HEADACHES_AND_MIGRAINES,
-                "foo",
-                "linkToP01Record",
-                "S1111111G"));
-
-        recordRepository.save(new Record(Type.ILLNESS,
-                Subtype.HYPERTENSION,
-                "foo",
-                "linkToP01Record",
-                "S1111111G"));
     }
 }

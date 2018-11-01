@@ -192,6 +192,237 @@ public class ProtectPmLeeFrontendServerApplication {
 					true,
 					false
 			));
+
+			userRepository.save(new User("S1111111A",
+					"foo",
+					"foo1@bar.com",
+					"61111111",
+					"foo",
+					"010000",
+					21,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111B",
+					"foo",
+					"foo2@bar.com",
+					"61111111",
+					"foo",
+					"023930",
+					22,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111C",
+					"foo",
+					"foo3@bar.com",
+					"61111111",
+					"foo",
+					"035412",
+					23,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111D",
+					"foo",
+					"foo4@bar.com",
+					"61111111",
+					"foo",
+					"150012",
+					24,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111E",
+					"foo",
+					"foo7@bar.com",
+					"61111111",
+					"foo",
+					"162012",
+					35,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111F",
+					"foo",
+					"foo8@bar.com",
+					"61111111",
+					"foo",
+					"172012",
+					37,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			userRepository.save(new User("S1111111G",
+					"foo",
+					"foo6@bar.com",
+					"61111111",
+					"foo",
+					"200000",
+					38,
+					Gender.MALE,
+					passwordEncoder.encode("foobarbaz"),
+					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
+					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.ALLERGY,
+					"foo",
+					"linkToP01Record",
+					"S1111111A",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.CANCER,
+					"foo",
+					"linkToP01Record",
+					"S1111111A",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.ALLERGY,
+					"foo",
+					"linkToP01Record",
+					"S1111111B",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.CANCER,
+					"foo",
+					"linkToP01Record",
+					"S1111111B",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.COLD,
+					"foo",
+					"linkToP01Record",
+					"S1111111C",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.DIABETES,
+					"foo",
+					"linkToP01Record",
+					"S1111111C",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.COLD,
+					"foo",
+					"linkToP01Record",
+					"S1111111D",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.DIABETES,
+					"foo",
+					"linkToP01Record",
+					"S1111111D",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HEADACHES_AND_MIGRAINES,
+					"foo",
+					"linkToP01Record",
+					"S1111111E",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HYPERTENSION,
+					"foo",
+					"linkToP01Record",
+					"S1111111E",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HEADACHES_AND_MIGRAINES,
+					"foo",
+					"linkToP01Record",
+					"S1111111F",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HYPERTENSION,
+					"foo",
+					"linkToP01Record",
+					"S1111111F",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HEADACHES_AND_MIGRAINES,
+					"foo",
+					"linkToP01Record",
+					"S1111111G",
+                    ""));
+
+			recordRepository.save(new Record(Type.ILLNESS,
+					Subtype.HYPERTENSION,
+					"foo",
+					"linkToP01Record",
+					"S1111111G",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp1.csv",
+					"S1111111A",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp1.csv",
+					"S1111111B",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp1.csv",
+					"S1111111C",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp2.csv",
+					"S1111111D",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp2.csv",
+					"S1111111E",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp2.csv",
+					"S1111111F",
+                    ""));
+
+			recordRepository.save(new Record(Type.READING,
+					Subtype.BLOOD_PRESSURE,
+					"foo",
+					"bp2.csv",
+					"S1111111G",
+                    ""));
 		};
 	}
 }
