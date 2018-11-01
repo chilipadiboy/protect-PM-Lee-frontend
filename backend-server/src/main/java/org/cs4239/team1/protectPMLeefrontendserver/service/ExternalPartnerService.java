@@ -1,12 +1,24 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+import static org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate.formatDate;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
@@ -19,16 +31,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-
-import static org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate.formatDate;
 
 @Service
 public class ExternalPartnerService {
@@ -76,7 +78,7 @@ public class ExternalPartnerService {
                         throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
                     }
 
-                    recordRepository.save(new Record(type,subtype,title,document,patientNric,""));
+                    recordRepository.save(new Record(Type.create(type), Subtype.create(subtype),title,document,patientNric,""));
                 }
                 break;
             case "users":
@@ -101,10 +103,11 @@ public class ExternalPartnerService {
                             parts[2], //email
                             parts[3], //phone
                             parts[4], //address
-                            Integer.parseInt(parts[5]), //age
-                            Gender.valueOf(parts[6].toUpperCase()), //gender
-                            parts[7], //password Assume already encrypted?
-                            parts[8], //key
+                            parts[5], //postalcode
+                            Integer.parseInt(parts[6]), //age
+                            Gender.valueOf(parts[7].toUpperCase()), //gender
+                            parts[8], //password Assume already encrypted?
+                            parts[9], //key
                             new HashSet<>(Arrays.stream(parts[9] //roles
                                     .split("\\|"))
                                     .map(Role::create)
