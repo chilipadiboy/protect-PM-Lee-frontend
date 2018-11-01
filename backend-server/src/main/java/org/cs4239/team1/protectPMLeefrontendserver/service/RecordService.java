@@ -1,9 +1,14 @@
 package org.cs4239.team1.protectPMLeefrontendserver.service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.crypto.tink.subtle.Ed25519Verify;
+import org.apache.commons.io.IOUtils;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
@@ -21,6 +26,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithThe
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
@@ -30,6 +36,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +48,9 @@ public class RecordService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Autowired
     private PermissionRepository permissionRepository;
@@ -240,5 +250,25 @@ public class RecordService {
 
         return new PagedResponse<>(records, permission.getNumber(),
                 permission.getSize(), permission.getTotalElements(), permission.getTotalPages(), permission.isLast());
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
+    private void validateSignatures() {
+        List<Record> records = recordRepository.findAll();
+        for (Record rec : records) {
+            try {
+                if (rec.getFileSignature().length()>0) {
+                    byte[] fileBytes = IOUtils.toByteArray(fileStorageService.loadFileAsResource(rec.getDocument()).getInputStream());
+                    byte[] fileBytesHash = Hasher.hash(fileBytes);
+                    User patient = userRepository.findByNric(rec.getPatientIC())
+                            .orElseThrow(() -> new ResourceNotFoundException("User", "nric", rec.getPatientIC()));
+                    Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(patient.getPublicKey()));
+                    verifier.verify(Base64.getDecoder().decode(rec.getFileSignature()), fileBytesHash);
+                }
+            } catch (IOException | GeneralSecurityException e) {
+                logger.error("File Signature for " + rec.getPatientIC() + "not verified!", e);
+                e.printStackTrace();
+            }
+        }
     }
 }
