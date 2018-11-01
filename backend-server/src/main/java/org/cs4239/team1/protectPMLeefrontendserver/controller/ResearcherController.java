@@ -101,12 +101,17 @@ public class ResearcherController {
     }
 
     private List<AnonymisedRecordResponse> anonymize(Data toAnonymize) {
+        if (toAnonymize.getHandle().getNumRows() == 1) {
+            throw new BadRequestException("No data in the database for this request.");
+        }
+
         try {
             ARXConfiguration config = ARXConfiguration.create().addPrivacyModel(new KAnonymity(2));
             ARXResult result = new ARXAnonymizer().anonymize(toAnonymize, config);
-            List<AnonymisedRecordResponse> response = new LinkedList<>();
+            LinkedList<AnonymisedRecordResponse> response = new LinkedList<>();
             result.getOutput().iterator().forEachRemaining(array ->
                     response.add(new AnonymisedRecordResponse(array[0], array[1], array[2], array[3])));
+            response.removeFirst();
             return response;
         } catch (IOException ioe) {
             throw new AssertionError("Should not happen.");
