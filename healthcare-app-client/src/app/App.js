@@ -22,6 +22,8 @@ import Therapist_patientrecords from '../user/therapist/Patientrecords';
 import Therapist_newnote from '../user/therapist/NewNote';
 import Therapist_editnote from '../user/therapist/EditNote';
 import Patient_mydata from '../user/patient/MyData';
+import Patient_newnote from '../user/patient/NewNote';
+import Patient_editnote from '../user/patient/EditNote';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
@@ -145,6 +147,8 @@ class App extends Component {
                     <Route exact path="/" component={Home}></Route>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
                     <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/editnote/:id" component={Patient_editnote}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/newnote" component={Patient_newnote}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata" component={Patient_mydata}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></PatientRoute>

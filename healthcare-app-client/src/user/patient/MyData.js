@@ -236,7 +236,6 @@ class Patient_mydata extends Component {
       .then(response => {
 
       }).catch(error => {
-          console.log(error);
           notification.error({
               message: 'Healthcare App',
               description: error.message || 'Sorry! Something went wrong. Please try again!'
@@ -260,7 +259,6 @@ class Patient_mydata extends Component {
               message: 'Healthcare App',
               description: error.message || 'Sorry! Something went wrong. Please try again!'
           });
-          console.log(error);
       });
     }
 
