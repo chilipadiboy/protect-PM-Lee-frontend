@@ -68,7 +68,7 @@ class MyRecords extends Component {
           dataIndex: 'patientIC',
           key: 'patientIC',
         }, {
-          title: 'Document',
+          title: 'File',
           dataIndex: 'document',
           key: 'document',
           render: text => {

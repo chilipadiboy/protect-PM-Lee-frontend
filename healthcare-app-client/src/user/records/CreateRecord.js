@@ -6,11 +6,17 @@ dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../uti
 import './CreateRecord.css';
 
 const FormItem = Form.Item;
-
-
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
+const Option = Select.Option;
+const firstData = ['illness', 'reading'];
+const secondData = {
+  illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
+  'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
+'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
+  reading: ['blood pressure', 'cholesterol'],
+};
 
 class CreateRecord extends Component {
   constructor(props) {
@@ -20,9 +26,15 @@ class CreateRecord extends Component {
           subtype: '',
           title: '',
           patientIC: '',
-          selectedFileList: [],
           isLoading: false,
+          selectedFilelist: [],
+          data: {
+            startData: secondData[firstData[0]],
+            nextData: secondData[firstData[0]][0],
+          }
         }
+        this.handleFirstDataChange = this.handleFirstDataChange.bind(this);
+        this.onSecondDataChange = this.onSecondDataChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
@@ -46,6 +58,30 @@ class CreateRecord extends Component {
             }
         });
     }
+
+    handleFirstDataChange = (value) => {
+    this.setState({
+      type: {
+        value: value
+      },
+      data: {
+        startData: secondData[value],
+        nextData: secondData[value][0],
+      }
+    });
+  }
+
+  onSecondDataChange = (value) => {
+    this.setState({
+      subtype: {
+        value: value
+      },
+      data: {
+        startData: this.state.data.startData,
+        nextData: value,
+      }
+    });
+  }
 
     handleSubmit(event) {
         event.preventDefault();
@@ -86,13 +122,6 @@ class CreateRecord extends Component {
     };
 
     startConnection() {
-      if (this.state.selectedFilelist.length<=0) {
-        notification["error"]({
-         message: 'Healthcare App',
-         description: 'Please select a file first!',
-       });
-       return;
-      }
       valueRecArray = [];
          let context = this;
          let ivStr;
@@ -227,22 +256,23 @@ class CreateRecord extends Component {
                     <Form onSubmit={this.handleSubmit} className="createRecord-form">
                         <FormItem
                           label="Type">
-                          <Input
+                          <Select
                               size="large"
                               required="true"
                               name="type"
-                              autoComplete="off"
-                              value={this.state.type.value}
-                              onChange={(event) => {this.handleInputChange(event)}}  />
+                              onChange={this.handleFirstDataChange}>
+                              {firstData.map(first => <Option key={first}>{first}</Option>)}
+                          </Select>
                         </FormItem>
                         <FormItem
                             label="Subtype">
                             <Input
                                 size="large"
                                 name="subtype"
-                                autoComplete="off"
-                                value={this.state.subtype.value}
-                                onChange={(event) => {this.handleInputChange(event)}}  />
+                                value={this.state.data.nextData}
+                                onChange={this.onSecondDataChange}>
+                                {this.state.data.startData.map(second => <Option key={second}>{second}</Option>)}
+                            </Select>
                         </FormItem>
                         <FormItem
                             label="Title">

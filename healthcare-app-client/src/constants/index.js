@@ -10,5 +10,7 @@ export const EMAIL_MAX_LENGTH = 40;
 
 export const PHONE_LENGTH = 8;
 
+export const POSTALCODE_LENGTH = 6;
+
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 100;

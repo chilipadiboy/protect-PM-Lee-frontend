@@ -33,7 +33,6 @@ class Administrator_link_users extends Component {
               message: 'Healthcare App',
               description: "You've successfully assigned the users!",
           });
-          window.location.reload();
       }).catch(error => {
           notification.error({
               message: 'Healthcare App',
