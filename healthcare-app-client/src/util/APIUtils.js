@@ -288,3 +288,11 @@ export function unassign(nrics) {
         body: JSON.stringify(nrics)
     });
 }
+
+export function getAnonymousData(data) {
+    return request({
+        url: API + "/researcher/getAnonymousData",
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
