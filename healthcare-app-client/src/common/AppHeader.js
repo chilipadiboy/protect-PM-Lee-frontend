@@ -53,8 +53,8 @@ class AppHeader extends Component {
                   <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/manageusers">
-                <Link to="/manageusers">
+              <Menu.Item key="/adduser">
+                <Link to="/adduser">
                   <Icon type="usergroup-add" />
                 </Link>
               </Menu.Item>,

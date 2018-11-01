@@ -24,7 +24,6 @@ import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
 import Administrator_add_user from '../user/administrator/Adduser';
 import Researcher_generate_data from '../user/researcher/Generatedata';
-import External_manage_users from '../user/external_partner/Manageusers';
 import External_add_user from '../user/external_partner/Adduser';
 import External_upload_database from '../user/external_partner/Uploaddatabase';
 import LoadingIndicator from '../common/LoadingIndicator';
@@ -213,7 +212,6 @@ class App extends Component {
                       render={(props) => <Login onLogin={this.handleLogin} {...props} />}></Route>
                     <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
                     <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/uploaddatabase" component={External_upload_database}></ExternalPartnerRoute>
-                    <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/manageusers" component={External_manage_users}></ExternalPartnerRoute>
                     <ExternalPartnerRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/adduser" component={External_add_user}></ExternalPartnerRoute>
                     <Route component={NotFound}></Route>
                   </Switch>
