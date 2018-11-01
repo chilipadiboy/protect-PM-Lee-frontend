@@ -4,7 +4,27 @@ In your final demo, you will demonstrate the final system behaviour, and make cl
 # Final Report
 
 ## Subsystem 1 (MFA)
+The 2FA tag has 2 uses in our system.
+1. Login using the 2FA tag
+1. Validation of uploaded files in the creation of health records for patients
 
+The security scheme we came up with for the communication between the server and the 2FA tag makes use of both symmetric key encryption and public key cryptography. We aim to protect the
+1. confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
+1. integrity and authenticity: using the digital signature of the server
+
+
+All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will be no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
+
+### Security claims:
+1. A replay attack on a tag is not possible.
+We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
+
+1. Sniffing the communication to get the hash of the nonce and the file data hash is not possible.
+These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
+
+1. The attacker, without the server's and tag's private key, cannot be able to disguise as a legitimate server / tag as the digital signature is verified first.
+
+/*shift down*/
 ### Login:
 The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
@@ -20,7 +40,6 @@ Jiahui TBC
 
 ### Security Claims:
 Jiahui TBC
-
 ---
 
 ## Subsystems 2 to 4 Overview
@@ -37,18 +56,27 @@ Subsystems 2 to 4 support the following functionalities with the following param
 
 ## Security for Client & Server Communication
 
+### Session Cookie
+We implemented the use of a session cookie to authenticate the user as we do not want to store any session identifiers in the local storage as that is susceptible to XSS.
+
+### Security Claims:
+1. An attacker will not be able to retrieve what is in the cookie via XSS.
+The cookie is a HttpOnly cookie so no javascript code can access it.
+
+1. An attacker will be unable to do Cross-Site Request Forgery (CSRF) making use of the cookie and riding on the user session.
+This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
+
+1. The user can only make use of our system when HTTPS is enabled.
+This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
+
 ### JSON Web Token (JWT)
 Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
-### Security Claims:
-**Cross-Site Request Forgery (CSRF)** will not be possible too as we are using token-based authentication in the form of JSON Web Token (JWT).
-
 The JWT is:
 1. Signed with HMAC algorithm to prevent data tampering, thus preserving **integrity**
 1. Sent via HTTPS to ensure **confidentiality** of the data in the token
-1. (Jiahui: Elaborate the use of Session)
 
 In addition, using HTTPS as our only mode of transfer across channels will prevent any potential leaks from HTML5 Web Storage during transfers. It also serves as a more efficient method to ensure traffic is encrypted instead of having to deploy encryption algorithms when transferring over unsecured HTTP routes.
 
