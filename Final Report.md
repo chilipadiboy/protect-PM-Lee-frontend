@@ -94,6 +94,7 @@ With each retrieval, the order of the data will be randomised to make it harder 
 
 ### Overview
 `External Partners` will have a page for them to upload their database file in a .csv file.
+
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
@@ -103,34 +104,34 @@ Jiahui TBC
 
 ## Security claims:
 1. A **replay attack** on a tag is not possible.
-  a. We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
+  1. We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
 
 1. **Sniffing the communication** to get the hash of the nonce and the file data hash is not possible.
-  a. These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
+  1. These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
 
 1. The attacker, without the server's and tag's private key, **cannot be able to disguise as a legitimate server / tag**
-  a. The digital signature is verified first.
+  1. The digital signature is verified first.
 
 1. Malicious parties are unable to intercept and give incorrect public keys during transmission.
-  a. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.
+  1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.
 
 1. **Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page.
-  a. User inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
+  1. User inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
 1. An attacker will not be able to retrieve what is in the cookie via **XSS**.
-  a. The cookie is a HttpOnly cookie so no javascript code can access it.
+  1. The cookie is a HttpOnly cookie so no javascript code can access it.
 
 1. An attacker will be unable to do **Cross-Site Request Forgery (CSRF)** making use of the cookie and riding on the user session.
-  a. This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
+  1. This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
 
 1. The user can only make use of our system when **HTTPS** is enabled.
-  a. This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
+  1. This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
 
 1. Data transfer between servers are secure and not susceptible to Man-in-the-Middle attacks.
-  a. The transfer stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
+  1. The transfer stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
 
 1. No invalid file types can be uploaded to the database.
-  a. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
+  1. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
 
 1. No other users can create a `Patient`'s record except for the `Administrator`.
-  a. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
+  1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
