@@ -195,9 +195,9 @@ class LoginForm extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const loginRequest = {
-            nric: encodeURIComponent(this.state.nric.value),
-            password: encodeURIComponent(this.state.password.value),
-            role: encodeURIComponent(this.state.role.value)
+            nric: this.state.nric.value,
+            password: this.state.password.value,
+            role: this.state.role.value,
         };
         login(loginRequest)
         .then(response => {

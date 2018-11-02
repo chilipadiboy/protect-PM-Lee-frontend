@@ -78,9 +78,6 @@ public class RecordController {
     @Value("${app.privateKey}")
     private String privateKey;
 
-    @Value("${bluetooth.tag.encryptionKey}")
-    private String tagKey;
-
     @Autowired
     private AESEncryptionDecryptionTool aesEncryptionDecryptionTool;
 
@@ -140,7 +137,7 @@ public class RecordController {
             byte[] combinedNonceAndFile = new byte[msgHash.length + fileBytesHash.length];
             System.arraycopy(msgHash, 0, combinedNonceAndFile, 0, msgHash.length);
             System.arraycopy(fileBytesHash, 0, combinedNonceAndFile, msgHash.length, fileBytesHash.length);
-            byte[] encrypted = new AESEncryptionDecryptionTool().encrypt(combinedNonceAndFile, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] encrypted = new AESEncryptionDecryptionTool().encrypt(combinedNonceAndFile, patient.getSymmetricKey(), ivBytes, "AES/CBC/NOPADDING");
             byte[] pubKey = Base64.getDecoder().decode(patient.getPublicKey());
             byte[] combined = new byte[uploadCode.length + pubKey.length + ivBytes.length + encrypted.length];
             System.arraycopy(uploadCode, 0, combined, 0, uploadCode.length);
@@ -177,7 +174,7 @@ public class RecordController {
             }
 
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(Base64.getDecoder().decode(recordSigRequest.getEncryptedString()), tagKey, recordSigRequest.getIv(), "AES/CBC/NOPADDING");
+                    .decrypt(Base64.getDecoder().decode(recordSigRequest.getEncryptedString()), patient.getSymmetricKey(), recordSigRequest.getIv(), "AES/CBC/NOPADDING");
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] fileSignature = Arrays.copyOfRange(decrypted, 64, 128);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());

@@ -83,9 +83,6 @@ public class AuthController {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
-    @Value("${bluetooth.tag.encryptionKey}")
-    private String tagKey;
-
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
@@ -147,7 +144,7 @@ public class AuthController {
             byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, tagKey, ivBytes, "AES/CBC/NOPADDING");
+            byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, patient.getSymmetricKey(), ivBytes, "AES/CBC/NOPADDING");
             byte[] loginCode = Integer.toString(0).getBytes();
 
             byte[] combined = new byte[loginCode.length + pubKey.length + ivBytes.length + encrypted.length];
@@ -170,8 +167,10 @@ public class AuthController {
     @PostMapping("/secondAuthorization")
     public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
+            User patient = userRepository.findByNric(loginRequest.getNric())
+                    .orElseThrow(() -> new ResourceNotFoundException("User", "nric", loginRequest.getNric()));
             byte[] decrypted = aesEncryptionDecryptionTool
-                    .decrypt(Base64.getDecoder().decode(loginRequest.getEncryptedString()), tagKey, loginRequest.getIv(), "AES/CBC/NOPADDING");
+                    .decrypt(Base64.getDecoder().decode(loginRequest.getEncryptedString()), patient.getSymmetricKey(), loginRequest.getIv(), "AES/CBC/NOPADDING");
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] signature = Arrays.copyOfRange(decrypted, 64, 128);
 
