@@ -1,6 +1,3 @@
-## Instructions (to remove at the end)
-In your final demo, you will demonstrate the final system behaviour, and make claims about attacks on your subsystem (what parts you think are safe). A report should be submitted by Friday 2nd of November, detailing the elements and technical elements of the final project subsystems, along with any claims you can make about it’s security behaviour. At this time your source code will be released to the other team members. In addition, at this time you will briefly demonstrate your system (the user interface, general operation, and so on) to the other team during that week.
-
 # Final Report
 
 ## Subsystem 1 (MFA)
@@ -9,26 +6,11 @@ The 2FA tag has 2 uses in our system.
 1. Validation of uploaded files in the creation of health records for patients
 
 The security scheme we came up with for the communication between the server and the 2FA tag makes use of both symmetric key encryption and public key cryptography. We aim to protect the
-1. confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
-1. integrity and authenticity: using the digital signature of the server
+1. Confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
+1. Integrity and authenticity: using the digital signature of the server
 
 
 All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will be no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
-
-### Security claims:
-1. A replay attack on a tag is not possible.
-We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
-
-1. Sniffing the communication to get the hash of the nonce and the file data hash is not possible.
-These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
-
-1. The attacker, without the server's and tag's private key, cannot be able to disguise as a legitimate server / tag as the digital signature is verified first.
-
-### Health records:
-Jiahui TBC
-
-### Security Claims:
-Jiahui TBC
 
 ---
 
@@ -40,29 +22,14 @@ Subsystems 2 to 4 support the following functionalities with the following param
     1. NRIC number
     1. Password
     1. Role
-    
+
 ### Login:
 The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
-
-### Security Claims:
-Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
-
-**Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
 ## Security for Client & Server Communication
 
 ### Session Cookie
 We implemented the use of a session cookie to authenticate the user as we do not want to store any session identifiers in the local storage as that is susceptible to XSS.
-
-### Security Claims:
-1. An attacker will not be able to retrieve what is in the cookie via XSS.
-The cookie is a HttpOnly cookie so no javascript code can access it.
-
-1. An attacker will be unable to do Cross-Site Request Forgery (CSRF) making use of the cookie and riding on the user session.
-This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
-
-1. The user can only make use of our system when HTTPS is enabled.
-This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
 
 ### JSON Web Token (JWT)
 Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
@@ -76,14 +43,6 @@ The JWT is:
 In addition, using HTTPS as our only mode of transfer across channels will prevent any potential leaks from HTML5 Web Storage during transfers. It also serves as a more efficient method to ensure traffic is encrypted instead of having to deploy encryption algorithms when transferring over unsecured HTTP routes.
 
 **Cross-Origin Resource Sharing (CORS)** will not be a potential area for exploit. The backend server limits only connection to our frontend server by specifying the IP address which it is on, hence other malicious sites would be blocked by the CORS origin policy.
-
-### Security for Server & Database Communication
-
-### Security Claims:
-We protect our system by:
-1. Using HTTPS to ensure confidentiality and integrity in data transfer.
-1. Allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
-1. Running an anti-virus check when a new data file is uploaded.
 
 ---
 
@@ -100,16 +59,10 @@ This subsystem provides the web interface that will be used by `Therapists`, `Pa
 ### Therapist's Interface
 Leyuan TBC
 
-### Security Claims:
-Leyuan TBC
-
 ### Patients Capabilities:
 Leyuan TBC
 
 ### Patient's Interface
-Leyuan TBC
-
-### Security Claims:
 Leyuan TBC
 
 ### Administrators Capabilities:
@@ -124,9 +77,6 @@ After logging in, an `Administrator` would be able to add new users under the `M
 
 `Administrators` would also be able to generate server logs by choosing the date range under the `Logs` tab.
 
-### Security Claims:
-The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
-
 ---
 
 ## Subsystem 3 (Interface for Researchers & Anyone)
@@ -136,36 +86,52 @@ This subsystem will support the functionality of retrieving anonymous data (impl
 1. Age
 1. Gender
 
-The minimum, average and maximum values of `Age` & `Reading` will be automatically generated. Furthermore, with each retrieval, the order of the data will be randomised to make it harder to re-identify each person through piecing different parts of the data.
-
-### Security Claims:
-Zhiyuan TBC
+With each retrieval, the order of the data will be randomised to make it harder to re-identify each person through piecing different parts of the data.
 
 ---
 
 ## Subsystem 4 (Secure Transfer)
 
 ### Overview
-The other team will be given a special account that can only perform these actions: Request patients information from a special page. The page will then fetch a specially generated CSV file for the purposes of uploading to their own database.
-
-### Interface
-The interface will be accessible by a special login. 
-
-#### Security Claims:
-The upload stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
-
-Malicious code implanted in any malicious files will not be executed as the files will be scanned.
-
-The backend server cannot be accessed directly to read the contents of the database.
-
-SQL injection XSS via the provided csv file cannot be done.
-
-
+`External Partners` will have a page for them to upload their database file in a .csv file.
 
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
 Jiahui TBC
 
-### Security Claims:
-Jiahui TBC
+---
+
+## Security claims:
+1. A **replay attack** on a tag is not possible.
+    1. We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
+
+1. **Sniffing the communication** to get the hash of the nonce and the file data hash is not possible.
+    1. These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
+
+1. The attacker, without the server's and tag's private key, **cannot be able to disguise as a legitimate server / tag**
+    1. The digital signature is verified first.
+
+1. Malicious parties are unable to intercept and give incorrect public keys during transmission.
+    1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.
+
+1. **Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page.
+    1. User inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
+
+1. An attacker will not be able to retrieve what is in the cookie via **XSS**.
+    1. The cookie is a HttpOnly cookie so no javascript code can access it.
+
+1. An attacker will be unable to do **Cross-Site Request Forgery (CSRF)** making use of the cookie and riding on the user session.
+    1. This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
+
+1. The user can only make use of our system when **HTTPS** is enabled.
+    1. This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
+
+1. Data transfer between servers are secure and not susceptible to Man-in-the-Middle attacks.
+    1. The transfer stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
+
+1. No invalid file types can be uploaded to the database.
+    1. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
+
+1. No other users can create a `Patient`'s record except for the `Administrator`.
+    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
