@@ -46,7 +46,6 @@ public class ModelMapper {
 
         return new NoteResponse(note.getNoteID(),
                 note.getCreator().getNric(),
-                note.getCreator().getName(),
                 note.getPatient().getNric(),
                 note.getNoteContent());
 

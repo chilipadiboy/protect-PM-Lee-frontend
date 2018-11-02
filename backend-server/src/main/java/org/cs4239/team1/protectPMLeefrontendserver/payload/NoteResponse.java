@@ -8,7 +8,6 @@ import lombok.Getter;
 public class NoteResponse {
     private Long noteID;
     private String creatorNric;
-    private String creatorName;
     private String patientNric;
     private String noteContent;
 }

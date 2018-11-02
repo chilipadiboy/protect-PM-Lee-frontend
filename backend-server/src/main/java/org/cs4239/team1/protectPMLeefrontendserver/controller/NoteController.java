@@ -109,6 +109,6 @@ public class NoteController {
     @GetMapping("/getPermitted/")
     //Patient get notes permitted by any other therapists
     public PagedResponse<NoteResponse> getPermittedNotes(@CurrentUser User currentUser) {
-        return noteService.getPermittedNotes(currentUser;
+        return noteService.getPermittedNotes(currentUser);
     }
 }
