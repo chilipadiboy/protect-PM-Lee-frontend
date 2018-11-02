@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
@@ -83,7 +84,8 @@ public class ProtectPmLeeFrontendServerApplication {
 
 	private void readUsers() {
 	    try {
-            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients.csv")).forEach(line -> {
+            Path path = Paths.get(System.getProperty("user.dir")).getParent().resolve("Mock Data/Patients.csv");
+            Files.lines(path).forEach(line -> {
                 String[] values = line.split(",");
                 userRepository.save(new User(values[5],
                         values[1],
@@ -99,7 +101,8 @@ public class ProtectPmLeeFrontendServerApplication {
                         new HashSet<>(Collections.singletonList(Role.create(values[11])))));
             });
 
-            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Therapists.csv")).forEach(line -> {
+            path = Paths.get(System.getProperty("user.dir")).getParent().resolve("Mock Data/Therapists.csv");
+            Files.lines(path).forEach(line -> {
                 String[] values = line.split(",");
                 userRepository.save(new User(values[5],
                         values[1],
@@ -115,7 +118,8 @@ public class ProtectPmLeeFrontendServerApplication {
                         new HashSet<>(Collections.singletonList(Role.create(values[11])))));
             });
 
-            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients_Therapists.csv")).forEach(line -> {
+            path = Paths.get(System.getProperty("user.dir")).getParent().resolve("Mock Data/Patients_Therapists.csv");
+            Files.lines(path).forEach(line -> {
                 String[] values = line.split(",");
                 User patient = userRepository.findByNric(values[1])
                         .orElseThrow(() -> new ResourceNotFoundException("User", "nric", values[1]));
@@ -124,7 +128,8 @@ public class ProtectPmLeeFrontendServerApplication {
                 treatmentRepository.save(new Treatment(therapist, patient, Instant.now().plus(Duration.ofDays(20))));
             });
 
-            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients_Records.csv")).forEach(line -> {
+            path = Paths.get(System.getProperty("user.dir")).getParent().resolve("Mock Data/Patients_Records.csv");
+            Files.lines(path).forEach(line -> {
                 String[] values = line.split("\t");
                 if (values.length == 6) {
                     recordRepository.save(new Record(Type.create(values[2]), Subtype.create(values[3]), "foo", values[5], values[1], ""));
@@ -133,7 +138,8 @@ public class ProtectPmLeeFrontendServerApplication {
                 }
             });
 
-            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Secret data.csv")).forEach(line -> {
+            path = Paths.get(System.getProperty("user.dir")).getParent().resolve("Mock Data/Secret data.csv");
+            Files.lines(path).forEach(line -> {
                 String[] values = line.split(",");
                 String[] roles = values[12].split("\\|");
                 List<Role> roleList = Arrays.stream(roles).map(Role::create).collect(Collectors.toList());
