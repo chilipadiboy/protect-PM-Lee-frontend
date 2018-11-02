@@ -54,16 +54,15 @@ This subsystem provides the web interface that will be used by `Therapists`, `Pa
 1. Select and read patients' records only
 1. Create new records
 1. Edit their own created records
-1. Print out reports
-
-### Therapist's Interface
-Leyuan TBC
+1. Create new notes for patients that he is treating
+1. Edit created notes
 
 ### Patients Capabilities:
-Leyuan TBC
-
-### Patient's Interface
-Leyuan TBC
+1. View his own records
+1. Give/remove permission to/from therapists that is treating him
+1. See therapists' notes for him
+1. Create own notes
+1. Edit own notes
 
 ### Administrators Capabilities:
 1. Add/delete users to/from the system
