@@ -111,8 +111,11 @@ We will be validating the file uploaded using the 2FA tag.
 1. The attacker, without the server's and tag's private key, **cannot be able to disguise as a legitimate server / tag**
     1. The digital signature is verified first.
 
+1. The attacker will not be able to modify the file tagged to the patient meaningfully.
+    1. We will be able to identify if the file has been changed as we schedule a check for the validation of the file digital signatures.
+
 1. Malicious parties are unable to intercept and give incorrect public keys during transmission.
-    1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.
+    1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.  
 
 1. **Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page.
     1. User inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
