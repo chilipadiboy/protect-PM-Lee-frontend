@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Input, Upload, Button, Icon, Select, notification, Spin  } from 'antd';
+import { matchPath } from 'react-router';
 import { createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
 import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
@@ -12,7 +13,7 @@ var valueRecArray = [];
 const Option = Select.Option;
 const firstData = ['illness', 'reading'];
 const secondData = {
-  illness: ['all', 'allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
+  illness: ['allergy', 'asthma', 'back pain', 'bronchitis', 'cancer', 'cataracts', 'caries', 'chickenpox', 'cold', 'depression',
   'eating disorders', 'gingivitis', 'gout', 'haemorrhoids', 'headches and migraines', 'heart disease', 'high blood cholestrol', 'hypertension',
 'panic attack', 'obsessive compulsive disorder', 'schizophrenia', 'stroke', 'urinary'],
   reading: ['blood pressure'],
@@ -22,22 +23,36 @@ class Therapist_uploadrecord extends Component {
   constructor(props) {
         super(props);
         this.state = {
-          type: '',
-          subtype: '',
-          title: '',
-          patientIC: '',
-          isLoading: false,
-          selectedFilelist: [],
+          type: {
+            value: null
+          },
+          subtype: {
+            value: null
+          },
+          title: {
+            value: null
+          },
+          patientIC: {
+            value: null
+          },
+          selectedFileList: [],
           data: {
             startData: secondData[firstData[0]],
             nextData: secondData[firstData[0]][0],
-          }
+          },
+          isLoading: false,
         }
         this.handleFirstDataChange = this.handleFirstDataChange.bind(this);
         this.onSecondDataChange = this.onSecondDataChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
+        this.verifyFieldsFilled = this.verifyFieldsFilled.bind(this);
+    }
+
+    verifyFieldsFilled() {
+      return (this.state.type.value===null || this.state.title.value===null ||
+              this.state.patientIC.value===null || this.state.selectedFileList.length===0);
     }
 
     handleInputChange(event) {
@@ -78,18 +93,11 @@ class Therapist_uploadrecord extends Component {
 
     handleSubmit(event) {
         event.preventDefault();
-        if (this.state.selectedFileList.length<=0) {
-          notification["error"]({
-           message: 'Healthcare App',
-           description: 'Please select a file first!',
-         });
-         return;
-        }
         const createRecordRequest = {
             type: this.state.type.value,
             subtype: this.state.subtype.value,
             title: this.state.title.value,
-            patientIC: encodeURIComponent(this.state.patientIC.value)
+            patientIC: this.state.patientIC.value
         };
         const uploadedFile = this.state.selectedFileList[0]
         createRecord(createRecordRequest, uploadedFile)
@@ -98,7 +106,7 @@ class Therapist_uploadrecord extends Component {
                 message: 'Healthcare App',
                 description: "Record created!",
             });
-            this.props.history.push("/all");
+            this.props.history.push(`/mypatients/ + ${this.state.patientIC.value}`);
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
@@ -240,6 +248,22 @@ class Therapist_uploadrecord extends Component {
     }
 
 
+    componentDidMount() {
+        const match = matchPath(this.props.history.location.pathname, {
+          path: '/mypatients/:nric/uploadrecord',
+          exact: true,
+          strict: false
+        });
+        const pat_nric = match.params.nric;
+        this.setState({
+            patientIC: {
+              value: pat_nric
+            }
+        });
+    }
+
+
+
     render() {
         return (
             <div className="createRecord-container">
@@ -277,15 +301,6 @@ class Therapist_uploadrecord extends Component {
                                 onChange={(event) => {this.handleInputChange(event)}} />
                         </FormItem>
                         <FormItem
-                            label="PatientIC">
-                            <Input
-                                size="large"
-                                name="patientIC"
-                                autoComplete="off"
-                                value={this.state.patientIC.value}
-                                onChange={(event) => {this.handleInputChange(event)}} />
-                        </FormItem>
-                        <FormItem
                             label="Document">
                             <Upload beforeUpload={this.beforeUpload} fileList={this.state.selectedFileList}>
                               <Button>
@@ -298,11 +313,13 @@ class Therapist_uploadrecord extends Component {
                                 htmlType="submit"
                                 size="large"
                                 className="createRecord-form-button"
+                                disabled={this.verifyFieldsFilled()}
                                 >Create Record</Button>
                             <Button type="primary"
                                 size="large"
                                 className="createRecord-form-button"
                                 onClick={this.startConnection.bind(this)}
+                                disabled={this.verifyFieldsFilled()}
                                 >Connect Patient Tag To Create Record</Button>
                         </FormItem>
                     </Form>

@@ -271,6 +271,20 @@ class Therapist_patientrecords extends Component {
           title: 'File',
           dataIndex: 'document',
           align: 'center',
+          render: text => {
+            var url = text.split("/")
+            url = url[url.length-1]
+            if (url.includes(".mp4"))
+              text = "/downloadVideo/" + url
+            else if (url.includes(".jpg") || url.includes(".png"))
+              text = "/downloadImage/" + url
+            else if (url.includes(".txt"))
+              text = "/downloadFile/" + url
+            else if (url.includes(".csv"))
+              text = "/downloadCSV/" + url
+
+            return <a href={text}>{url}</a>
+          }
         }];
 
         const othernotescolumns = [{

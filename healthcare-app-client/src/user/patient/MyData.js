@@ -40,7 +40,6 @@ class Patient_mydata extends Component {
 
     }
 
-    // Change the value shown to be Name of therapist instead
     generateTherapistOptions(rec_id) {
       const mytherapistoptions = [];
 
@@ -270,7 +269,7 @@ class Patient_mydata extends Component {
         this.loadNotes();
     }
 
-    // Change the columns? Add links to the docs?
+
     render() {
         const { Header, Content } = Layout;
 
@@ -309,6 +308,20 @@ class Patient_mydata extends Component {
           title: 'File',
           dataIndex: 'document',
           align: 'center',
+          render: text => {
+            var url = text.split("/")
+            url = url[url.length-1]
+            if (url.includes(".mp4"))
+              text = "/downloadVideo/" + url
+            else if (url.includes(".jpg") || url.includes(".png"))
+              text = "/downloadImage/" + url
+            else if (url.includes(".txt"))
+              text = "/downloadFile/" + url
+            else if (url.includes(".csv"))
+              text = "/downloadCSV/" + url
+
+            return <a href={text}>{url}</a>
+          }
         }];
 
         const therapistsnotescolumns = [{
