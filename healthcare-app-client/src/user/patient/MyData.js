@@ -59,7 +59,7 @@ class Patient_mydata extends Component {
 
         getAllMyTherapists()
         .then(response => {
-
+            console.log(response);
             const mytherapists = [];
             const mytherapistoptions = [];
 

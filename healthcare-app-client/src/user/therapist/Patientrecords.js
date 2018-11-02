@@ -64,8 +64,6 @@ class Therapist_patientrecords extends Component {
           isLoading: true
       });
 
-      console.log(getAllTherapistNotes(pat_nric));
-
       getAllTherapistNotes(pat_nric)
       .then((response) => {
 
@@ -97,11 +95,8 @@ class Therapist_patientrecords extends Component {
               const index = i;
               const final_count = mydata.length - 1;
 
-              console.log(mydata);
-              console.log(checkNotePermission(currentid));
               checkNotePermission(currentid)
               .then(response => {
-                  console.log(response);
                   if (response.message.includes("does NOT")) {
                     this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
                   } else {
@@ -115,19 +110,7 @@ class Therapist_patientrecords extends Component {
                   }
               }).catch(error => {
                   console.log(error);
-                  if (error.message.includes("does NOT")) {
-                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
-                  } else {
-                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: true} }}) });
-                  }
-
-                  if (index == final_count) {
-                    this.setState({
-                        permissionadded: true
-                    });
-                  }
-                  // console.log(error);
-                  // this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
+                  this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
               });
           }
 
