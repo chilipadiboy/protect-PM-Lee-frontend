@@ -347,11 +347,10 @@ export function setNotePermission(req) {
     });
 }
 
-export function checkNotePermission(req) {
+export function checkNotePermission(note_id) {
     return request({
-        url: API + "/notes/checkNoteIdConsent/",
-        method: 'POST',
-        body: JSON.stringify(req)
+        url: API + "/notes/checkNoteIdConsent/" + note_id + "/",
+        method: 'GET'
     });
 }
 

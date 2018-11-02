@@ -4,6 +4,7 @@ import {
     withRouter
 } from 'react-router-dom';
 import { createNote, getCurrentUser } from '../../util/APIUtils';
+import { NOTE_CONTENT_MAX_LENGTH } from '../../constants';
 import { Layout, Icon, Button, Input, Form, notification } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './NewNote.css';
@@ -103,6 +104,11 @@ class Patient_newnote extends Component {
             return {
                 validateStatus: 'error',
                 errorMsg: 'Content must not be blank'
+            };
+        } else if (content.length > NOTE_CONTENT_MAX_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Content is too long (Only ${NOTE_CONTENT_MAX_LENGTH} characters allowed.)`
             };
         } else {
             return {

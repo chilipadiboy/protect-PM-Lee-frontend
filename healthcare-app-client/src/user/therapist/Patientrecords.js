@@ -64,6 +64,8 @@ class Therapist_patientrecords extends Component {
           isLoading: true
       });
 
+      console.log(getAllTherapistNotes(pat_nric));
+
       getAllTherapistNotes(pat_nric)
       .then((response) => {
 
@@ -91,17 +93,15 @@ class Therapist_patientrecords extends Component {
 
           for (var i = 0; i < mydata.length; i++) {
               const currentid = mydata[i].noteID;
-              const checkNotePermissionRequest = {
-                  noteID: currentid,
-                  patientNric: this.state.patient.nric
-              };
 
               const index = i;
               const final_count = mydata.length - 1;
 
-              checkNotePermission(checkNotePermissionRequest)
+              console.log(mydata);
+              console.log(checkNotePermission(currentid));
+              checkNotePermission(currentid)
               .then(response => {
-
+                  console.log(response);
                   if (response.message.includes("does NOT")) {
                     this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
                   } else {
@@ -115,7 +115,19 @@ class Therapist_patientrecords extends Component {
                   }
               }).catch(error => {
                   console.log(error);
-                  this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
+                  if (error.message.includes("does NOT")) {
+                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
+                  } else {
+                    this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: true} }}) });
+                  }
+
+                  if (index == final_count) {
+                    this.setState({
+                        permissionadded: true
+                    });
+                  }
+                  // console.log(error);
+                  // this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
               });
           }
 

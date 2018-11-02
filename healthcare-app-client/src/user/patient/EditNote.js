@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
 import { updateNote, getMyNotes } from '../../util/APIUtils';
+import { NOTE_CONTENT_MAX_LENGTH } from '../../constants';
 import { Layout, Icon, Button, Input, Form, notification } from 'antd';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './EditNote.css';
@@ -117,6 +118,11 @@ class Patient_editnote extends Component {
             return {
                 validateStatus: 'error',
                 errorMsg: 'Content must not be blank'
+            };
+        } else if (content.length > NOTE_CONTENT_MAX_LENGTH) {
+            return {
+                validationStatus: 'error',
+                errorMsg: `Content is too long (Only ${NOTE_CONTENT_MAX_LENGTH} characters allowed.)`
             };
         } else {
             return {
