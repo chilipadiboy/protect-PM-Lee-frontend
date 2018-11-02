@@ -24,22 +24,12 @@ These two hash values (if sent over to the tag) are encrypted with the symmetric
 
 1. The attacker, without the server's and tag's private key, cannot be able to disguise as a legitimate server / tag as the digital signature is verified first.
 
-/*shift down*/
-### Login:
-The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
-
-Zhiyuan TBC
-
-### Security Claims:
-Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
-
-Zhiyuan TBC
-
 ### Health records:
 Jiahui TBC
 
 ### Security Claims:
 Jiahui TBC
+
 ---
 
 ## Subsystems 2 to 4 Overview
@@ -50,8 +40,13 @@ Subsystems 2 to 4 support the following functionalities with the following param
     1. NRIC number
     1. Password
     1. Role
+    
+### Login:
+The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
 ### Security Claims:
+Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys. This eliminates the risk of malicious parties intercepting and giving incorrect public keys if the keys were to be transmitted instead.
+
 **Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page as user inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
 
 ## Security for Client & Server Communication
@@ -144,7 +139,7 @@ This subsystem will support the functionality of retrieving anonymous data (impl
 The minimum, average and maximum values of `Age` & `Reading` will be automatically generated. Furthermore, with each retrieval, the order of the data will be randomised to make it harder to re-identify each person through piecing different parts of the data.
 
 ### Security Claims:
-Hongkai TBC
+Zhiyuan TBC
 
 ---
 
