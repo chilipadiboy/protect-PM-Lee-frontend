@@ -211,7 +211,7 @@ class Therapist_uploadrecord extends Component {
                                          message: 'Healthcare App',
                                          description: "Record created!",
                                      });
-                                     context.props.history.push("/all");
+                                     context.props.history.push("/mypatients/" + context.state.patientIC.value);
                                     }).catch(error => {
                                      context.setState({isLoading: false});
                                      notification.error({
