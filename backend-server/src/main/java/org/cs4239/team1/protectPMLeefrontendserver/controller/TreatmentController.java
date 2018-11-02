@@ -80,7 +80,7 @@ public class TreatmentController {
     //List ALL treatments
     @GetMapping("/getAll/")
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
-        return treatmentService.getAllTreatments(0, 30);
+        return treatmentService.getAllTreatments(currentUser);
     }
 
     //Therapist get list of all his patients
