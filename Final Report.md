@@ -98,13 +98,13 @@ With each retrieval, the order of the data will be randomised to make it harder 
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
-Jiahui TBC
+We will be validating the file uploaded using the 2FA tag.
 
 ---
 
 ## Security claims:
 1. A **replay attack** on a tag is not possible.
-    1. We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks.
+    1. We have implemented the use of a nonce that is always incrementing so as to prevent replay attacks. We have also set a daily limit on the number of nonces for each user - 30.
 
 1. **Sniffing the communication** to get the hash of the nonce and the file data hash is not possible.
     1. These two hash values (if sent over to the tag) are encrypted with the symmetric key. The IV is also always randomised so even if the server sends back the same hash of file data, the MITM is unable to see that it is the same hash.
@@ -122,10 +122,13 @@ Jiahui TBC
     1. The cookie is a HttpOnly cookie so no javascript code can access it.
 
 1. An attacker will be unable to do **Cross-Site Request Forgery (CSRF)** making use of the cookie and riding on the user session.
-    1. This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites.
+    1. This is because our cookie has the SameSite=Strict attribute. Thus, the cookie will not be sent along with requests initiated by third party websites. Moreover, the server also checks for a sessionId value in the HTPP request header to be equal to the value stored in the JWT stored within the cookie. Thus, a legitimate request would have to comprise of both the right matching value in the HTTP request header and the cookie.
 
-1. The user can only make use of our system when **HTTPS** is enabled.
-    1. This is because our cookie has the Secure attribute enabled, which means that the cookie can only be sent over a HTTPS connection.
+1. The user can only login and make meaningful use of our system when **HTTPS** is enabled.
+    1. This is because our cookie has the Secure attribute enabled, which means that the browser will only send the cookie over a HTTPS connection. Thus, when there is no HTTPS, the user will not be authenticated by the server as the cookie is not sent over.
+
+1. The user will not be able to retrieve the JWT value in the cookie.
+   1. What we store in our cookie is encrypted so the user will be unable to see what exactly is the value being stored in the cookie.
 
 1. Data transfer between servers are secure and not susceptible to Man-in-the-Middle attacks.
     1. The transfer stream will be restricted to the use of HTTPS so that traffic towards our database is encrypted and not susceptible to sniffing from an external party, thus preserving **confidentiality**. In addition, the data will be digitally signed using the HMAC algorithm embedded within HTTPS during upload. The digital signature can then be checked at the receiving end of the upload channel to detect whether the message has been deliberately modified, thus preserving **integrity**.
