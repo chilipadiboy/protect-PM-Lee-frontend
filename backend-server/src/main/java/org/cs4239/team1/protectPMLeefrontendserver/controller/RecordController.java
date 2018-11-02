@@ -235,20 +235,6 @@ public class RecordController {
         return recordService.createRecordWithSignature(recordRequest, fileName, signature);
     }
 
-    //Get all records
-    @GetMapping
-    public PagedResponse<Record> getRecords(@CurrentUser User currentUser) {
-        return recordService.getAllRecords(currentUser);
-    }
-
-
-    //Get specific records by RecordID
-    @GetMapping("/recordid/{recordId}")
-    public Record getRecordByRecordID(@CurrentUser User currentUser,
-                                              @PathVariable Long recordId) {
-        return recordService.getRecordByRecordID(recordId);
-    }
-
     @GetMapping("/therapist/")
     public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser) {
         return recordService.getRecordsCreatedBy(currentUser);

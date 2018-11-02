@@ -57,21 +57,6 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-    public PagedResponse<Record> getAllRecords(User currentUser) {
-
-        // Retrieve Records
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findAll(pageable);
-
-        if(records.getNumberOfElements() == 0) {
-            return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
-                    records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-        }
-
-        return new PagedResponse<>(records.getContent(), records.getNumber(),
-                records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-    }
-
     @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
 
@@ -141,14 +126,7 @@ public class RecordService {
                 signature));
     }
 
-    //TODO Do we still need this method? Or who will call this method
-    public Record getRecordByRecordID(Long recordId) {
-
-        return recordRepository.findByRecordID(recordId).orElseThrow(
-                () -> new ResourceNotFoundException("Record", "id", recordId));
-    }
-
-    @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST')")
+    @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST') or hasRole('ADMINISTRATOR') or hasRole('EXTERNAL_PARTNER')")
     public Permission grantPermission(PermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
