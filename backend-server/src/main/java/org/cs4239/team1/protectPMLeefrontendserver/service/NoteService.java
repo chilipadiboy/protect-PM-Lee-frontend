@@ -156,7 +156,7 @@ public class NoteService {
         boolean isVisibleToPatient = true;
 
         // Retrieve Records
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
         Page<Note> notes = noteRepository.findByPatientAndCreatorNotAndIsVisibleToPatient(currentUser, currentUser, isVisibleToPatient, pageable);
 
         if(notes.getNumberOfElements() == 0) {

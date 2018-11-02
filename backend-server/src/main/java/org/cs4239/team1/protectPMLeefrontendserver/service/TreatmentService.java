@@ -16,7 +16,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponseWithName;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
-import org.cs4239.team1.protectPMLeefrontendserver.util.AppConstants;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
 import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;

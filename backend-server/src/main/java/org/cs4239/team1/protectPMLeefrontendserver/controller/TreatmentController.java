@@ -93,7 +93,7 @@ public class TreatmentController {
     @GetMapping("/getTherapists/")
     public PagedResponse<TreatmentResponseWithName> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
-        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST, 0, 30);
+        return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST);
     }
 
     @GetMapping("/getUserSummary/{nric}")

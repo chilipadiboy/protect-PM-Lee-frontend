@@ -212,11 +212,11 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('PATIENT')")
-    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User currentUser) {
+    public PagedResponse<RecordResponseWithTherapistIdentifier> getGivenRecords(User patient) {
 
         // Retrieve all records belong to the given nric
         Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
-        Page<Permission> permission = permissionRepository.findByPatientNric(nric, pageable);
+        Page<Permission> permission = permissionRepository.findByPatientNric(patient.getNric(), pageable);
 
         if (permission.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), permission.getNumber(),
