@@ -1,14 +1,21 @@
 package org.cs4239.team1.protectPMLeefrontendserver;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
@@ -16,8 +23,8 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
-import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.NoteRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
@@ -74,10 +81,84 @@ public class ProtectPmLeeFrontendServerApplication {
 		SpringApplication.run(ProtectPmLeeFrontendServerApplication.class, args);
 	}
 
+	private void readUsers() {
+	    try {
+            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients.csv")).forEach(line -> {
+                String[] values = line.split(",");
+                userRepository.save(new User(values[5],
+                        values[1],
+                        values[3],
+                        values[8],
+                        values[4],
+                        values[7],
+                        Integer.valueOf(values[6]),
+                        Gender.create(values[2]),
+                        passwordEncoder.encode(values[9]),
+                        values[10],
+                        "",
+                        new HashSet<>(Collections.singletonList(Role.create(values[11])))));
+            });
+
+            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Therapists.csv")).forEach(line -> {
+                String[] values = line.split(",");
+                userRepository.save(new User(values[5],
+                        values[1],
+                        values[3],
+                        values[8],
+                        values[4],
+                        values[7],
+                        Integer.valueOf(values[6]),
+                        Gender.create(values[2]),
+                        passwordEncoder.encode(values[9]),
+                        values[10],
+                        "",
+                        new HashSet<>(Collections.singletonList(Role.create(values[11])))));
+            });
+
+            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients_Therapists.csv")).forEach(line -> {
+                String[] values = line.split(",");
+                User patient = userRepository.findByNric(values[1])
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "nric", values[1]));
+                User therapist = userRepository.findByNric(values[2])
+                        .orElseThrow(() -> new ResourceNotFoundException("User", "nric", values[2]));
+                treatmentRepository.save(new Treatment(therapist, patient, Instant.now().plus(Duration.ofDays(20))));
+            });
+
+            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Patients_Records.csv")).forEach(line -> {
+                String[] values = line.split("\t");
+                if (values.length == 6) {
+                    recordRepository.save(new Record(Type.create(values[2]), Subtype.create(values[3]), "foo", values[5], values[1], ""));
+                } else {
+                    recordRepository.save(new Record(Type.create(values[2]), Subtype.create(values[3]), "foo", "", values[1], ""));
+                }
+            });
+
+            Files.lines(Paths.get("/Users/zhiyuan/protect-PM-Lee-frontend/Mock Data/Secret data.csv")).forEach(line -> {
+                String[] values = line.split(",");
+                String[] roles = values[12].split("\\|");
+                List<Role> roleList = Arrays.stream(roles).map(Role::create).collect(Collectors.toList());
+                userRepository.save(new User(values[5],
+                        values[1],
+                        values[3],
+                        values[8],
+                        values[4],
+                        values[7],
+                        Integer.valueOf(values[6]),
+                        Gender.create(values[2]),
+                        passwordEncoder.encode(values[9]),
+                        values[10],
+                        "",
+                        new HashSet<>(roleList)));
+            });
+        } catch (IOException ioe) {
+	        throw new AssertionError("Should not happen.", ioe);
+        }
+    }
+
 
 	@Bean
 	public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-
+        readUsers();
 		User admin = new User("S1234567A",
 				"admin",
 				"admin@gmail.com",

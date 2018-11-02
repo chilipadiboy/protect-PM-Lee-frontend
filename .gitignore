@@ -6,3 +6,5 @@ backend-server/.gradle/*
 backend-server/out/*
 backend-server/.idea
 backend-server/build/*
+
+Mock Data/Secret data.csv

@@ -80,7 +80,7 @@ public class User extends DateAudit implements UserDetails {
 
     @NonNull
     @Min(0)
-    @Max(100)
+    @Max(120)
     private int age;
 
     @NonNull
