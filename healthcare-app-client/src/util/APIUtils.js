@@ -197,7 +197,6 @@ export function verifyTagSignature(loginRequest) {
     });
 }
 
-<<<<<<< HEAD
 export function getServerFileDataSignature(file) {
     return sendFile({
         url: API + "/file/getSignature",
@@ -206,17 +205,6 @@ export function getServerFileDataSignature(file) {
     });
 }
 
-
-export function signup(signupRequest) {
-    return request({
-        url: API + "/auth/signup",
-        method: 'POST',
-        body: JSON.stringify(signupRequest)
-    });
-}
-
-=======
->>>>>>> Add API utils for patient
 export function logout() {
     return request({
         url: API + "/user/logout",
@@ -458,7 +446,6 @@ export function unassign(nrics) {
     });
 }
 
-<<<<<<< HEAD
 export function getAnonymousData(data) {
     return request({
         url: API + "/researcher/getAnonymousData",
@@ -474,7 +461,3 @@ export function externalUpload(type, file) {
         body: JSON.stringify(file)
     });
 }
-=======
-// External partner API calls
-// Researcher API calls
->>>>>>> Add API utils for patient

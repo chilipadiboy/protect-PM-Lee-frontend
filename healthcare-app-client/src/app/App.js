@@ -146,7 +146,6 @@ class App extends Component {
                   <Switch>
                     <Route exact path="/" component={Home}></Route>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
-                    <PrivateRoute authenticated={this.state.isAuthenticated} path="/mfa" component={MFA}></PrivateRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/editnote/:id" component={Patient_editnote}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/newnote" component={Patient_newnote}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata" component={Patient_mydata}></PatientRoute>
