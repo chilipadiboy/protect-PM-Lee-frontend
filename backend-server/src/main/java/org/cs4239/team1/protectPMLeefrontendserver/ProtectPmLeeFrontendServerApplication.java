@@ -153,7 +153,7 @@ public class ProtectPmLeeFrontendServerApplication {
                         Gender.create(values[2]),
                         passwordEncoder.encode(values[9]),
                         values[10],
-                        "",
+                        values[11],
                         new HashSet<>(roleList)));
             });
         } catch (IOException ioe) {
