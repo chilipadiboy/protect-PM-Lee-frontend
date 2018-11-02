@@ -3,6 +3,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.controller;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -85,15 +86,35 @@ public class ResearcherController {
         Gender requestedGender = Gender.create(request.getGender());
         Subtype requestedSubtype = Subtype.create(request.getSubtype());
 
-        userRepository.findAll().stream()
-                .filter(user -> requestedLocation == Location.ALL
-                        || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
-                .filter(user -> requestedAge == Age.ALL || requestedAge.isInRange(user.getAge()))
-                .filter(user -> requestedGender == Gender.ALL || requestedGender.equals(user.getGender()))
-                .forEach(user -> recordRepository.findByPatientIC(user.getNric()).stream()
-                        .filter(record -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(record.getSubtype()))
-                        .forEach(record -> data.add(user.getPostalCode().substring(0, 2), String.valueOf(user.getAge()),
-                                user.getGender().toString(), value.getValueSupplier().apply(record))));
+        if (requestedSubtype.equals(Subtype.BLOOD_PRESSURE)) {
+            userRepository.findAll().stream()
+                    .filter(user -> requestedLocation == Location.ALL
+                            || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
+                    .filter(user -> requestedAge == Age.ALL || requestedAge.isInRange(user.getAge()))
+                    .filter(user -> requestedGender == Gender.ALL || requestedGender.equals(user.getGender()))
+                    .forEach(user -> {
+                        Record record = recordRepository.findByPatientIC(user.getNric()).stream()
+                                .filter(r -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(r.getSubtype()))
+                                .sorted(Comparator.comparing(Record::getCreatedAt))
+                                .reduce((first, second) -> second)
+                                .orElse(null);
+                        if (record == null) {
+                            return;
+                        }
+                        data.add(user.getPostalCode().substring(0, 2), String.valueOf(user.getAge()),
+                                user.getGender().toString(), value.getValueSupplier().apply(record));
+                    });
+        } else {
+            userRepository.findAll().stream()
+                    .filter(user -> requestedLocation == Location.ALL
+                            || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
+                    .filter(user -> requestedAge == Age.ALL || requestedAge.isInRange(user.getAge()))
+                    .filter(user -> requestedGender == Gender.ALL || requestedGender.equals(user.getGender()))
+                    .forEach(user -> recordRepository.findByPatientIC(user.getNric()).stream()
+                            .filter(record -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(record.getSubtype()))
+                            .forEach(record -> data.add(user.getPostalCode().substring(0, 2), String.valueOf(user.getAge()),
+                                    user.getGender().toString(), value.getValueSupplier().apply(record))));
+        }
 
         return data;
     }
