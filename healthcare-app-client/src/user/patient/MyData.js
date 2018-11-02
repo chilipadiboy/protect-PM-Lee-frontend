@@ -45,7 +45,7 @@ class Patient_mydata extends Component {
       const mytherapistoptions = [];
 
       for (var i = 0; i < this.state.mytherapists.length; i++) {
-          mytherapistoptions.push(<Option key={rec_id} value={this.state.mytherapists[i]}>{this.state.mytherapists[i]}</Option>);
+          mytherapistoptions.push(<Option ref={rec_id} value={this.state.mytherapists[i].nric}>{this.state.mytherapists[i].name}</Option>);
       }
 
       return mytherapistoptions;
@@ -59,12 +59,14 @@ class Patient_mydata extends Component {
 
         getAllMyTherapists()
         .then(response => {
-            console.log(response);
             const mytherapists = [];
             const mytherapistoptions = [];
 
             for (var i = 0; i < response.content.length; i++) {
-                mytherapists[i] = response.content[i].treatmentId.therapist;
+                const therapistnric = response.content[i].treatmentId.therapist;
+                const therapistname = response.content[i].therapistName;
+                mytherapists[i] = { nric: therapistnric,
+                                    name: therapistname };
             }
 
             this.setState({
@@ -224,7 +226,7 @@ class Patient_mydata extends Component {
     }
 
     handleSelect(therapist_nric, option) {
-      const record_id = option.key;
+      const record_id = option.ref;
 
       const recordPermissionRequest = {
           recordID: record_id,
@@ -244,7 +246,7 @@ class Patient_mydata extends Component {
     }
 
     handleDeselect(therapist_nric, option) {
-      const record_id = option.key;
+      const record_id = option.ref;
 
       const revokePermissionRequest = {
           recordID: record_id,

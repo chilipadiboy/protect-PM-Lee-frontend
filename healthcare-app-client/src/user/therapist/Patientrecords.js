@@ -89,6 +89,12 @@ class Therapist_patientrecords extends Component {
               othernotes: otherdata
           });
 
+          if (mydata.length == 0) {
+              this.setState({
+                  permissionadded: true
+              });
+          }
+
           for (var i = 0; i < mydata.length; i++) {
               const currentid = mydata[i].noteID;
 
@@ -97,11 +103,13 @@ class Therapist_patientrecords extends Component {
 
               checkNotePermission(currentid)
               .then(response => {
+
                   if (response.message.includes("does NOT")) {
                     this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
                   } else {
                     this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: true} }}) });
                   }
+
 
                   if (index == final_count) {
                     this.setState({
@@ -109,7 +117,6 @@ class Therapist_patientrecords extends Component {
                     });
                   }
               }).catch(error => {
-                  console.log(error);
                   this.setState({ mynotes: update(this.state.mynotes, {[index]: { defaultPermission: {$set: false} }}) });
               });
           }
