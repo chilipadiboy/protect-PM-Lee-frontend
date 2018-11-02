@@ -59,7 +59,7 @@ public class TreatmentService {
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('EXTERNAL_PARTNER')")
     public Treatment assignTherapistPatient(TreatmentRequest treatmentRequest){
 
         User therapist = userRepository.findByNric(treatmentRequest.getTherapistNric())
@@ -84,7 +84,7 @@ public class TreatmentService {
         return treatmentRepository.save(treatment);
     }
 
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    @PreAuthorize("hasRole('ADMINISTRATOR') or hasRole('EXTERNAL_PARTNER')")
     public void stopTherapistPatient(EndTreatmentRequest endTreatmentRequest){
 
         User therapist = userRepository.findByNric(endTreatmentRequest.getTherapistNric())
