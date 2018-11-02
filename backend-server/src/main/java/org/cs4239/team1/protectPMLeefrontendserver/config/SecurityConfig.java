@@ -125,6 +125,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("EXTERNAL_PARTNER")
                     .antMatchers("/api/researcher/getAnonymousData")
                         .hasRole("RESEARCHER")
+                    .antMatchers("/api/file/download/*")
+                        .hasAnyRole("RESEARCHER","THERAPIST")
                     .anyRequest()
                         .authenticated();
 

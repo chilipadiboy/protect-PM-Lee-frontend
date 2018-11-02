@@ -24,6 +24,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.storage.LogsStorageProperties
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -50,6 +51,7 @@ public class FileStorageService {
         }
     }
 
+    @PreAuthorize("hasRole('THERAPIST')")
     public String storeFile(MultipartFile file, String nric) throws FileUploadException {
         if (!ALLOWED_FILE_TYPES.contains(FilenameUtils.getExtension(file.getOriginalFilename()))) {
             throw new FileUploadException("Invalid file type.");
@@ -68,6 +70,7 @@ public class FileStorageService {
         return distinctCleanedFileName;
     }
 
+    @PreAuthorize("hasRole('THERAPIST') or hasRole('RESEARCHER')")
     public Resource loadFileAsResource(String fileName) {
         try {
             Path filePath = fileStorageLocation.resolve(fileName).normalize();
@@ -82,28 +85,12 @@ public class FileStorageService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public Resource loadLogs() {
         try {
             return new UrlResource(logsStorageLocation.toUri());
         } catch (MalformedURLException ex) {
             throw new AssertionError("Logs should exist.");
-        }
-    }
-
-    /**
-     * Assumes that there are no folders in {@code fileStorageLocation}.
-     */
-    public List<String> loadAllFilePaths() {
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**.png");
-
-        try {
-            return Files.walk(fileStorageLocation)
-                    .map(Path::getFileName)
-                    .filter(matcher::matches)
-                    .map(Path::toString)
-                    .collect(Collectors.toList());
-        } catch (IOException ioe) {
-            throw new FileStorageException("Error in loading files");
         }
     }
 }

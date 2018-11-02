@@ -57,6 +57,7 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
+
     @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
 
@@ -126,7 +127,9 @@ public class RecordService {
                 signature));
     }
 
+
     @PreAuthorize("hasRole('PATIENT') or hasRole('THERAPIST') or hasRole('ADMINISTRATOR') or hasRole('EXTERNAL_PARTNER')")
+
     public Permission grantPermission(PermissionRequest permissionRequest, User currentUser){
 
         Record record = recordRepository.findByRecordID(permissionRequest.getRecordID()).orElseThrow(
