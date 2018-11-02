@@ -224,7 +224,7 @@ public class RecordController {
             throw new ConstraintViolationException(constraintViolations);
         }
     }
-    
+
     private Record createRecord(RecordRequest recordRequest, MultipartFile file) throws FileUploadException {
         String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
         return recordService.createRecord(recordRequest, fileName);

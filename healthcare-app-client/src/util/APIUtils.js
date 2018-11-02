@@ -197,11 +197,11 @@ export function verifyTagSignature(loginRequest) {
     });
 }
 
-export function signup(signupRequest) {
-    return request({
-        url: API + "/auth/signup",
+export function getServerFileDataSignature(file) {
+    return sendFile({
+        url: API + "/file/getSignature",
         method: 'POST',
-        body: JSON.stringify(signupRequest)
+        body: file
     });
 }
 
@@ -223,21 +223,33 @@ export function getCurrentUser() {
     });
 }
 
-export function getUserProfile(nric) {
+// Patient API calls
+export function getAllMyTherapists() {
     return request({
-        url: API + "/users/" + nric,
+        url: API + "/treatments/getTherapists/",
         method: 'GET'
     });
 }
 
-export function createRecord(newRecord, file) {
-    const formData = new FormData();
-    formData.append("recordRequest", JSON.stringify(newRecord))
-    formData.append("file", file, file.name)
-    return create({
-        url: API + "/records/create/",
+export function getAllRecords() {
+    return request({
+        url: API + "/records/",
+        method: 'GET'
+    });
+}
+
+export function getMyRecords() {
+    return request({
+        url: API + "/records/patient/",
+        method: 'GET'
+    });
+}
+
+export function giveTherapistPermission(req) {
+    return request({
+        url: API + "/permissions/permit/",
         method: 'POST',
-        body: formData
+        body: JSON.stringify(req)
     });
 }
 
@@ -264,39 +276,105 @@ export function verifyCreateRecordTagSignature(newRecord, file, reqToSend) {
     });
 }
 
+export function getGivenPermissions() {
+      return request({
+          url: API + "/permissions/patient/given/",
+          method: 'GET'
+      });
+}
 
-export function getAllRecords() {
+export function removeTherapistPermission(req) {
     return request({
-        url: API + "/records/",
+        url: API + "/permissions/revoke/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
+export function getMyNotes() {
+    return request({
+        url: API + "/notes/getOwn/",
         method: 'GET'
     });
 }
 
-export function getUserRecords(nric, role) {
+export function getTherapistNotes() {
     return request({
-        url: API + "/records/" + role + "/" + nric,
+        url: API + "/notes/getPermitted/",
         method: 'GET'
     });
 }
 
-export function getAllUsers() {
+
+// Therapist API calls
+export function getPatientProfile(nric) {
     return request({
-        url: API + "/admin/showAllUsers",
+        url: API + "/treatments/getUserSummary/" + nric,
         method: 'GET'
     });
 }
 
-export function getLogs() {
-    return requestLogs({
-        url: API + "/admin/logs/",
+export function createRecord(newRecord, file) {
+    const formData = new FormData();
+    formData.append("recordRequest", JSON.stringify(newRecord))
+    formData.append("file", file, file.name)
+    return create({
+        url: API + "/records/create/",
+        method: 'POST',
+        body: formData
+    });
+}
+
+export function getPatientPermittedRecords(pat_nric) {
+    return request({
+        url: API + "/records/therapist/patient/" + pat_nric,
         method: 'GET'
     });
 }
 
-export function deleteUser(nric) {
+export function getAllTherapistNotes(pat_nric) {
     return request({
-        url: API + "/admin/delete/" + nric,
+        url: API + "/notes/getPatient/" + pat_nric + "/",
         method: 'GET'
+    });
+}
+
+export function setNotePermission(req) {
+    return request({
+        url: API + "/notes/notePermission/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
+export function checkNotePermission(note_id) {
+    return request({
+        url: API + "/notes/checkNoteIdConsent/" + note_id + "/",
+        method: 'GET'
+    });
+}
+
+export function getPatients() {
+    return request({
+        url: API + "/treatments/getPatients/",
+        method: 'GET'
+    });
+}
+
+// Therapist and Patient API calls
+export function createNote(req) {
+    return request({
+        url: API + "/notes/create/",
+        method: 'POST',
+        body: JSON.stringify(req)
+    });
+}
+
+export function updateNote(req) {
+    return request({
+        url: API + "/notes/update/",
+        method: 'POST',
+        body: JSON.stringify(req)
     });
 }
 
@@ -317,6 +395,36 @@ export function downloadVideo(filename) {
 export function downloadImg(filename) {
     return requestImg({
         url: API + "/file/download/" + filename,
+        method: 'GET'
+    });
+}
+
+// Admin API calls
+export function signup(signupRequest) {
+    return request({
+        url: API + "/auth/signup",
+        method: 'POST',
+        body: JSON.stringify(signupRequest)
+    });
+}
+
+export function getAllUsers() {
+    return request({
+        url: API + "/admin/showAllUsers",
+        method: 'GET'
+    });
+}
+
+export function getLogs() {
+    return requestLogs({
+        url: API + "/admin/logs/",
+        method: 'GET'
+    });
+}
+
+export function deleteUser(nric) {
+    return request({
+        url: API + "/admin/delete/" + nric,
         method: 'GET'
     });
 }
@@ -342,5 +450,13 @@ export function getAnonymousData(data) {
         url: API + "/researcher/getAnonymousData",
         method: 'POST',
         body: JSON.stringify(data)
+    });
+}
+
+export function externalUpload(type, file) {
+    return request({
+        url: API + "/external/upload/csv",
+        method: 'POST',
+        body: JSON.stringify(file)
     });
 }

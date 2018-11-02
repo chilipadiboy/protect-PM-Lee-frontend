@@ -87,10 +87,11 @@ public class NoteController {
         Note note = noteService.checkNoteIdConsent(noteID, currentUser);
 
         if (note.isVisibleToPatient()){
-            return new ResponseEntity(new ApiResponse(true, "Patient has permission to view Note_" + note.getNoteID()), HttpStatus.FOUND);
-        }else{
-            return new ResponseEntity(new ApiResponse(true, "Patient does NOT have permission to view Note_" + note.getNoteID()), HttpStatus.FOUND);
+            return new ResponseEntity(new ApiResponse(true, "Patient has permission to view Note_" + note.getNoteID()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity(new ApiResponse(true, "Patient does NOT have permission to view Note_" + note.getNoteID()), HttpStatus.OK);
         }
+
     }
 
     @GetMapping("/getPatient/{patientNric}/")

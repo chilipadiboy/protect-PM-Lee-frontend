@@ -11,14 +11,20 @@ import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
 import CreateRecord from '../user/records/CreateRecord';
-import MyRecords from '../user/records/MyRecords';
 import AllRecords from '../user/records/AllRecords';
 import DownloadVideo from '../user/download/DownloadVideo';
 import DownloadImage from '../user/download/DownloadImage';
 import DownloadFile from '../user/download/DownloadFile';
 import DownloadCSV from '../user/download/DownloadCSV';
 import AppHeader from '../common/AppHeader';
-// import Therapist_mypatients from '../user/therapist/Mypatients';
+import Therapist_mypatients from '../user/therapist/Mypatients';
+import Therapist_patientrecords from '../user/therapist/Patientrecords';
+import Therapist_newnote from '../user/therapist/NewNote';
+import Therapist_editnote from '../user/therapist/EditNote';
+import Therapist_uploadrecord from '../user/therapist/UploadRecord';
+import Patient_mydata from '../user/patient/MyData';
+import Patient_newnote from '../user/patient/NewNote';
+import Patient_editnote from '../user/patient/EditNote';
 import Administrator_logs from '../user/administrator/Logs';
 import Administrator_link_users from '../user/administrator/Linkusers';
 import Administrator_manage_users from '../user/administrator/Manageusers';
@@ -139,9 +145,10 @@ class App extends Component {
               <Content className="app-content">
                 <div className="container">
                   <Switch>
-                    <Route exact path="/" component={Home}>
-                    </Route>
-                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/records/:role/:nric" component={MyRecords}></PatientRoute>
+                    <Route exact path="/" component={Home}></Route>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/editnote/:id" component={Patient_editnote}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata/newnote" component={Patient_newnote}></PatientRoute>
+                    <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mydata" component={Patient_mydata}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></PatientRoute>
@@ -165,13 +172,15 @@ class App extends Component {
                   <Switch>
                     <Route exact path="/" component={Home}>
                     </Route>
-                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/create" component={CreateRecord}></TherapistRoute>
-                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/all" component={AllRecords}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric/uploadrecord" component={Therapist_uploadrecord}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadVideo/:filename" component={DownloadVideo}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></TherapistRoute>
                     <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></TherapistRoute>
-                    <Route path="/chart" component={Chart}></Route>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric/editnote/:id" component={Therapist_editnote}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric/newnote" component={Therapist_newnote}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients/:nric" component={Therapist_patientrecords}></TherapistRoute>
+                    <TherapistRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/mypatients" component={Therapist_mypatients}></TherapistRoute>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>

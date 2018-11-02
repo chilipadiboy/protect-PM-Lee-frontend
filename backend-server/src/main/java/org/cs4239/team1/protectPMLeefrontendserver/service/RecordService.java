@@ -214,7 +214,6 @@ public class RecordService {
 
     @PreAuthorize("hasRole('THERAPIST')")
     public PagedResponse<Record> getRecordsPermittedByPatient(User currentUser, String patientNric) {
-
         // Retrieve all records that matches the user and patient Nric pair
         Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
         Page<Permission> permission = permissionRepository.findByUserAndPatientNric(currentUser, patientNric, pageable);
