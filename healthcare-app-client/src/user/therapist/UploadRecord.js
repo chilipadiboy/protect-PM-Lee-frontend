@@ -75,6 +75,9 @@ class Therapist_uploadrecord extends Component {
       data: {
         startData: secondData[value],
         nextData: secondData[value][0],
+      },
+      subtype: {
+        value: secondData[value][0]
       }
     });
   }
@@ -106,7 +109,7 @@ class Therapist_uploadrecord extends Component {
                 message: 'Healthcare App',
                 description: "Record created!",
             });
-            this.props.history.push(`/mypatients/ + ${this.state.patientIC.value}`);
+            this.props.history.push("/mypatients/" + this.state.patientIC.value);
         }).catch(error => {
             notification.error({
                 message: 'Healthcare App',
@@ -130,7 +133,7 @@ class Therapist_uploadrecord extends Component {
              type: this.state.type.value,
              subtype: this.state.subtype.value,
              title: this.state.title.value,
-             patientIC: encodeURIComponent(this.state.patientIC.value)
+             patientIC: this.state.patientIC.value
          };
          const uploadedFile = this.state.selectedFileList[0];
          let patientNric;
