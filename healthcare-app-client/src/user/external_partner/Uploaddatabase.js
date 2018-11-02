@@ -17,7 +17,6 @@ class External_upload_database extends Component {
 
   handleChange = (info) => {
     let fileList = info.fileList;
-    console.log(this.state.filelist)
 
     fileList = fileList.map((file) => {
       if (file.response) {
@@ -36,10 +35,9 @@ class External_upload_database extends Component {
 
   customRequest = ({ onSuccess, onError, file }) => {
       setTimeout(() => {
-          externalUpload(file.type,file)
+          externalUpload(file)
             .then(() => {
               onSuccess(null, file);
-              console.log("here")
             })
             .catch(() => {
               console.log("error")
@@ -49,13 +47,22 @@ class External_upload_database extends Component {
 
   render() {
     const { Header, Content } = Layout;
+    const props = {
+      action: API + "/external/upload/users",
+      headers: {
+        SessionId: localStorage.getItem(AUTH_TOKEN),
+        enctype: "multipart/form-data"
+      },
+      onChange: this.handleChange,
+      withCredentials: "include",
+    };
     return (
       <Layout className="layout">
       <Header>
       <div className="title">Upload Database</div>
       </Header>
       <Content>
-      <Upload customRequest={this.customRequest} fileList={this.state.filelist}>
+      <Upload {...props} fileList={this.state.filelist}>
         <Button>
           <Icon type="upload" /> Upload
         </Button>

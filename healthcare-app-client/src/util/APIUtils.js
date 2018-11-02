@@ -356,8 +356,7 @@ export function getAnonymousData(data) {
 
 export function externalUpload(type, file) {
     return request({
-        url: API + "/external/upload/csv",
-        method: 'POST',
-        body: JSON.stringify(file)
+        url: API + "/external/upload/users" + file,
+        method: 'POST'
     });
 }
