@@ -3,8 +3,10 @@ package org.cs4239.team1.protectPMLeefrontendserver.util;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.NoteResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponseWithName;
 
 public class ModelMapper {
 
@@ -28,6 +30,16 @@ public class ModelMapper {
                 permission.getRecord().getTitle(),
                 permission.getRecord().getDocument(),
                 permission.getUser().getNric());
+    }
+
+    public static TreatmentResponseWithName mapTreatmmentToTreatmentResponseWithName(Treatment treatment) {
+        return new TreatmentResponseWithName(
+                treatment.getTreatmentId(),
+                treatment.getTherapist().getName(),
+                treatment.getPatient().getNric(),
+                treatment.getPatient().getName(),
+                treatment.getEndDate()
+        );
     }
 
     public static NoteResponse mapNotetoNoteResponce(Note note) {
