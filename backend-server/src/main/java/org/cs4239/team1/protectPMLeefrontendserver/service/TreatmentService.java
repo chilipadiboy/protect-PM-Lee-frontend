@@ -2,6 +2,7 @@ package org.cs4239.team1.protectPMLeefrontendserver.service;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
@@ -12,9 +13,11 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndTreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponseWithName;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
+import org.cs4239.team1.protectPMLeefrontendserver.util.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +102,7 @@ public class TreatmentService {
     }
 
     @PreAuthorize("hasRole('THERAPIST') or hasRole('PATIENT')")
-    public PagedResponse<Treatment> getUsers(User currentUser, Role role) {
+    public PagedResponse<TreatmentResponseWithName> getUsers(User currentUser, Role role) {
 
         Pageable pageable = PageRequest.of(0, 60, Sort.Direction.DESC, "createdAt");
 
@@ -110,7 +113,9 @@ public class TreatmentService {
                     treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
         }
 
-        return new PagedResponse<>(treatments.getContent(), treatments.getNumber(),
+        List<TreatmentResponseWithName> treatmentResponseWithNames = treatments.map(ModelMapper::mapTreatmmentToTreatmentResponseWithName).getContent();
+
+        return new PagedResponse<>(treatmentResponseWithNames, treatments.getNumber(),
                 treatments.getSize(), treatments.getTotalElements(), treatments.getTotalPages(), treatments.isLast());
     }
 

@@ -9,12 +9,15 @@ import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
+import org.cs4239.team1.protectPMLeefrontendserver.model.TreatmentId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndTreatmentRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.PagedResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentRequest;
+import org.cs4239.team1.protectPMLeefrontendserver.payload.TreatmentResponseWithName;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.UserSummary;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.TreatmentService;
@@ -39,6 +42,9 @@ public class TreatmentController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TreatmentRepository treatmentRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
 
@@ -79,32 +85,28 @@ public class TreatmentController {
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
-    public PagedResponse<Treatment> getPatients(@CurrentUser User currentUser) {
+    public PagedResponse<TreatmentResponseWithName> getPatients(@CurrentUser User currentUser) {
         return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
-    public PagedResponse<Treatment> getTherapists(@CurrentUser User currentUser) {
+    public PagedResponse<TreatmentResponseWithName> getTherapists(@CurrentUser User currentUser) {
         String type = "getTherapists";
         return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST);
     }
 
     @GetMapping("/getUserSummary/{nric}")
     public UserSummary getUserSummary(@CurrentUser User currentUser, @PathVariable(value = "nric") String nric) {
-        User user = userRepository.findByNric(nric)
+        User patient = userRepository.findByNric(nric)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
 
-        if (!treatmentService.getUsers(currentUser, Role.ROLE_PATIENT).getContent()
-                .stream()
-                .map(Treatment::getPatient)
-                .collect(Collectors.toList())
-                .contains(user)) {
+        if (treatmentRepository.findByTreatmentId(new TreatmentId(currentUser.getNric(),patient.getNric())) == null) {
             throw new BadRequestException("Not allowed to retrieve this user.");
         }
 
-        return new UserSummary(user.getNric(), user.getName(),
+        return new UserSummary(patient.getNric(), patient.getName(),
                 "Patient",
-                user.getPhone(), user.getEmail());
+                patient.getPhone(), patient.getEmail());
     }
 }

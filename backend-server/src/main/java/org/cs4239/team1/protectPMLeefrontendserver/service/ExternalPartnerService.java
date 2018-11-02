@@ -69,7 +69,7 @@ public class ExternalPartnerService {
                     String subtype = parts[1];
                     String title = parts[2];
                     String document = parts[3];
-                    String patientNric =parts[4];
+                    String patientNric = parts[4];
 
                     //No point taking in a record if it does not belong to any patient in this hospital
                     User patient = userRepository.findByNric(patientNric)
@@ -83,7 +83,7 @@ public class ExternalPartnerService {
                 break;
             case "users":
                 //check input headers are correct.
-                if (!bufferedReader.readLine().equals("nric,name,email,phone,address,age,gender,password,publicKey,roles")){
+                if (!bufferedReader.readLine().equals("nric,name,email,phone,address,postalCode,age,gender,password,publicKey,roles")){
                     throw new BadRequestException("Bad column headers");
                 }
                 String newUser;
@@ -109,69 +109,14 @@ public class ExternalPartnerService {
                             parts[8], //password Assume already encrypted?
                             parts[9], //key
                             "",
-                            new HashSet<>(Arrays.stream(parts[9] //roles
+                            new HashSet<>(Arrays.stream(parts[10] //roles
                                     .split("\\|"))
                                     .map(Role::create)
                                     .collect(Collectors.toList()))));
                 }
                 break;
-            case "notes":
-                //check input headers are correct.
-                if (!bufferedReader.readLine().equals("creatorIC,patientIC,noteContent")){
-                    throw new BadRequestException("Bad column headers");
-                }
-                String newNote;
-                while ((newNote = bufferedReader.readLine()) != null) {
-                    String[] parts =  newNote.split(",");
-
-                    User creator = userRepository.findByNric(parts[0])
-                            .orElseThrow(() -> new ResourceNotFoundException("User", "id", parts[0]));
-                    if (!creator.getRoles().contains(Role.ROLE_PATIENT) || !creator.getRoles().contains(Role.ROLE_THERAPIST)){
-                        throw new BadRequestException("User_" + creator.getNric() + " cannot create note!");
-                    }
-
-                    User patient = userRepository.findByNric(parts[1])
-                            .orElseThrow(() -> new ResourceNotFoundException("User", "id", parts[1]));
-                    if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
-                        throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
-                    }
-
-                    noteRepository.save(new Note(creator,
-                            patient,
-                            parts[2], //noteContent
-                            //set Notes permissions to default
-                            parts[0].equals(parts[1]), //isVisibleToPatient
-                            !parts[0].equals(parts[1]))); //isVisibleToTherapist
-                }
-                break;
-            case "treatments":
-                //check input headers are correct.
-                if (!bufferedReader.readLine().equals("therapistIC,patientIC,endDate")){
-                    throw new BadRequestException("Bad column headers");
-                }
-                String newTreatment;
-                while ((newTreatment = bufferedReader.readLine()) != null) {
-                    String[] parts =  newTreatment.split(",");
-
-                    //check if therapist exist
-                    User therapist = userRepository.findByNric(parts[0])
-                            .orElseThrow(() -> new ResourceNotFoundException("User", "id", parts[0]));
-                    if (!therapist.getRoles().contains(Role.ROLE_THERAPIST)){
-                        throw new BadRequestException("User_" + therapist.getNric() + " is not a therapist!");
-                    }
-
-                    //check if patient exist
-                    User patient = userRepository.findByNric(parts[1])
-                            .orElseThrow(() -> new ResourceNotFoundException("User", "id", parts[1]));
-                    if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
-                        throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
-                    }
-
-                    treatmentRepository.save(new Treatment(therapist,
-                            patient,
-                            formatDate(parts[2])));
-                }
-                break;
+            default:
+                throw new BadRequestException("Invalid input");
         }
 
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
