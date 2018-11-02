@@ -50,46 +50,6 @@ public class FileController {
     @Value("${app.privateKey}")
     private String privateKey;
 
-    @Value("${bluetooth.tag.encryptionKey}")
-    private String tagKey;
-
-    @PostMapping("/getSignature")
-    public ResponseEntity<?> getFileSignature(@RequestBody MultipartFile file, @RequestParam("nric") String nric) {
-        if (!ALLOWED_FILE_TYPES.contains(FilenameUtils.getExtension(file.getOriginalFilename()))) {
-            return new ResponseEntity<>(new ApiResponse(false, "Invalid file type."), HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            int nonceInServer = NonceGenerator.generateNonce(nric);
-            byte[] msgHash = Hasher.hash(nonceInServer);
-            byte[] fileBytesHash = Hasher.hash(file.getBytes());
-
-            byte[] ivBytes = new byte[16];
-            SecureRandom.getInstanceStrong().nextBytes(ivBytes);
-            byte[] loginCode = Integer.toString(0).getBytes();
-            byte[] combinedNonceAndFile = new byte[msgHash.length + fileBytesHash.length];
-            System.arraycopy(msgHash, 0, combinedNonceAndFile, 0, msgHash.length);
-            System.arraycopy(fileBytesHash, 0, combinedNonceAndFile, msgHash.length, fileBytesHash.length);
-            byte[] encrypted = new AESEncryptionDecryptionTool().encrypt(combinedNonceAndFile, tagKey, ivBytes, "AES/CBC/NOPADDING");
-
-            byte[] combined = new byte[loginCode.length + ivBytes.length + encrypted.length];
-            System.arraycopy(loginCode, 0, combined, 0, loginCode.length);
-            System.arraycopy(ivBytes, 0, combined, loginCode.length, ivBytes.length);
-            System.arraycopy(encrypted, 0, combined, loginCode.length+ivBytes.length, encrypted.length);
-
-            Ed25519Sign signer = new Ed25519Sign(Base64.getDecoder().decode(privateKey));
-            byte[] signature = signer.sign(combined);
-
-            return new ResponseEntity<>(new ServerSignatureResponse(ivBytes, encrypted, signature), HttpStatus.OK);
-
-        } catch (NonceExceededException nce) {
-            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new AssertionError("Errors should not happen.");
-        }
-    }
-
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
         try {

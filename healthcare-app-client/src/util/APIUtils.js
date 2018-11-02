@@ -197,15 +197,6 @@ export function verifyTagSignature(loginRequest) {
     });
 }
 
-export function getServerFileDataSignature(file) {
-    return sendFile({
-        url: API + "/file/getSignature",
-        method: 'POST',
-        body: file
-    });
-}
-
-
 export function signup(signupRequest) {
     return request({
         url: API + "/auth/signup",
