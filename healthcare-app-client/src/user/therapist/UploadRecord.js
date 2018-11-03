@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
-import { Form, Input, Upload, Button, Icon, Select, notification, Spin  } from 'antd';
+import { Form, Input, Layout, Upload, Button, Icon, Select, notification, Spin  } from 'antd';
 import { matchPath } from 'react-router';
-import { createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
+import { getPatientProfile, createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
 import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import './UploadRecord.css';
 
 const FormItem = Form.Item;
+const { Header, Content } = Layout;
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
@@ -40,6 +41,7 @@ class Therapist_uploadrecord extends Component {
             startData: secondData[firstData[0]],
             nextData: secondData[firstData[0]][0],
           },
+          patient: null,
           isLoading: false,
         }
         this.handleFirstDataChange = this.handleFirstDataChange.bind(this);
@@ -48,6 +50,33 @@ class Therapist_uploadrecord extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
         this.beforeUpload = this.beforeUpload.bind(this);
         this.verifyFieldsFilled = this.verifyFieldsFilled.bind(this);
+        this.loadPatientProfile = this.loadPatientProfile.bind(this);
+    }
+
+    loadPatientProfile(pat_nric) {
+        this.setState({
+            isLoading: true
+        });
+
+        getPatientProfile(pat_nric)
+        .then(response => {
+            this.setState({
+                patient: response,
+                isLoading: false
+            });
+        }).catch(error => {
+            if(error.status === 404) {
+                this.setState({
+                    notFound: true,
+                    isLoading: false
+                });
+            } else {
+                this.setState({
+                    serverError: true,
+                    isLoading: false
+                });
+            }
+        });
     }
 
     verifyFieldsFilled() {
@@ -263,72 +292,98 @@ class Therapist_uploadrecord extends Component {
               value: pat_nric
             }
         });
+        this.loadPatientProfile(pat_nric);
     }
 
+    componentWillReceiveProps(nextProps) {
+        if(this.props.match.params.nric !== nextProps.match.params.nric) {
+            this.setState({
+                patientIC: {
+                  value: nextProps.match.params.nric
+                }
+            });
+            this.loadPatientProfile(nextProps.match.params.nric);
+        }
+    }
 
 
     render() {
         return (
-            <div className="createRecord-container">
-                <h1 className="page-title">Create New Record</h1>
-                <div className="createRecord-content">
-                <Spin spinning={this.state.isLoading}>
-                    <Form onSubmit={this.handleSubmit} className="createRecord-form">
-                        <FormItem
-                          label="Type">
-                          <Select
-                              size="large"
-                              required="true"
-                              name="type"
-                              onChange={this.handleFirstDataChange}>
-                              {firstData.map(first => <Option key={first}>{first}</Option>)}
-                          </Select>
-                        </FormItem>
-                        <FormItem
-                            label="Subtype">
-                            <Select
-                                size="large"
-                                name="subtype"
-                                value={this.state.data.nextData}
-                                onChange={this.onSecondDataChange}>
-                                {this.state.data.startData.map(second => <Option key={second}>{second}</Option>)}
-                            </Select>
-                        </FormItem>
-                        <FormItem
-                            label="Title">
-                            <Input
-                                size="large"
-                                name="title"
-                                autoComplete="off"
-                                value={this.state.title.value}
-                                onChange={(event) => {this.handleInputChange(event)}} />
-                        </FormItem>
-                        <FormItem
-                            label="Document">
-                            <Upload beforeUpload={this.beforeUpload} fileList={this.state.selectedFileList}>
-                              <Button>
-                                <Icon type="upload" /> Upload
-                              </Button>
-                            </Upload>
-                        </FormItem>
-                        <FormItem>
-                            <Button type="primary"
-                                htmlType="submit"
-                                size="large"
-                                className="createRecord-form-button"
-                                disabled={this.verifyFieldsFilled()}
-                                >Create Record</Button>
-                            <Button type="primary"
-                                size="large"
-                                className="createRecord-form-button"
-                                onClick={this.startConnection.bind(this)}
-                                disabled={this.verifyFieldsFilled()}
-                                >Connect Patient Tag To Create Record</Button>
-                        </FormItem>
-                    </Form>
-                  </Spin>
-                </div>
-            </div>
+          <div className="upload-data">
+            {  this.state.patient ? (
+                <Layout className="layout">
+                  <Content>
+                    <div style={{ background: '#ECECEC' }}>
+                      <div className="name">&nbsp;&nbsp;{this.state.patient.name}</div>
+                      <div className="subtitle">&nbsp;&nbsp;&nbsp;&nbsp;NRIC: {this.state.patient.nric}
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Phone Number: {this.state.patient.phone}</div>
+                      <br />
+                    </div>
+                    <div className="createRecord-container">
+                        <h1 className="page-title">Create New Record</h1>
+                        <div className="createRecord-content">
+                        <Spin spinning={this.state.isLoading}>
+                            <Form onSubmit={this.handleSubmit} className="createRecord-form">
+                                <FormItem
+                                  label="Type">
+                                  <Select
+                                      size="large"
+                                      required="true"
+                                      name="type"
+                                      onChange={this.handleFirstDataChange}>
+                                      {firstData.map(first => <Option key={first}>{first}</Option>)}
+                                  </Select>
+                                </FormItem>
+                                <FormItem
+                                    label="Subtype">
+                                    <Select
+                                        size="large"
+                                        name="subtype"
+                                        value={this.state.data.nextData}
+                                        onChange={this.onSecondDataChange}>
+                                        {this.state.data.startData.map(second => <Option key={second}>{second}</Option>)}
+                                    </Select>
+                                </FormItem>
+                                <FormItem
+                                    label="Title">
+                                    <Input
+                                        size="large"
+                                        name="title"
+                                        autoComplete="off"
+                                        value={this.state.title.value}
+                                        onChange={(event) => {this.handleInputChange(event)}} />
+                                </FormItem>
+                                <FormItem
+                                    label="Document">
+                                    <Upload beforeUpload={this.beforeUpload} fileList={this.state.selectedFileList}>
+                                      <Button>
+                                        <Icon type="upload" /> Upload
+                                      </Button>
+                                    </Upload>
+                                </FormItem>
+                                <FormItem>
+                                    <Button type="primary"
+                                        htmlType="submit"
+                                        size="large"
+                                        className="createRecord-form-button"
+                                        disabled={this.verifyFieldsFilled()}
+                                        >Create Record</Button>
+                                    <Button type="primary"
+                                        size="large"
+                                        className="createRecord-form-button"
+                                        onClick={this.startConnection.bind(this)}
+                                        disabled={this.verifyFieldsFilled()}
+                                        >Connect Patient Tag To Create Record</Button>
+                                </FormItem>
+                            </Form>
+                          </Spin>
+                        </div>
+                    </div>
+                  </Content>
+                </Layout>
+              ): null
+            }
+          </div>
         );
     }
   }
