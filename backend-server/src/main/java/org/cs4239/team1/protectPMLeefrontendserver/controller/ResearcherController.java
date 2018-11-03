@@ -120,7 +120,7 @@ public class ResearcherController {
     }
 
     private List<AnonymisedRecordResponse> anonymize(Data toAnonymize) {
-        if (toAnonymize.getHandle().getNumRows() == 1) {
+        if (toAnonymize.getHandle().getNumRows() == 0) {
             throw new BadRequestException("No data in the database for this request.");
         }
 
@@ -177,7 +177,7 @@ public class ResearcherController {
                 .addInterval(19l, 26l, Age.FROM_19_TO_25.toString())
                 .addInterval(26l, 36l, Age.FROM_26_TO_35.toString())
                 .addInterval(36l, 56l, Age.FROM_36_TO_55.toString())
-                .addInterval(56l, 101l, Age.ABOVE_55.toString());
+                .addInterval(56l, 121l, Age.ABOVE_55.toString());
     }
 
     private DefaultHierarchy getGender() {
