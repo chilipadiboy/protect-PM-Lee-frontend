@@ -272,6 +272,9 @@ public class AuthController {
 
     @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
     private void resetDailyNonceLimit() {
-        userRepository.findAll().forEach(user -> user.setNumOfNonceUsed(0));
+        userRepository.findAll().forEach(user ->  {
+            user.setNumOfNonceUsed(0);
+            userRepository.save(user);
+        });
     }
 }
