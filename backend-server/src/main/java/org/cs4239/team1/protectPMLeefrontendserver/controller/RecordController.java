@@ -16,7 +16,6 @@ import javax.validation.Validator;
 
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
-import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
@@ -35,7 +34,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecryptionTool;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
-import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.cs4239.team1.protectPMLeefrontendserver.service.RecordService;
 import org.slf4j.Logger;
@@ -128,8 +126,12 @@ public class RecordController {
             if (!patient.getRoles().contains(Role.ROLE_PATIENT)){
                 throw new BadRequestException("User_" + patient.getNric() + " is not a patient!");
             }
-            int nonceInServer = NonceGenerator.generateNonce(recordRequest1.getPatientIC());
-            byte[] msgHash = Hasher.hash(nonceInServer);
+
+            int nonce = patient.getNonce();
+            if (nonce > 30) {
+                return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
+            }
+            byte[] msgHash = Hasher.hash(nonce);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
 
             byte[] ivBytes = new byte[16];
@@ -151,8 +153,6 @@ public class RecordController {
 
             return new ResponseEntity<>(new ServerSignatureResponse(ivBytes, combined, signature), HttpStatus.OK);
 
-        } catch (NonceExceededException nce) {
-            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             e.printStackTrace();
             throw new AssertionError("Errors should not happen.");
@@ -180,7 +180,7 @@ public class RecordController {
             byte[] msgHash = Arrays.copyOfRange(decrypted, 0, 64);
             byte[] fileSignature = Arrays.copyOfRange(decrypted, 64, 128);
             byte[] fileBytesHash = Hasher.hash(file.getBytes());
-            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(recordRequest1.getPatientIC()));
+            byte[] verifyHash = Hasher.hash(patient.getNonce());
 
 
             if (!Arrays.equals(msgHash, verifyHash)) {
@@ -190,7 +190,9 @@ public class RecordController {
             Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(patient.getPublicKey()));
             verifier.verify(fileSignature, fileBytesHash);
             String fileSignatureStr = new String(Base64.getEncoder().encode(fileSignature));
-            NonceGenerator.increaseNonce(recordRequest1.getPatientIC());
+            patient.setNonce(patient.getNonce() + 1);
+            patient.setNumTimesLoggedIn(patient.getNumTimesLoggedIn() + 1);
+            userRepository.save(patient);
             Record record = createRecordWithSignature(recordRequest1, file, fileSignatureStr);
 
             //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)

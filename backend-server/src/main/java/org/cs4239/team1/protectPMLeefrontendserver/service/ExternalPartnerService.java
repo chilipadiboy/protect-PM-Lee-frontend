@@ -105,6 +105,8 @@ public class ExternalPartnerService {
                             parts[8], //password Assume already encrypted?
                             parts[9], //key
                             "",
+                            0,
+                            0,
                             new HashSet<>(Arrays.stream(parts[10] //roles
                                     .split("\\|"))
                                     .map(Role::create)
