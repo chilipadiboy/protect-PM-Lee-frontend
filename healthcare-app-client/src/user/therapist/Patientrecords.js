@@ -270,9 +270,7 @@ class Therapist_patientrecords extends Component {
           align: 'center',
           render: text => {
             var url = text.split("/")
-            console.log(url)
             url = url[url.length-1]
-            console.log(url)
             if (url.endsWith(".mp4"))
               text = "/downloadVideo/" + url
             else if (url.endsWith(".jpg") || url.endsWith(".png"))

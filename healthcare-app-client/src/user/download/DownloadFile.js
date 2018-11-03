@@ -43,7 +43,7 @@ class DownloadFile extends Component {
   render() {
     return (
       <Layout className="app-container">
-      <div id="contents"></div>
+        <div id="contents"></div>
       </Layout>
     );
   }
