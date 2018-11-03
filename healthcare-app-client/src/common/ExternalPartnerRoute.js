@@ -9,11 +9,11 @@ const ExternalPartnerRoute = ({ component: Component, authenticated, role, path 
     <Route
       path
       render={props =>
-        (authenticated && role === "external partner") ? (
+        ((authenticated && role === "external partner") ? (
           <Component path {...props} />
         ) : (
           <NotFound />
-        )
+        ))
       }
     />
 );

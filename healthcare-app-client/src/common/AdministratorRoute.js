@@ -9,11 +9,11 @@ const AdministratorRoute = ({ component: Component, authenticated, role, path })
     <Route
       path
       render={props =>
-        (authenticated && role === "administrator") ? (
+        ((authenticated && role === "administrator") ? (
           <Component path {...props} />
         ) : (
           <NotFound />
-        )
+        ))
       }
     />
 );

@@ -9,11 +9,11 @@ const ResearcherRoute = ({ component: Component, authenticated, role, path }) =>
     <Route
       path
       render={props =>
-        (authenticated && role === "researcher") ? (
+        ((authenticated && role === "researcher") ? (
           <Component path {...props} />
         ) : (
           <NotFound />
-        )
+        ))
       }
     />
 );
