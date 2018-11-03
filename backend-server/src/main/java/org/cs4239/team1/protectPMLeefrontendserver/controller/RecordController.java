@@ -191,7 +191,7 @@ public class RecordController {
             verifier.verify(fileSignature, fileBytesHash);
             String fileSignatureStr = new String(Base64.getEncoder().encode(fileSignature));
             patient.setNonce(patient.getNonce() + 1);
-            patient.setNumTimesLoggedIn(patient.getNumTimesLoggedIn() + 1);
+            patient.setNumOfNonceUsed(patient.getNumOfNonceUsed() + 1);
             userRepository.save(patient);
             Record record = createRecordWithSignature(recordRequest1, file, fileSignatureStr);
 

@@ -104,7 +104,7 @@ public class User extends DateAudit implements UserDetails {
 
     @NonNull
     @Setter
-    private int numTimesLoggedIn;
+    private int numOfNonceUsed;
 
     @NonNull
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)

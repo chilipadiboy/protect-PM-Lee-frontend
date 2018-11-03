@@ -196,7 +196,7 @@ public class AuthController {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             patient.setNonce(patient.getNonce() + 1);
-            patient.setNumTimesLoggedIn(patient.getNumTimesLoggedIn() + 1);
+            patient.setNumOfNonceUsed(patient.getNumOfNonceUsed() + 1);
             userRepository.save(patient);
             byte[] ivBytes = new byte[16];
             SecureRandom random = new SecureRandom();
@@ -272,6 +272,6 @@ public class AuthController {
 
     @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
     private void resetDailyNonceLimit() {
-        userRepository.findAll().forEach(user -> user.setNumTimesLoggedIn(0));
+        userRepository.findAll().forEach(user -> user.setNumOfNonceUsed(0));
     }
 }
