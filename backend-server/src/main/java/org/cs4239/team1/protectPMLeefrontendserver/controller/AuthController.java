@@ -90,8 +90,8 @@ public class AuthController {
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
-    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, @CurrentUser User currentUser, HttpServletResponse response) {
-        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#authenticateUserOne", request);
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, HttpServletResponse response) {
+        logger.info("Accessing AuthController#authenticateUserOne", request);
         try {
             User user = userAuthentication.authenticate(request.getNric(),
                     request.getPassword(),
@@ -132,8 +132,8 @@ public class AuthController {
     }
 
     @PostMapping("/firstAuthorization")
-    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest, @CurrentUser User currentUser) {
-        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#getServerSignature", serverSignatureRequest);
+    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
+        logger.info("Accessing AuthController#getServerSignature", serverSignatureRequest);
         try {
             userAuthentication.authenticate(serverSignatureRequest.getNric(),
                     serverSignatureRequest.getPassword(),
@@ -171,8 +171,8 @@ public class AuthController {
     }
 
     @PostMapping("/secondAuthorization")
-    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response, @CurrentUser User currentUser) {
-        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#authenticateUserTwo", loginRequest);
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+        logger.info("ccessing AuthController#authenticateUserTwo", loginRequest);
         try {
             User patient = userRepository.findByNric(loginRequest.getNric())
                     .orElseThrow(() -> new ResourceNotFoundException("User", "nric", loginRequest.getNric()));
