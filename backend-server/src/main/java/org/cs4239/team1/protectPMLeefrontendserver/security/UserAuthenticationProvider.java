@@ -49,8 +49,7 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
 
             Ed25519Verify verifier = new Ed25519Verify(Base64.getDecoder().decode(loadedUser.getPublicKey()));
             verifier.verify(authToken.getSignature(), authToken.getMsgHash());
-
-            byte[] verifyHash = Hasher.hash(NonceGenerator.getNonce(presentedNric));
+            byte[] verifyHash = Hasher.hash(loadedUser.getNonce());
             if (!Arrays.equals(authToken.getMsgHash(), verifyHash)) {
                 throw new GeneralSecurityException();
             }

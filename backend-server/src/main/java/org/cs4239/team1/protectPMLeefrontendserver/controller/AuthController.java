@@ -13,7 +13,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
@@ -29,7 +28,6 @@ import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecrypt
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
 import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
-import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
 import org.slf4j.Logger;
@@ -38,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -147,7 +146,12 @@ public class AuthController {
                     .orElseThrow(() -> new ResourceNotFoundException("User", "nric", serverSignatureRequest.getNric()));
             byte[] pubKey = Base64.getDecoder().decode(patient.getPublicKey());
 
-            byte[] msgHash = Hasher.hash(NonceGenerator.generateNonce(serverSignatureRequest.getNric()));
+            int nonce = patient.getNonce();
+            if (nonce > 30) {
+                return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
+            }
+
+            byte[] msgHash = Hasher.hash(nonce);
             byte[] ivBytes = new byte[16];
             SecureRandom.getInstanceStrong().nextBytes(ivBytes);
             byte[] encrypted = aesEncryptionDecryptionTool.encrypt(msgHash, patient.getSymmetricKey(), ivBytes, "AES/CBC/NOPADDING");
@@ -163,8 +167,6 @@ public class AuthController {
 
             return ResponseEntity.ok(new ServerSignatureResponse(ivBytes, combined, signature));
 
-        } catch (NonceExceededException nce) {
-            return new ResponseEntity<>(new ApiResponse(false, "Number of nonces requested for the day exceeded."), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             throw new AssertionError("Errors should not happen.");
         }
@@ -193,8 +195,9 @@ public class AuthController {
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            NonceGenerator.increaseNonce(loginRequest.getNric());
+            patient.setNonce(patient.getNonce() + 1);
+            patient.setNumOfNonceUsed(patient.getNumOfNonceUsed() + 1);
+            userRepository.save(patient);
             byte[] ivBytes = new byte[16];
             SecureRandom random = new SecureRandom();
             random.nextBytes(ivBytes);
@@ -251,6 +254,8 @@ public class AuthController {
                 passwordEncoder.encode(signUpRequest.getPassword()),
                 signUpRequest.getPublicKey(),
                 "",
+                0,
+                0,
                 new HashSet<>(signUpRequest.getRoles().stream()
                         .map(Role::create)
                         .collect(Collectors.toList()))
@@ -263,5 +268,13 @@ public class AuthController {
                 .buildAndExpand(result.getNric()).toUri();
 
         return ResponseEntity.created(location).body(new ApiResponse(true, "User registered successfully"));
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 60 * 24)
+    private void resetDailyNonceLimit() {
+        userRepository.findAll().forEach(user ->  {
+            user.setNumOfNonceUsed(0);
+            userRepository.save(user);
+        });
     }
 }
