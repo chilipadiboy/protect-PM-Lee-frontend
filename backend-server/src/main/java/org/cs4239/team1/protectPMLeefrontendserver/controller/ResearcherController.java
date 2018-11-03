@@ -16,8 +16,8 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Gender;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Location;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
-import org.cs4239.team1.protectPMLeefrontendserver.model.Value;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Value;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
@@ -91,10 +91,10 @@ public class ResearcherController {
                     .filter(user -> requestedLocation == Location.ALL
                             || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
                     .filter(user -> requestedAge == Age.ALL || requestedAge.isInRange(user.getAge()))
-                    .filter(user -> requestedGender == Gender.ALL || requestedGender.equals(user.getGender()))
+                    .filter(user -> requestedGender == Gender.ALL || requestedGender == user.getGender())
                     .forEach(user -> {
                         Record record = recordRepository.findByPatientIC(user.getNric()).stream()
-                                .filter(r -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(r.getSubtype()))
+                                .filter(r -> requestedSubtype == r.getSubtype())
                                 .sorted(Comparator.comparing(Record::getCreatedAt))
                                 .reduce((first, second) -> second)
                                 .orElse(null);
@@ -109,9 +109,10 @@ public class ResearcherController {
                     .filter(user -> requestedLocation == Location.ALL
                             || requestedLocation.isInLocation(Integer.valueOf(user.getPostalCode())))
                     .filter(user -> requestedAge == Age.ALL || requestedAge.isInRange(user.getAge()))
-                    .filter(user -> requestedGender == Gender.ALL || requestedGender.equals(user.getGender()))
+                    .filter(user -> requestedGender == Gender.ALL || requestedGender == user.getGender())
                     .forEach(user -> recordRepository.findByPatientIC(user.getNric()).stream()
-                            .filter(record -> requestedSubtype == Subtype.ALL || requestedSubtype.equals(record.getSubtype()))
+                            .filter(record -> (requestedSubtype == Subtype.ALL && record.getSubtype() != Subtype.BLOOD_PRESSURE)
+                                    || requestedSubtype == record.getSubtype())
                             .forEach(record -> data.add(user.getPostalCode().substring(0, 2), String.valueOf(user.getAge()),
                                     user.getGender().toString(), value.getValueSupplier().apply(record))));
         }
@@ -122,6 +123,8 @@ public class ResearcherController {
     private List<AnonymisedRecordResponse> anonymize(Data toAnonymize) {
         if (toAnonymize.getHandle().getNumRows() == 0) {
             throw new BadRequestException("No data in the database for this request.");
+        } else if (toAnonymize.getHandle().getNumRows() == 1) {
+            throw new BadRequestException("Insufficient data in the database for this request.");
         }
 
         try {
@@ -143,7 +146,7 @@ public class ResearcherController {
         for (int i = 0; i < 200; i++) {
             for (int j = 0; j < 200; j++) {
                 BloodPressure bp = new BloodPressure(i, j);
-                bpHierarchy.add(bp.toString(), bp.getCategory().toString());
+                bpHierarchy.add(bp.toString(), bp.getCategory().toString(), "*");
             }
         }
 
@@ -182,8 +185,8 @@ public class ResearcherController {
 
     private DefaultHierarchy getGender() {
         DefaultHierarchy gender = Hierarchy.create();
-        gender.add("MALE", "*");
-        gender.add("FEMALE", "*");
+        gender.add("Male", "*");
+        gender.add("Female", "*");
 
         return gender;
     }
