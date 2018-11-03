@@ -1,20 +1,17 @@
 import React, { Component } from 'react';
 import {
-    Link,
-    withRouter
+    Link
 } from 'react-router-dom';
 import { getMyRecords, giveTherapistPermission,
          removeTherapistPermission, getMyNotes,
          getGivenPermissions, getTherapistNotes,
-         getCurrentUser, getAllMyTherapists } from '../../util/APIUtils';
-import { Layout, Table, Icon, Button, Select, notification } from 'antd';
+         getAllMyTherapists } from '../../util/APIUtils';
+import { Layout, Table, Button, Select, notification } from 'antd';
 import update from 'immutability-helper';
-import LoadingIndicator  from '../../common/LoadingIndicator';
 import './MyData.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
 
 const Option = Select.Option;
+const { Content } = Layout;
 
 class Patient_mydata extends Component {
     constructor(props) {
@@ -59,7 +56,6 @@ class Patient_mydata extends Component {
         getAllMyTherapists()
         .then(response => {
             const mytherapists = [];
-            const mytherapistoptions = [];
 
             for (var i = 0; i < response.content.length; i++) {
                 const therapistnric = response.content[i].treatmentId.therapist;
@@ -130,7 +126,7 @@ class Patient_mydata extends Component {
               const recid = currperm.recordID;
               const therapistic = currperm.therapistNric;
               for (var j = 0; j < this.state.myrecords.length; j++) {
-                  if (recid == this.state.myrecords[j].recordID) {
+                  if (recid === this.state.myrecords[j].recordID) {
                         const prevList = this.state.myrecords[j].permittedTherapists;
                         this.setState({ myrecords: update(this.state.myrecords, {[j]: { permittedTherapists: {$set: [...prevList, therapistic]} }}) });
                   }
@@ -271,7 +267,6 @@ class Patient_mydata extends Component {
 
 
     render() {
-        const { Header, Content } = Layout;
 
         const reccolumns = [{
           title: 'Record ID',

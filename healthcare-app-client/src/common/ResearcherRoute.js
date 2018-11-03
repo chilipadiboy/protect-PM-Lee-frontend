@@ -7,7 +7,7 @@ import NotFound from '../common/NotFound';
 
 const ResearcherRoute = ({ component: Component, authenticated, role, path }) => (
     <Route
-      path
+      path={path}
       render={props =>
         ((authenticated && role === "researcher") ? (
           <Component path {...props} />

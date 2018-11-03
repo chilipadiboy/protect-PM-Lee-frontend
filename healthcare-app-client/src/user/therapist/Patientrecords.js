@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import {
-    Link,
-    withRouter
+    Link
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
-import { getPatients, getPatientPermittedRecords, getPatientProfile,
+import { getPatientPermittedRecords, getPatientProfile,
          getAllTherapistNotes, getCurrentUser, setNotePermission, checkNotePermission } from '../../util/APIUtils';
-import { Layout, Table, Icon, Button, Checkbox, notification } from 'antd';
+import { Layout, Table, Button, Checkbox, notification } from 'antd';
 import update from 'immutability-helper';
-import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Patientrecords.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
+
+const { Content } = Layout;
 
 class Therapist_patientrecords extends Component {
     constructor(props) {
@@ -89,16 +87,16 @@ class Therapist_patientrecords extends Component {
               othernotes: otherdata
           });
 
-          if (mydata.length == 0) {
+          if (mydata.length === 0) {
               this.setState({
                   permissionadded: true
               });
           }
 
-          for (var i = 0; i < mydata.length; i++) {
-              const currentid = mydata[i].noteID;
+          for (var j = 0; j < mydata.length; j++) {
+              const currentid = mydata[j].noteID;
 
-              const index = i;
+              const index = j;
               const final_count = mydata.length - 1;
 
               checkNotePermission(currentid)
@@ -111,7 +109,7 @@ class Therapist_patientrecords extends Component {
                   }
 
 
-                  if (index == final_count) {
+                  if (index === final_count) {
                     this.setState({
                         permissionadded: true
                     });
@@ -248,7 +246,6 @@ class Therapist_patientrecords extends Component {
     }
     // Change the columns? Add links to the docs?
     render() {
-        const { Header, Content } = Layout;
 
         const patcolumns = [{
           title: 'Record ID',

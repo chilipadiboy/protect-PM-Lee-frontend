@@ -36,7 +36,7 @@ class DownloadImage extends Component {
   render() {
     return (
       <Layout className="app-container">
-      <img id="image" src="" width="500" height="500"/>
+      <img id="image" src="" alt="" width="500" height="500"/>
       </Layout>
     );
   }

@@ -7,7 +7,7 @@ import NotFound from '../common/NotFound';
 
 const AdministratorRoute = ({ component: Component, authenticated, role, path }) => (
     <Route
-      path
+      path={path}
       render={props =>
         ((authenticated && role === "administrator") ? (
           <Component path {...props} />

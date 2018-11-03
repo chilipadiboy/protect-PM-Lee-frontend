@@ -31,7 +31,6 @@ import Researcher_generate_data from '../user/researcher/Generatedata';
 import External_add_user from '../user/external_partner/Adduser';
 import External_upload_database from '../user/external_partner/Uploaddatabase';
 import LoadingIndicator from '../common/LoadingIndicator';
-import PrivateRoute from '../common/PrivateRoute';
 import PatientRoute from '../common/PatientRoute';
 import TherapistRoute from '../common/TherapistRoute';
 import ResearcherRoute from '../common/ResearcherRoute';
