@@ -41,7 +41,7 @@ class Patient_mydata extends Component {
       const mytherapistoptions = [];
 
       for (var i = 0; i < this.state.mytherapists.length; i++) {
-          mytherapistoptions.push(<Option ref={rec_id} value={this.state.mytherapists[i].nric}>{this.state.mytherapists[i].name}</Option>);
+          mytherapistoptions.push(<Option ref={rec_id} key={i} value={this.state.mytherapists[i].nric}>{this.state.mytherapists[i].name}</Option>);
       }
 
       return mytherapistoptions;
@@ -360,18 +360,18 @@ class Patient_mydata extends Component {
                      <div className="title">
                        My Records
                      </div>
-                     <Table dataSource={this.state.myrecords} columns={reccolumns} />
+                     <Table dataSource={this.state.myrecords} columns={reccolumns} rowKey="recordID" />
                      <div className="title">
                        My Therapists' Notes
                      </div>
-                     <Table dataSource={this.state.therapistsnotes} columns={therapistsnotescolumns} />
+                     <Table dataSource={this.state.therapistsnotes} columns={therapistsnotescolumns} rowKey="noteID" />
                      <div className="title">
                        My Notes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                        <Link to={ this.props.history.location.pathname + "/newnote" }>
                          <Button type="primary" icon="file-add" size="default">New note</Button>
                        </Link>
                      </div>
-                     <Table dataSource={this.state.mynotes} columns={mynotescolumns} />
+                     <Table dataSource={this.state.mynotes} columns={mynotescolumns} rowKey="noteID" />
                    </Content>
                  </Layout>
              ): null

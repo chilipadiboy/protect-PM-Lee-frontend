@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { updateNote, getMyNotes } from '../../util/APIUtils';
@@ -35,10 +36,9 @@ class Patient_editnote extends Component {
 
       getMyNotes()
       .then((response) => {
-
           for (var i = 0; i < response.content.length; i++) {
               var currentid = response.content[i].noteID;
-              if (currentid === this.state.noteid) {
+              if (currentid == this.state.noteid) {
                 this.setState({
                     content: { value: response.content[i].noteContent },
                     contentobtained: true,
@@ -47,6 +47,7 @@ class Patient_editnote extends Component {
                 break;
               }
           }
+
       }).catch(error => {
           if(error.status === 404) {
               this.setState({

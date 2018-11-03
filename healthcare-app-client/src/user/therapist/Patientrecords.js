@@ -345,18 +345,18 @@ class Therapist_patientrecords extends Component {
                         <Button type="primary" icon="upload" size="default">Upload record</Button>
                       </Link>
                     </div>
-                    <Table dataSource={this.state.patrecords} columns={patcolumns} />
+                    <Table dataSource={this.state.patrecords} columns={patcolumns} rowKey="recordID" />
                     <div className="title">
                       Other Therapists' Notes
                     </div>
-                    <Table dataSource={this.state.othernotes} columns={othernotescolumns} />
+                    <Table dataSource={this.state.othernotes} columns={othernotescolumns} rowKey="noteID" />
                     <div className="title">
                       My Notes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <Link to={ this.props.history.location.pathname + "/newnote" }>
                         <Button type="primary" icon="file-add" size="default">New note</Button>
                       </Link>
                     </div>
-                    <Table dataSource={this.state.mynotes} columns={mynotescolumns} />
+                    <Table dataSource={this.state.mynotes} columns={mynotescolumns} rowKey="noteID" />
                   </Content>
                 </Layout>
               ): null

@@ -5,6 +5,7 @@ import { Layout, Table } from 'antd';
 import { getPatients, getPatientProfile } from '../../util/APIUtils';
 import './Mypatients.css';
 
+const { Header, Content } = Layout;
 
 class Therapist_mypatients extends Component {
     constructor(props) {
@@ -103,15 +104,13 @@ class Therapist_mypatients extends Component {
         }];
 
 
-        const { Header, Content } = Layout;
-
         return (
               <Layout className="layout">
                 <Header>
                   <div className="title">My Patients</div>
                 </Header>
                 <Content>
-                  <Table dataSource={this.state.patients} columns={columns} />
+                  <Table dataSource={this.state.patients} columns={columns} rowKey="nric" />
                 </Content>
               </Layout>
         );

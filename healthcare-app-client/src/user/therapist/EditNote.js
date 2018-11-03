@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { Component } from 'react';
 import { matchPath } from 'react-router';
 import { getPatientProfile, getCurrentUser, updateNote, getAllTherapistNotes } from '../../util/APIUtils';
@@ -91,7 +92,7 @@ class Therapist_editnote extends Component {
           for (var i = 0; i < response.content.length; i++) {
               var currentid = response.content[i].noteID;
               var currentcreator = response.content[i].creatorNric;
-              if ((currentid === this.state.noteid) && (currentcreator === this.state.currentUser.nric)) {
+              if ((currentid == this.state.noteid) && (currentcreator == this.state.currentUser.nric)) {
                 this.setState({
                     content: { value: response.content[i].noteContent },
                     isLoading: false
