@@ -132,4 +132,13 @@ We will be validating the file uploaded using the 2FA tag.
     1. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
 
 1. No other users can create a `Patient`'s record except for the `Administrator`.
-    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
+    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create and view his records.
+
+## Other things to note:
+
+1. When uploading a new `Blood Pressure Reading Record`, the therapist should retrieve the existing readings, append the new values, then upload the record. There are a few considerations in mind before we decided on this decision:
+    1. We want the patient to easily view his entire history of blood pressure. If we have multiple records containing blood pressure readings uploaded at different times, it'll be hard for the patient to view his entire history. Therefore, we want to have *a single record* to store the entire history of blood pressure.
+
+    1. One possible implementation is to append the newly uploaded values into the existing record. However, the existing architecture doesn't allow us to digitally sign the updated file easily. This means that upon appending the new values, the file's signature will be invalid.
+
+    1. As such, we have decided to assume that therapists will retrieve the existing readings and prepend it to the new values before uploading the record to the server.
