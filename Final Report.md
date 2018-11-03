@@ -9,8 +9,7 @@ The security scheme we came up with for the communication between the server and
 1. Confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
 1. Integrity and authenticity: using the digital signature of the server
 
-
-All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will be no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
+All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
 
 ---
 
@@ -24,7 +23,7 @@ Subsystems 2 to 4 support the following functionalities with the following param
     1. Role
 
 ### Login:
-The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
+The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the former is chosen, he will be required to pair his 2FA tag to log in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
 ## Security for Client & Server Communication
 
@@ -32,7 +31,7 @@ The user will log in with his `NRIC`, `Password`, and `Role` created by an `Admi
 We implemented the use of a session cookie to authenticate the user as we do not want to store any session identifiers in the local storage as that is susceptible to XSS.
 
 ### JSON Web Token (JWT)
-Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
+Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
@@ -50,31 +49,25 @@ In addition, using HTTPS as our only mode of transfer across channels will preve
 This subsystem provides the web interface that will be used by `Therapists`, `Patients` and `Administrators` to access the Health Record System.
 
 ### Therapists Capabilities:
-1. List all patients under their charge
-1. Select and read patients' records only
-1. Create new records
-1. Edit their own created records
-1. Create new notes for patients that he is treating
+1. List all patients under his charge
+1. Read patients' records
+1. Create new records for patients under his charge
+1. Edit his own created records (???)
+1. Create new notes for patients under his charge
 1. Edit created notes
+1. Give/remove read-access to notes to/from patients under his charge
 
 ### Patients Capabilities:
-1. View his own records
-1. Give/remove permission to/from therapists that is treating him
-1. See therapists' notes for him
+1. Read his own records
+1. Give/remove read-access to records to/from therapists treating him
+1. Read therapists' notes for him
 1. Create own notes
 1. Edit own notes
 
 ### Administrators Capabilities:
 1. Add/delete users to/from the system
-1. Grant permission for a `Therapist` to a `Patient` to create the latter's `Record`
+1. Assign a `Therapist` to treat a `Patient` (thus giving the `Therapist` the permission required to create the `Patient`'s `Record`)
 1. Display logs of all transactions in the system
-
-### Administrator's Interface
-After logging in, an `Administrator` would be able to add new users under the `Manage Users` tab. He would also be able to delete any existing users except for the default `Administrator` account.
-
-`Administrators` would be able to assign a `Therapist` to a `Patient` under the `Link Users` tab.
-
-`Administrators` would also be able to generate server logs by choosing the date range under the `Logs` tab.
 
 ---
 
