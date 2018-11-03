@@ -49,24 +49,25 @@ In addition, using HTTPS as our only mode of transfer across channels will preve
 This subsystem provides the web interface that will be used by `Therapists`, `Patients` and `Administrators` to access the Health Record System.
 
 ### Therapists Capabilities:
-1. List all patients under his charge
-1. Read patients' records
-1. Create new records for patients under his charge
-1. Edit his own created records (???)
-1. Create new notes for patients under his charge
-1. Edit created notes
-1. Give/remove read-access to notes to/from patients under his charge
+1. List all of his patients
+1. View the profile of any of his patients
+1. List and view records permitted to be viewed by him of only his patients
+1. Upload records for only his patients 
+1. Create new notes with regard to any patient whom he is treating
+1. Edit his notes
+1. Allow/disallow the patient whom a note is intended for to view the note
+1. View the notes written by other therapists for his patient
 
 ### Patients Capabilities:
-1. Read his own records
-1. Give/remove read-access to records to/from therapists treating him
-1. Read therapists' notes for him
-1. Create own notes
-1. Edit own notes
+1. View his own records
+1. Allow/disallow any of his therapists to view any of his records (A record is allowed to be viewed by his therapist who uploaded it by default)
+1. View the notes permitted to be viewed by him written by his therapists for him
+1. Create notes
+1. Edit his notes
 
 ### Administrators Capabilities:
-1. Add/delete users to/from the system
-1. Assign a `Therapist` to treat a `Patient` (thus giving the `Therapist` the permission required to create the `Patient`'s `Record`)
+1. Add/delete users except himself to/from the system
+1. Assign/unassign `Therapists` to `Patients` (Giving the `Therapist` permission to upload the `Patient`'s `Record`)
 1. Display logs of all transactions in the system
 
 ---
@@ -85,12 +86,12 @@ With each retrieval, the order of the data will be randomised to make it harder 
 ## Subsystem 4 (Secure Transfer)
 
 ### Overview
-`External Partners` will have a page for them to upload their database file in a .csv file.
+`External Partners` will have a page for them to upload their database file as a .csv file.
 
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
-We will be validating the file uploaded using the 2FA tag.
+We will be validating the files containing health record data uploaded using the 2FA tag.
 
 ---
 
