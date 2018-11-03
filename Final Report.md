@@ -9,8 +9,7 @@ The security scheme we came up with for the communication between the server and
 1. Confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
 1. Integrity and authenticity: using the digital signature of the server
 
-
-All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will be no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
+All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
 
 ---
 
@@ -24,7 +23,7 @@ Subsystems 2 to 4 support the following functionalities with the following param
     1. Role
 
 ### Login:
-The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
+The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the former is chosen, he will be required to pair his 2FA tag to log in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
 ## Security for Client & Server Communication
 
@@ -32,7 +31,7 @@ The user will log in with his `NRIC`, `Password`, and `Role` created by an `Admi
 We implemented the use of a session cookie to authenticate the user as we do not want to store any session identifiers in the local storage as that is susceptible to XSS.
 
 ### JSON Web Token (JWT)
-Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
+Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
@@ -68,16 +67,8 @@ This subsystem provides the web interface that will be used by `Therapists`, `Pa
 
 ### Administrators Capabilities:
 1. Add/delete users except himself to/from the system
-1. Assign/unassign `Therapists` to `Patients`
-1. Grant permission for a `Therapist` to a `Patient` to upload the latter's `Record`
+1. Assign/unassign `Therapists` to `Patients` (Giving the `Therapist` permission to upload the `Patient`'s `Record`)
 1. Display logs of all transactions in the system
-
-### Administrator's Interface
-After logging in, an `Administrator` would be able to add new users under the `Manage Users` tab. He would also be able to delete any existing users except for the default `Administrator` account.
-
-`Administrators` would be able to assign a `Therapist` to a `Patient` under the `Link Users` tab.
-
-`Administrators` would also be able to generate server logs by choosing the date range under the `Logs` tab.
 
 ---
 
@@ -142,4 +133,13 @@ We will be validating the files containing health record data uploaded using the
     1. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
 
 1. No other users can create a `Patient`'s record except for the `Administrator`.
-    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
+    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create and view his records.
+
+## Other things to note:
+
+1. When uploading a new `Blood Pressure Reading Record`, the therapist should retrieve the existing readings, append the new values, then upload the record. There are a few considerations in mind before we decided on this decision:
+    1. We want the patient to easily view his entire history of blood pressure. If we have multiple records containing blood pressure readings uploaded at different times, it'll be hard for the patient to view his entire history. Therefore, we want to have *a single record* to store the entire history of blood pressure.
+
+    1. One possible implementation is to append the newly uploaded values into the existing record. However, the existing architecture doesn't allow us to digitally sign the updated file easily. This means that upon appending the new values, the file's signature will be invalid.
+
+    1. As such, we have decided to assume that therapists will retrieve the existing readings and prepend it to the new values before uploading the record to the server.
