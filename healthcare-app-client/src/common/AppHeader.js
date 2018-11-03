@@ -58,6 +58,11 @@ class AppHeader extends Component {
                   <Icon type="swap" />
                 </Link>
               </Menu.Item>,
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
+                </Link>
+              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -115,6 +120,11 @@ class AppHeader extends Component {
               <Menu.Item key="/manageusers">
                 <Link to="/manageusers">
                   <Icon type="usergroup-add" />
+                </Link>
+              </Menu.Item>,
+              <Menu.Item key="/">
+                <Link to="/">
+                  <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
