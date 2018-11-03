@@ -86,7 +86,8 @@ public class RecordController {
 
     @PostMapping("/create/")
     public ResponseEntity<?> createRecord(@RequestPart(value = "recordRequest") String recordRequest,
-            @RequestPart(value = "file") MultipartFile file) {
+            @RequestPart(value = "file") MultipartFile file, @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#createRecord", recordRequest, file);
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             Record record = createRecord(recordRequest1, file);
@@ -118,8 +119,8 @@ public class RecordController {
 
     @PostMapping("/create/signature")
     public ResponseEntity<?> createRecordSignature(@RequestPart(value = "recordRequest") String recordRequest,
-                                          @RequestPart(value = "file") MultipartFile file) {
-
+                                          @RequestPart(value = "file") MultipartFile file, @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#createRecordSignature", recordRequest, file);
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             User patient = userRepository.findByNric(recordRequest1.getPatientIC())
@@ -162,8 +163,9 @@ public class RecordController {
     @PostMapping("/create/signature/verify")
     public ResponseEntity<?> verifyCreateRecordTagSignature(@RequestPart(value = "recordRequest") String recordRequest,
                                                             @RequestPart(value = "file") MultipartFile file,
-                                                            @RequestPart(value = "signatureRequest") String sigRequest) {
-
+                                                            @RequestPart(value = "signatureRequest") String sigRequest,
+                                                            @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#verifyCreateRecordTagSignature", recordRequest, file, sigRequest);
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
             RecordSignatureRequest recordSigRequest = validate(new ObjectMapper().readValue(sigRequest, RecordSignatureRequest.class));
@@ -237,11 +239,13 @@ public class RecordController {
 
     @GetMapping("/therapist/")
     public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#getRecordByTherapist");
         return recordService.getRecordsCreatedBy(currentUser);
     }
 
     @GetMapping("/patient/")
     public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#getRecordByPatient");
         return recordService.getRecordsBelongingTo(currentUser);
     }
 
@@ -249,6 +253,7 @@ public class RecordController {
     @GetMapping("/therapist/patient/{patient}")
     public PagedResponse<Record> getRecordsPermittedByPatient(@CurrentUser User currentUser,
                                                                       @PathVariable String patient) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#getRecordsPermittedByPatient", patient);
         return recordService.getRecordsPermittedByPatient(currentUser, patient);
     }
 }

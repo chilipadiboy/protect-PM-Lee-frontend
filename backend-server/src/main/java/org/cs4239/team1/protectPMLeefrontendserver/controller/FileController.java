@@ -45,6 +45,7 @@ public class FileController {
 
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@CurrentUser User user, @PathVariable String fileName) {
+        logger.info("NRIC_" + user.getNric() + " ROLE_" + user.getSelectedRole() + " accessing FileController#downloadFile", fileName);
         Optional<Record> record = recordRepository.findByPatientIC(user.getNric()).stream()
                 .filter(r -> r.getDocument().equals(fileName))
                 .findFirst();

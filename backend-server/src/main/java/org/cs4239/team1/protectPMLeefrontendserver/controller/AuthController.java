@@ -32,6 +32,8 @@ import org.cs4239.team1.protectPMLeefrontendserver.security.JwtTokenProvider;
 import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthentication;
 import org.cs4239.team1.protectPMLeefrontendserver.security.UserAuthenticationToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -83,10 +85,13 @@ public class AuthController {
     @Value("${app.jwtExpirationInMs}")
     private int jwtExpirationInMs;
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
     @PostMapping("/signin")
     @Deprecated
     //TODO: Remove this method in release
-    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> authenticateUserOne(@Valid @RequestBody ServerSignatureRequest request, @CurrentUser User currentUser, HttpServletResponse response) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#authenticateUserOne", request);
         try {
             User user = userAuthentication.authenticate(request.getNric(),
                     request.getPassword(),
@@ -127,7 +132,8 @@ public class AuthController {
     }
 
     @PostMapping("/firstAuthorization")
-    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest) {
+    public ResponseEntity<?> getServerSignature(@Valid @RequestBody ServerSignatureRequest serverSignatureRequest, @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#getServerSignature", serverSignatureRequest);
         try {
             userAuthentication.authenticate(serverSignatureRequest.getNric(),
                     serverSignatureRequest.getPassword(),
@@ -165,7 +171,8 @@ public class AuthController {
     }
 
     @PostMapping("/secondAuthorization")
-    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> authenticateUserTwo(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse response, @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#authenticateUserTwo", loginRequest);
         try {
             User patient = userRepository.findByNric(loginRequest.getNric())
                     .orElseThrow(() -> new ResourceNotFoundException("User", "nric", loginRequest.getNric()));
@@ -214,6 +221,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest, @CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AuthController#registerUser", signUpRequest);
         if (userRepository.existsByNric(signUpRequest.getNric())) {
             return new ResponseEntity<>(new ApiResponse(false, "Nric is already taken!"),
                     HttpStatus.BAD_REQUEST);

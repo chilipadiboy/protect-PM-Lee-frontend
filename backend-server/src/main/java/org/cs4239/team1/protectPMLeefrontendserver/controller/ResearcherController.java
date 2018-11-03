@@ -17,11 +17,13 @@ import org.cs4239.team1.protectPMLeefrontendserver.model.Location;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Value;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.AnonymisedRecordResponse;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.deidentifier.arx.ARXAnonymizer;
 import org.deidentifier.arx.ARXConfiguration;
@@ -33,6 +35,8 @@ import org.deidentifier.arx.Data.DefaultData;
 import org.deidentifier.arx.DataType;
 import org.deidentifier.arx.aggregates.HierarchyBuilderIntervalBased;
 import org.deidentifier.arx.criteria.KAnonymity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,8 +59,11 @@ public class ResearcherController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private static final Logger logger = LoggerFactory.getLogger(ResearcherController.class);
+
     @PostMapping("/getAnonymousData")
-    public List<AnonymisedRecordResponse> getAnonymousData(@Valid @RequestBody AnonymisedRecordRequest request) {
+    public List<AnonymisedRecordResponse> getAnonymousData(@CurrentUser User currentUser, @Valid @RequestBody AnonymisedRecordRequest request) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing ResearcherController#getAnonymousData", request);
         Value value = getFilter(Type.create(request.getType()), Subtype.create(request.getSubtype()));
         Data data = getData(request, value);
         return anonymize(data);
