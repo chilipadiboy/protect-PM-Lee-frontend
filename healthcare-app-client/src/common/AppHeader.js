@@ -30,11 +30,6 @@ class AppHeader extends Component {
                   <Icon type="bar-chart" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -58,11 +53,6 @@ class AppHeader extends Component {
                   <Icon type="swap" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -76,11 +66,6 @@ class AppHeader extends Component {
                   <Icon type="reconciliation" theme="outlined" className="nav-icon" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -92,11 +77,6 @@ class AppHeader extends Component {
               <Menu.Item key="/mypatients">
                 <Link to="/mypatients">
                   <Icon type="medicine-box" />
-                </Link>
-              </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
@@ -122,11 +102,6 @@ class AppHeader extends Component {
                   <Icon type="usergroup-add" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -135,11 +110,6 @@ class AppHeader extends Component {
             ];
           } else {
             menuItems = [
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
