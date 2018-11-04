@@ -9,8 +9,7 @@ The security scheme we came up with for the communication between the server and
 1. Confidentiality of nonce and file bytes hashes: using a fixed symmetric encryption key stored in both the tag and the server for the user
 1. Integrity and authenticity: using the digital signature of the server
 
-
-All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will be no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
+All our claims for 2FA tag communication will stand if the attacker does not get hold of all 3 keys - the symmetric key, the tag's private key and the server's private key. The communication will no longer be able to continue if the MITM drops the packets. We did not store any information in the EEPROM in the tag as a future sketch would be able to read the values from the EEPROM and for the purpose of this project, we assume that the attacker has the capability to rewrite the code.
 
 ---
 
@@ -24,7 +23,7 @@ Subsystems 2 to 4 support the following functionalities with the following param
     1. Role
 
 ### Login:
-The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the latter is chosen, he will be required to pair his 2FA tag (if applicable) before logging in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
+The user will log in with his `NRIC`, `Password`, and `Role` created by an `Administrator`. He will have a choice to login with/without a 2FA tag. If the former is chosen, he will be required to pair his 2FA tag to log in. The web app generates a unique salt for the user and adds it to his registered password. The web app generates a hash of the resultant value using SHA256 and stores both the user's hash and salt in the database of the web app. The private and public keys of each user are generated via the ED25519.
 
 ## Security for Client & Server Communication
 
@@ -32,7 +31,7 @@ The user will log in with his `NRIC`, `Password`, and `Role` created by an `Admi
 We implemented the use of a session cookie to authenticate the user as we do not want to store any session identifiers in the local storage as that is susceptible to XSS.
 
 ### JSON Web Token (JWT)
-Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server, Server and Database. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
+Once the user is authenticated, a JWT will be generated in the client side for **authorisation**. This JWT will be used along the channels between Client and Server. In addition, the JWT will be stored in a session storage under HTML5 Web Storage. When the browser window is closed, the user will be automatically logged out. The JWT will be removed and becomes invalid.
 
 If an incoming request contains no token, the request is denied from accessing any resources. If the request contains a token, the server side code will check if the information inside corresponds to an authorised user. If not, the request is denied.
 
@@ -50,31 +49,26 @@ In addition, using HTTPS as our only mode of transfer across channels will preve
 This subsystem provides the web interface that will be used by `Therapists`, `Patients` and `Administrators` to access the Health Record System.
 
 ### Therapists Capabilities:
-1. List all patients under their charge
-1. Select and read patients' records only
-1. Create new records
-1. Edit their own created records
-1. Create new notes for patients that he is treating
-1. Edit created notes
+1. List all of his patients
+1. View the profile of any of his patients
+1. List and view records permitted to be viewed by him of only his patients
+1. Upload records for only his patients 
+1. Create new notes with regard to any patient whom he is treating
+1. Edit his notes
+1. Allow/disallow the patient whom a note is intended for to view the note
+1. View the notes written by other therapists for his patient
 
 ### Patients Capabilities:
 1. View his own records
-1. Give/remove permission to/from therapists that is treating him
-1. See therapists' notes for him
-1. Create own notes
-1. Edit own notes
+1. Allow/disallow any of his therapists to view any of his records (A record is allowed to be viewed by his therapist who uploaded it by default)
+1. View the notes permitted to be viewed by him written by his therapists for him
+1. Create notes
+1. Edit his notes
 
 ### Administrators Capabilities:
-1. Add/delete users to/from the system
-1. Grant permission for a `Therapist` to a `Patient` to create the latter's `Record`
+1. Add/delete users except himself to/from the system
+1. Assign/unassign `Therapists` to `Patients` (Giving the `Therapist` permission to upload the `Patient`'s `Record`)
 1. Display logs of all transactions in the system
-
-### Administrator's Interface
-After logging in, an `Administrator` would be able to add new users under the `Manage Users` tab. He would also be able to delete any existing users except for the default `Administrator` account.
-
-`Administrators` would be able to assign a `Therapist` to a `Patient` under the `Link Users` tab.
-
-`Administrators` would also be able to generate server logs by choosing the date range under the `Logs` tab.
 
 ---
 
@@ -92,12 +86,12 @@ With each retrieval, the order of the data will be randomised to make it harder 
 ## Subsystem 4 (Secure Transfer)
 
 ### Overview
-`External Partners` will have a page for them to upload their database file in a .csv file.
+`External Partners` will have a page for them to upload their database file as a .csv file.
 
 ---
 
 ## Subsystem 5 (Data Collection from Sensors)
-We will be validating the file uploaded using the 2FA tag.
+We will be validating the files containing health record data uploaded using the 2FA tag.
 
 ---
 
@@ -111,8 +105,11 @@ We will be validating the file uploaded using the 2FA tag.
 1. The attacker, without the server's and tag's private key, **cannot be able to disguise as a legitimate server / tag**
     1. The digital signature is verified first.
 
+1. The attacker will not be able to modify the file tagged to the patient meaningfully.
+    1. We will be able to identify if the file has been changed as we schedule a check for the validation of the file digital signatures.
+
 1. Malicious parties are unable to intercept and give incorrect public keys during transmission.
-    1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.
+    1. Since the 2FA tags are issued by the `administrators`, the `administrators` could obtain the user's public key from the tag and store the web app's public key in the tag manually without the need for transmission of the keys.  
 
 1. **Cross-Site Scripting (XSS)** and **SQL Injection** will not be possible for our login page.
     1. User inputs will be **escaped**. In addition, we are **validating** user inputs by implementing regex checks to ensure NRIC conforms to the standard format (eg. S1234567A). Lastly, we sanitise our `Role` input to that of a dropdown menu as there is only a few roles possible to log in as.
@@ -136,4 +133,23 @@ We will be validating the file uploaded using the 2FA tag.
     1. We are allowing only `jpg`, `png`, `txt`, `csv`, `mp4` files to be uploaded to the database.
 
 1. No other users can create a `Patient`'s record except for the `Administrator`.
-    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create, view and edit his records. This ensures **non-repudiation** such that no other users can create a `Patient`'s records if not granted permission.
+    1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create and view his records.
+
+1. The k-anonymity may be susceptible to exclusion attacks. Our system allows filtering of records by:
+    1. Age (6 values)
+    1. Gender (2 values)
+    1. Location (8 values)
+    1. Subtype (25 values)
+
+    As such, there are 6 * 2 * 8 * 25 = 2400 possible permutations. To achieve 2-anonymity, we need minimally 2400 * 2 = 4800 records, which in the real world we will expect much more records than this. However, this is not true in our case.
+
+    In the event that there's less than 2 records for a particular permutation, the server will not return any results to the client. Therefore, a malicious user is able to filter out which permutation does not exist.
+
+## Other things to note:
+
+1. When uploading a new `Blood Pressure Reading Record`, the therapist should retrieve the existing readings, append the new values, then upload the record. There are a few considerations in mind before we decided on this decision:
+    1. We want the patient to easily view his entire history of blood pressure. If we have multiple records containing blood pressure readings uploaded at different times, it'll be hard for the patient to view his entire history. Therefore, we want to have *a single record* to store the entire history of blood pressure.
+
+    1. One possible implementation is to append the newly uploaded values into the existing record. However, the existing architecture doesn't allow us to digitally sign the updated file easily. This means that upon appending the new values, the file's signature will be invalid.
+
+    1. As such, we have decided to assume that therapists will retrieve the existing readings and prepend it to the new values before uploading the record to the server.

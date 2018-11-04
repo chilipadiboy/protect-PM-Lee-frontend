@@ -1,5 +1,9 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
+import java.net.URI;
+
+import javax.validation.Valid;
+
 import org.cs4239.team1.protectPMLeefrontendserver.model.Note;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
@@ -23,9 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
-import java.net.URI;
-
 @RestController
 @RequestMapping("/api/notes")
 public class NoteController {
@@ -33,12 +34,12 @@ public class NoteController {
     @Autowired
     private NoteService noteService;
 
-    private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
+    private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 
     @PostMapping("/create/")
     //therapist and patient can create their own notes
     public ResponseEntity<?> createNote(@Valid @RequestBody NoteRequest noteRequest, @CurrentUser User currentUser) {
-
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#createNote", noteRequest);
         Note note = noteService.createNote(noteRequest, currentUser);
 
         URI location = ServletUriComponentsBuilder
@@ -53,7 +54,7 @@ public class NoteController {
     @PostMapping("/update/")
     //therapist and patient can update their own notes
     public ResponseEntity<?> updateNote(@Valid @RequestBody NoteUpdateRequest noteUpdateRequest, @CurrentUser User currentUser) {
-
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#updateNote", noteUpdateRequest);
         Note note = noteService.updateNote(noteUpdateRequest, currentUser);
 
         URI location = ServletUriComponentsBuilder
@@ -68,7 +69,7 @@ public class NoteController {
     @PostMapping("/notePermission/")
     //therapist allow/disallow patient to see therapist notes
     public ResponseEntity<?> setNotePermission(@Valid @RequestBody NotePermissionRequest notePermissionRequest, @CurrentUser User currentUser) {
-
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#setNotePermission", notePermissionRequest);
         Note note = noteService.setNotePermission(notePermissionRequest, currentUser);
 
         URI location = ServletUriComponentsBuilder
@@ -83,7 +84,7 @@ public class NoteController {
     @GetMapping("/checkNoteIdConsent/{noteID}/")
     //Patient get notes permitted by any other therapists
     public ResponseEntity<?> checkNoteIdConsent(@Valid @PathVariable Long noteID, @CurrentUser User currentUser) {
-
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#checkNoteIdConsent", noteID);
         Note note = noteService.checkNoteIdConsent(noteID, currentUser);
 
         if (note.isVisibleToPatient()){
@@ -98,18 +99,21 @@ public class NoteController {
     //Therapist get all other therapist notes of this patient
     public PagedResponse<NoteResponse> getNotesOf(@CurrentUser User currentUser,
                                                   @PathVariable String patientNric) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#getNotesOf", patientNric);
         return noteService.getNotesOf(currentUser, patientNric);
     }
 
     @GetMapping("/getOwn/")
     //Patient get all his own notes
     public PagedResponse<NoteResponse> getOwnNotes(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#getOwnNotes");
         return noteService.getOwnNotes(currentUser);
     }
 
     @GetMapping("/getPermitted/")
     //Patient get notes permitted by any other therapists
     public PagedResponse<NoteResponse> getPermittedNotes(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing NoteController#getPermittedNotes");
         return noteService.getPermittedNotes(currentUser);
     }
 }

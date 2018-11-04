@@ -1,7 +1,6 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
 import java.net.URI;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -46,11 +45,12 @@ public class TreatmentController {
     @Autowired
     private TreatmentRepository treatmentRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(RecordController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TreatmentController.class);
 
     //Admin assigns therapist-patient treatment pair
     @PostMapping("/start/")
-    public ResponseEntity<?> startTreatment(@Valid @RequestBody TreatmentRequest treatmentRequest) {
+    public ResponseEntity<?> startTreatment(@CurrentUser User currentUser, @Valid @RequestBody TreatmentRequest treatmentRequest) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#startTreatment", treatmentRequest);
         treatmentService.assignTherapistPatient(treatmentRequest);
 
         URI location = ServletUriComponentsBuilder
@@ -64,8 +64,8 @@ public class TreatmentController {
 
     //Admin terminates therapist-patient treatment pair
     @PostMapping("/stop/")
-    public ResponseEntity<?> stopTreatment(@Valid @RequestBody EndTreatmentRequest endTreatmentRequest) {
-
+    public ResponseEntity<?> stopTreatment(@CurrentUser User currentUser, @Valid @RequestBody EndTreatmentRequest endTreatmentRequest) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#endTreatment", endTreatmentRequest);
         treatmentService.stopTherapistPatient(endTreatmentRequest);
 
         URI location = ServletUriComponentsBuilder
@@ -80,24 +80,28 @@ public class TreatmentController {
     //List ALL treatments
     @GetMapping("/getAll/")
     public PagedResponse<Treatment> getAllTreatments(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#getAllTreatments");
         return treatmentService.getAllTreatments(currentUser);
     }
 
     //Therapist get list of all his patients
     @GetMapping("/getPatients/")
     public PagedResponse<TreatmentResponseWithName> getPatients(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#getPatients");
         return treatmentService.getUsers(currentUser, Role.ROLE_PATIENT);
     }
 
     //Patient get list of all his Therapists
     @GetMapping("/getTherapists/")
     public PagedResponse<TreatmentResponseWithName> getTherapists(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#getTherapists");
         String type = "getTherapists";
         return treatmentService.getUsers(currentUser, Role.ROLE_THERAPIST);
     }
 
     @GetMapping("/getUserSummary/{nric}")
     public UserSummary getUserSummary(@CurrentUser User currentUser, @PathVariable(value = "nric") String nric) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing TreatmentController#getUserSummary", nric);
         User patient = userRepository.findByNric(nric)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "nric", nric));
 
