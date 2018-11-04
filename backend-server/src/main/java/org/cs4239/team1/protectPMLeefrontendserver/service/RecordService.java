@@ -63,24 +63,6 @@ public class RecordService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
 
-
-    @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
-
-        // Retrieve all records created by the current user
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
-        //Todo can only view created records of patient he is still treating
-
-        if (records.getNumberOfElements() == 0) {
-            return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
-                    records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-        }
-
-        return new PagedResponse<>(records.getContent(), records.getNumber(),
-                records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-    }
-
     @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<Record> getRecordsBelongingTo(User currentUser) {
 

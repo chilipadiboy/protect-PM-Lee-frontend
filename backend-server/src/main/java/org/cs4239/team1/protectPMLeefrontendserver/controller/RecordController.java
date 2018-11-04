@@ -238,12 +238,6 @@ public class RecordController {
         return recordService.createRecordWithSignature(therapist, recordRequest, fileName, signature);
     }
 
-    @GetMapping("/therapist/")
-    public PagedResponse<Record> getRecordByTherapist(@CurrentUser User currentUser) {
-        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#getRecordByTherapist");
-        return recordService.getRecordsCreatedBy(currentUser);
-    }
-
     @GetMapping("/patient/")
     public PagedResponse<Record> getRecordByPatient(@CurrentUser User currentUser) {
         logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#getRecordByPatient");
