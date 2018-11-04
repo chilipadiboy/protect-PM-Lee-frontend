@@ -70,7 +70,7 @@ class DownloadVideo extends Component {
         window.requestFileSystem(window.TEMPORARY, 200 * 1024 * 1024, // 200MB
           this.handleInitSuccess);
         document.querySelector('video').addEventListener('loadedmetadata', function() {
-          var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
+          this.currentSrc.replace(/^.*[\\/]/, '');
   });
 }
 

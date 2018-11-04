@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
-import { AUTH_TOKEN, NRIC_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '../../constants';
-import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+import { AUTH_TOKEN, NRIC_LENGTH } from '../../constants';
+import { convertBase64StrToUint8Array, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid } from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
-import { sign, hash } from 'tweetnacl';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -61,7 +60,7 @@ class LoginForm extends Component {
          .then(device => {
            deviceConnected = device;
            context.setState({loading:true});
-           return device.gatt.connect();
+           return deviceConnected.gatt.connect();
          })
          .then(server => {
            return server.getPrimaryService(0x2220);
@@ -91,63 +90,65 @@ class LoginForm extends Component {
                ivStr = response.iv;
                let combined = convertBase64StrToUint8Array(response.combined);
                let signature = convertBase64StrToUint8Array(response.signature);
-               let iv = convertBase64StrToUint8Array(ivStr);
+               convertBase64StrToUint8Array(ivStr);
                let stringEnder = encoder.encode("//");
                let sendMsg = concatenate(Uint8Array, combined, signature, stringEnder);
                let numOfChunks = Math.ceil(sendMsg.byteLength / 20);
                var msgChunks = splitByMaxLength(sendMsg, numOfChunks);
                var prevPromise = Promise.resolve();
+               function inner(j) {
+                 return readChar.readValue().then(value => {
+                   let valueRec = new Uint8Array(value.buffer);
+                   if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
+                     context.setState({isLoading: false});
+                     dis(disconnectChar);
+                     openNotificationError(0);
+                   }
+                   if (valueRec[0]===33 && valueRec[1]===33) {
+                     context.setState({isLoading: false});
+                     dis(disconnectChar);
+                     openNotificationError(1);
+                   }
+                   for (let i=0; i<value.buffer.byteLength; i++) {
+                     valueRecArray.push(valueRec[i]);
+                   }
+                   let ack = "ACK" + j;
+                   ack = encoder.encode(ack);
+                   return writeChar.writeValue(ack).then(function() {
+                     if (j===6) {
+                       dis(disconnectChar);
+                       let encryptedMsg = getTagSigAndMsg(valueRecArray);
+                       let ivMsg = {iv: ivStr};
+                       let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
+                       verifyTagSignature(reqToSend)
+                        .then(response => {
+                          localStorage.setItem(AUTH_TOKEN, response.sessionId);
+                          context.setState({isLoading: false});
+                          context.props.onLogin();
+                        }).catch(error => {
+                          context.setState({isLoading: false});
+                          notification.error({
+                              message: 'Healthcare App',
+                              description: error.message || 'Sorry! Something went wrong. Please try again!'
+                          });
+                        })
+                      }
+                   })
+                 })
+               }
+               function outer(i) {
+                 return writeChar.writeValue(msgChunks[i]).then(function() {
+                   if (i === numOfChunks-1) {
+                     wait(11000);
+                       var prevWhilePromise = Promise.resolve();
+                       for (let j=0; j< 7; j++) {
+                          prevWhilePromise = prevWhilePromise.then(inner(j))
+                        }
+                      }
+                   })
+               }
                for (let i=0; i< numOfChunks; i++) {
-                  prevPromise = prevPromise.then(function() {
-                    return writeChar.writeValue(msgChunks[i]).then(function() {
-                      if (i === numOfChunks-1) {
-                        wait(11000);
-                          var prevWhilePromise = Promise.resolve();
-                          for (let j=0; j< 7; j++) {
-                             prevWhilePromise = prevWhilePromise.then(function() {
-                               return readChar.readValue().then(value => {
-                                 let valueRec = new Uint8Array(value.buffer);
-                                 if (valueRec[0]===48 && valueRec[1]===48 && j===0) {
-                                   context.setState({isLoading: false});
-                                   dis(disconnectChar);
-                                   openNotificationError(0);
-                                 }
-                                 if (valueRec[0]===33 && valueRec[1]===33) {
-                                   context.setState({isLoading: false});
-                                   dis(disconnectChar);
-                                   openNotificationError(1);
-                                 }
-                                 for (let i=0; i<value.buffer.byteLength; i++) {
-                                   valueRecArray.push(valueRec[i]);
-                                 }
-                                 let ack = "ACK" + j;
-                                 ack = encoder.encode(ack);
-                                 return writeChar.writeValue(ack).then(function() {
-                                   if (j===6) {
-                                     dis(disconnectChar);
-                                     let encryptedMsg = getTagSigAndMsg(valueRecArray);
-                                     let ivMsg = {iv: ivStr};
-                                     let reqToSend =  Object.assign({}, encryptedMsg, ivMsg, loginRequest);
-                                     verifyTagSignature(reqToSend)
-                                      .then(response => {
-                                        localStorage.setItem(AUTH_TOKEN, response.sessionId);
-                                        context.setState({isLoading: false});
-                                        context.props.onLogin();
-                                      }).catch(error => {
-                                        context.setState({isLoading: false});
-                                        notification.error({
-                                            message: 'Healthcare App',
-                                            description: error.message || 'Sorry! Something went wrong. Please try again!'
-                                        });
-                                      })
-                                    }
-                                 })
-                               })
-                             })
-                           }
-                         }
-                      })
-                    }).catch(error => {
+                  prevPromise = prevPromise.then(outer(i)).catch(error => {
                         context.setState({isLoading: false});
                         notification.error({
                             message: 'Healthcare App',

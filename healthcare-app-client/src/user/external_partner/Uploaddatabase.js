@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Upload, Button, Icon, Select, Form, notification } from 'antd';
+import { Layout, Upload, Button, Icon, Select, Form } from 'antd';
 import { API, AUTH_TOKEN } from '../../constants/index.js';
 import './Uploaddatabase.css';
 
