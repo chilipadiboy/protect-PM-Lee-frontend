@@ -6,8 +6,12 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
@@ -40,18 +44,31 @@ public class FileController {
     @Autowired
     private RecordRepository recordRepository;
 
+    @Autowired
+    private PermissionRepository permissionRepository;
+
     @Value("${app.privateKey}")
     private String privateKey;
 
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<Resource> downloadFile(@CurrentUser User user, @PathVariable String fileName) {
         logger.info("NRIC_" + user.getNric() + " ROLE_" + user.getSelectedRole() + " accessing FileController#downloadFile", fileName);
-        Optional<Record> record = recordRepository.findByPatientIC(user.getNric()).stream()
-                .filter(r -> r.getDocument().equals(fileName))
-                .findFirst();
 
-        if (!record.isPresent()) {
-            throw new BadRequestException("Unauthorised access to this file.");
+        if (user.getSelectedRole().equals(Role.ROLE_PATIENT)) {
+            Optional<Record> record = recordRepository.findByPatientIC(user.getNric()).stream()
+                    .filter(r -> r.getDocument().equals(fileName))
+                    .findFirst();
+            if (!record.isPresent()) {
+                throw new BadRequestException("Unauthorised access to this file.");
+            }
+        } else if (user.getSelectedRole().equals(Role.ROLE_THERAPIST)) {
+            // TODO: Therapist checks through all the records he has access to.
+            //look for the record
+            Record record = recordRepository.findByDocument(fileName)
+                    .orElseThrow(() -> new ResourceNotFoundException("File", "filename", fileName));
+            //check if therapist have permission to view record
+            Permission permission = permissionRepository.findByUserAndRecord(user, record)
+                    .orElseThrow(() -> new BadRequestException("Unauthorised access to this file."));
         }
 
         try {

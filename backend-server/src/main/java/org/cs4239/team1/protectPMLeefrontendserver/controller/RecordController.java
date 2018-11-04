@@ -84,14 +84,13 @@ public class RecordController {
 
     @PostMapping("/create/")
     public ResponseEntity<?> createRecord(@RequestPart(value = "recordRequest") String recordRequest,
-            @RequestPart(value = "file") MultipartFile file, @CurrentUser User currentUser) {
-        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing RecordController#createRecord", recordRequest, file);
+            @RequestPart(value = "file") MultipartFile file, @CurrentUser User therapist) {
+        logger.info("NRIC_" + therapist.getNric() + " ROLE_" + therapist.getSelectedRole() + " accessing RecordController#createRecord", recordRequest, file);
         try {
             RecordRequest recordRequest1 = validate(new ObjectMapper().readValue(recordRequest, RecordRequest.class));
-            Record record = createRecord(recordRequest1, file);
+            Record record = createRecord(therapist, recordRequest1, file);
 
             //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
-            //Need to be assigned to start treatment. Else record will be created but not auto permitted
             Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
             String endDate = treatment.getEndDate().toString().substring(0,10);
             PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
@@ -161,7 +160,8 @@ public class RecordController {
 
 
     @PostMapping("/create/signature/verify")
-    public ResponseEntity<?> verifyCreateRecordTagSignature(@RequestPart(value = "recordRequest") String recordRequest,
+    public ResponseEntity<?> verifyCreateRecordTagSignature(@CurrentUser User therapist,
+                                                            @RequestPart(value = "recordRequest") String recordRequest,
                                                             @RequestPart(value = "file") MultipartFile file,
                                                             @RequestPart(value = "signatureRequest") String sigRequest,
                                                             @CurrentUser User currentUser) {
@@ -193,10 +193,9 @@ public class RecordController {
             patient.setNonce(patient.getNonce() + 1);
             patient.setNumOfNonceUsed(patient.getNumOfNonceUsed() + 1);
             userRepository.save(patient);
-            Record record = createRecordWithSignature(recordRequest1, file, fileSignatureStr);
+            Record record = createRecordWithSignature(therapist, recordRequest1, file, fileSignatureStr);
 
             //Auto permitted when therapist create record for patient( i.e Default permission after creation is allowed)
-            //Need to be assigned to start treatment. Else record will be created but not auto permitted
             Treatment treatment = treatmentRepository.findByTreatmentId(new TreatmentId(record.getCreatedBy(),record.getPatientIC()));
             String endDate = treatment.getEndDate().toString().substring(0,10);
             PermissionRequest permissionRequest = new PermissionRequest(record.getRecordID(), record.getCreatedBy(), endDate);
@@ -229,14 +228,14 @@ public class RecordController {
         }
     }
 
-    private Record createRecord(RecordRequest recordRequest, MultipartFile file) throws FileUploadException {
+    private Record createRecord(User therapist, RecordRequest recordRequest, MultipartFile file) throws FileUploadException {
         String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
-        return recordService.createRecord(recordRequest, fileName);
+        return recordService.createRecord(therapist, recordRequest, fileName);
     }
 
-    private Record createRecordWithSignature(RecordRequest recordRequest, MultipartFile file, String signature) throws FileUploadException {
+    private Record createRecordWithSignature(User therapist, RecordRequest recordRequest, MultipartFile file, String signature) throws FileUploadException {
         String fileName = fileStorageService.storeFile(file, recordRequest.getPatientIC());
-        return recordService.createRecordWithSignature(recordRequest, fileName, signature);
+        return recordService.createRecordWithSignature(therapist, recordRequest, fileName, signature);
     }
 
     @GetMapping("/therapist/")

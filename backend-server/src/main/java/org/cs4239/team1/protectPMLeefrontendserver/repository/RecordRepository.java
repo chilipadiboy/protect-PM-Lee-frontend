@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface RecordRepository extends JpaRepository<Record, Long> {
 
     Optional<Record> findByRecordID(Long recordID);
-
+    Optional<Record> findByDocument(String document);
     Page<Record> findByCreatedBy(String nric, Pageable pageable);
 
     Page<Record> findByPatientIC(String nric, Pageable pageable);

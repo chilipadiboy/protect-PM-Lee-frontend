@@ -66,7 +66,7 @@ public class FileStorageService {
         return distinctCleanedFileName;
     }
 
-    @PreAuthorize("hasRole('THERAPIST') or hasRole('RESEARCHER')")
+    @PreAuthorize("hasRole('THERAPIST') or hasRole('RESEARCHER') or hasRole('PATIENT')")
     public Resource loadFileAsResource(String fileName) {
         try {
             Path filePath = fileStorageLocation.resolve(fileName).normalize();
