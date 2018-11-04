@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import { Form, Input, Layout, Upload, Button, Icon, Select, notification, Spin  } from 'antd';
 import { matchPath } from 'react-router';
 import { getPatientProfile, createRecord, createRecordSignature, verifyCreateRecordTagSignature } from '../../util/APIUtils';
-import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+import { convertBase64StrToUint8Array, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid} from '../../util/MFAUtils';
 import './UploadRecord.css';
 
 const FormItem = Form.Item;
-const { Header, Content } = Layout;
+const { Content } = Layout;
 var encoder = new TextEncoder('utf-8');
 var writeChar, readChar, disconnectChar, deviceConnected;
 var valueRecArray = [];
@@ -165,7 +165,6 @@ class Therapist_uploadrecord extends Component {
              patientIC: this.state.patientIC.value
          };
          const uploadedFile = this.state.selectedFileList[0];
-         let patientNric;
          this.setState({isLoading:true});
          navigator.bluetooth.requestDevice({
            filters: [ {services:[0x2220]},]
