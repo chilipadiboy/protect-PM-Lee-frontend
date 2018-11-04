@@ -11,6 +11,8 @@ import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.security.CustomUserDetailsService;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -37,8 +39,11 @@ public class AdminController {
     @Value("${logging.file}")
     private String logPath;
 
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+
     @GetMapping("/showAllUsers")
-    public List<UserSummary> showAllUsers() {
+    public List<UserSummary> showAllUsers(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AdminController#showAllUsers");
         return userRepository.findAll().stream()
                 .map(user -> new UserSummary(user.getNric(), user.getName(),
                         user.getRoles().toString().toLowerCase(), user.getPhone(), user.getEmail()))
@@ -47,6 +52,7 @@ public class AdminController {
 
     @GetMapping("/delete/{nric}")
     public ResponseEntity<?> deleteUser(@PathVariable(value = "nric") String nric, @CurrentUser User admin) {
+        logger.info("NRIC_" + admin.getNric() + " ROLE_" + admin.getSelectedRole() + " accessing AdminController#deleteUser", nric);
         if (admin.getNric().equalsIgnoreCase(nric)) {
             throw new BadRequestException("You are not allowed to delete your own account.");
         }
@@ -56,7 +62,8 @@ public class AdminController {
     }
 
     @GetMapping("/logs")
-    public ResponseEntity<Resource> getLogs() {
+    public ResponseEntity<Resource> getLogs(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing AdminController#getLogs");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "logs.log" + "\"")

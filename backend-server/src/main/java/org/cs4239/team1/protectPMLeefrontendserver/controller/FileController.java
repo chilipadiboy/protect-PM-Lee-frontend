@@ -1,18 +1,15 @@
 package org.cs4239.team1.protectPMLeefrontendserver.controller;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collection;
+import java.util.Optional;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.cs4239.team1.protectPMLeefrontendserver.exception.NonceExceededException;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.ApiResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.payload.ServerSignatureResponse;
-import org.cs4239.team1.protectPMLeefrontendserver.security.AESEncryptionDecryptionTool;
-import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
-import org.cs4239.team1.protectPMLeefrontendserver.security.NonceGenerator;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
+import org.cs4239.team1.protectPMLeefrontendserver.model.User;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.security.CurrentUser;
 import org.cs4239.team1.protectPMLeefrontendserver.service.FileStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,19 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.google.crypto.tink.subtle.Ed25519Sign;
 
 import net.sf.jmimemagic.Magic;
 
@@ -47,11 +37,23 @@ public class FileController {
     @Autowired
     private FileStorageService fileStorageService;
 
+    @Autowired
+    private RecordRepository recordRepository;
+
     @Value("${app.privateKey}")
     private String privateKey;
 
     @GetMapping("/download/{fileName:.+}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
+    public ResponseEntity<Resource> downloadFile(@CurrentUser User user, @PathVariable String fileName) {
+        logger.info("NRIC_" + user.getNric() + " ROLE_" + user.getSelectedRole() + " accessing FileController#downloadFile", fileName);
+        Optional<Record> record = recordRepository.findByPatientIC(user.getNric()).stream()
+                .filter(r -> r.getDocument().equals(fileName))
+                .findFirst();
+
+        if (!record.isPresent()) {
+            throw new BadRequestException("Unauthorised access to this file.");
+        }
+
         try {
             Resource resource = fileStorageService.loadFileAsResource(fileName);
             String contentType = Magic.getMagicMatch(IOUtils.toByteArray(resource.getInputStream())).getMimeType();

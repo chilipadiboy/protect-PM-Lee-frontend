@@ -44,6 +44,6 @@ public enum Location {
     }
 
     public boolean isInLocation(int postalCode) {
-        return this.equals(POSTAL_CODE_TO_LOCATION.get(postalCode));
+        return this == POSTAL_CODE_TO_LOCATION.get(postalCode / 10000);
     }
 }

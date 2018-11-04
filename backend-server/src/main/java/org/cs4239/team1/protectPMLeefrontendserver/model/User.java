@@ -30,6 +30,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @NoArgsConstructor
@@ -96,6 +97,14 @@ public class User extends DateAudit implements UserDetails {
 
     @NonNull
     private String symmetricKey;
+
+    @NonNull
+    @Setter
+    private int nonce;
+
+    @NonNull
+    @Setter
+    private int numOfNonceUsed;
 
     @NonNull
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role.class)

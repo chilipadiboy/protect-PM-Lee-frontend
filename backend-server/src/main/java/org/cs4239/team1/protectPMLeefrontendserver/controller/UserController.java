@@ -23,13 +23,15 @@ public class UserController {
 
     @GetMapping("/me")
     public UserSummary getCurrentUser(@CurrentUser User currentUser) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing UserController#getCurrentUser");
         return new UserSummary(currentUser.getNric(), currentUser.getName(),
                 currentUser.getSelectedRole().toString(),
                 currentUser.getPhone(), currentUser.getEmail());
     }
 
     @GetMapping("/logout")
-    public ApiResponse logoutCurrentUser(HttpServletRequest req, HttpServletResponse res) {
+    public ApiResponse logoutCurrentUser(@CurrentUser User currentUser, HttpServletRequest req, HttpServletResponse res) {
+        logger.info("NRIC_" + currentUser.getNric() + " ROLE_" + currentUser.getSelectedRole() + " accessing UserController#logoutCurrentUser");
         Cookie cookie = Stream.of(req.getCookies())
                 .filter(c -> c.getName().equals("sessionCookie"))
                 .findFirst()

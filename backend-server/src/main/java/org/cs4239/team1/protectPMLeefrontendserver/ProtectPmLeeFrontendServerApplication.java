@@ -98,6 +98,8 @@ public class ProtectPmLeeFrontendServerApplication {
                         passwordEncoder.encode(values[9]),
                         values[10],
                         "",
+                        0,
+                        0,
                         new HashSet<>(Collections.singletonList(Role.create(values[11])))));
             });
 
@@ -115,6 +117,8 @@ public class ProtectPmLeeFrontendServerApplication {
                         passwordEncoder.encode(values[9]),
                         values[10],
                         "",
+						0,
+						0,
                         new HashSet<>(Collections.singletonList(Role.create(values[11])))));
             });
 
@@ -154,6 +158,8 @@ public class ProtectPmLeeFrontendServerApplication {
                         passwordEncoder.encode(values[9]),
                         values[10],
                         values[11],
+						0,
+						0,
                         new HashSet<>(roleList)));
             });
         } catch (IOException ioe) {
@@ -176,6 +182,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("administrator"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
                 "",
+				0,
+				0,
                 new HashSet<>(Arrays.asList(Role.ROLE_ADMINISTRATOR, Role.ROLE_RESEARCHER)));
 		User external = new User("S1234567E",
 				"external",
@@ -188,6 +196,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("external"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				"",
+				0,
+				0,
 				new HashSet<>(Collections.singletonList(Role.ROLE_EXTERNAL_PARTNER)));
 		User therapist01 = new User("S1234501T",
 				"therapist01",
@@ -200,6 +210,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("therapist01"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				"",
+				0,
+				0,
 				new HashSet<>(Collections.singletonList(Role.ROLE_THERAPIST)));
 		User therapist02 = new User("S1234502T",
 				"therapist02",
@@ -212,6 +224,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("therapist02"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				"",
+				0,
+				0,
 				new HashSet<>(Collections.singletonList(Role.ROLE_THERAPIST)));
 		User patient01 = new User("S1234501P",
 				"patient01",
@@ -224,6 +238,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("patient01"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				"",
+				0,
+				0,
 				new HashSet<>(Collections.singletonList(Role.ROLE_PATIENT)));
 		User patient02 = new User("S1234502P",
 				"patient02",
@@ -236,6 +252,8 @@ public class ProtectPmLeeFrontendServerApplication {
 				passwordEncoder.encode("patient02"),
 				"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 				"",
+				0,
+				0,
 				new HashSet<>(Collections.singletonList(Role.ROLE_PATIENT)));
 		Instant endDate = Instant.now().plus(10, ChronoUnit.DAYS);
 		Record recordP01 = new Record(Type.ILLNESS,
@@ -298,6 +316,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111B",
@@ -311,6 +331,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111C",
@@ -324,6 +346,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111D",
@@ -337,6 +361,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111E",
@@ -350,6 +376,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111F",
@@ -363,6 +391,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			userRepository.save(new User("S1111111G",
@@ -376,6 +406,8 @@ public class ProtectPmLeeFrontendServerApplication {
 					passwordEncoder.encode("foobarbaz"),
 					"MW6ID/qlELbKxjap8tpzKRHmhhHwZ2w2GLp+vQByqss=",
 					"",
+					0,
+					0,
 					new HashSet<>(Arrays.asList(Role.ROLE_PATIENT, Role.ROLE_THERAPIST))));
 
 			recordRepository.save(new Record(Type.ILLNESS,
