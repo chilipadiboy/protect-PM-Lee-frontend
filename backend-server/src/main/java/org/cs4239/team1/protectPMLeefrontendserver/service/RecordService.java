@@ -11,11 +11,13 @@ import com.google.crypto.tink.subtle.Ed25519Verify;
 import org.apache.commons.io.IOUtils;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.BadRequestException;
 import org.cs4239.team1.protectPMLeefrontendserver.exception.ResourceNotFoundException;
+import org.cs4239.team1.protectPMLeefrontendserver.exception.UnauthorisedException;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Permission;
 import org.cs4239.team1.protectPMLeefrontendserver.model.PermissionId;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Record;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Role;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Subtype;
+import org.cs4239.team1.protectPMLeefrontendserver.model.Treatment;
 import org.cs4239.team1.protectPMLeefrontendserver.model.User;
 import org.cs4239.team1.protectPMLeefrontendserver.model.Type;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.EndPermissionRequest;
@@ -25,6 +27,7 @@ import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordRequest;
 import org.cs4239.team1.protectPMLeefrontendserver.payload.RecordResponseWithTherapistIdentifier;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.PermissionRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.RecordRepository;
+import org.cs4239.team1.protectPMLeefrontendserver.repository.TreatmentRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.repository.UserRepository;
 import org.cs4239.team1.protectPMLeefrontendserver.security.Hasher;
 import org.cs4239.team1.protectPMLeefrontendserver.util.FormatDate;
@@ -53,26 +56,12 @@ public class RecordService {
     private FileStorageService fileStorageService;
 
     @Autowired
+    TreatmentRepository treatmentRepository;
+
+    @Autowired
     private PermissionRepository permissionRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(RecordService.class);
-
-
-    @PreAuthorize("hasRole('THERAPIST')")
-    public PagedResponse<Record> getRecordsCreatedBy(User currentUser) {
-
-        // Retrieve all records created by the current user
-        Pageable pageable = PageRequest.of(0,60, Sort.Direction.DESC, "createdAt");
-        Page<Record> records = recordRepository.findByCreatedBy(currentUser.getNric(), pageable);
-
-        if (records.getNumberOfElements() == 0) {
-            return new PagedResponse<>(Collections.emptyList(), records.getNumber(),
-                    records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-        }
-
-        return new PagedResponse<>(records.getContent(), records.getNumber(),
-                records.getSize(), records.getTotalElements(), records.getTotalPages(), records.isLast());
-    }
 
     @PreAuthorize("hasRole('PATIENT')")
     public PagedResponse<Record> getRecordsBelongingTo(User currentUser) {
@@ -91,7 +80,7 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public Record createRecord(RecordRequest recordRequest, String fileName) {
+    public Record createRecord(User therapist, RecordRequest recordRequest, String fileName) {
 
         //check if user exist
         User user = userRepository.findByNric(recordRequest.getPatientIC())
@@ -100,6 +89,9 @@ public class RecordService {
         if (!user.getRoles().contains(Role.ROLE_PATIENT)){
             throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
         }
+
+        Treatment treatment = treatmentRepository.findByTherapistAndPatient(therapist, user)
+                .orElseThrow(() -> new UnauthorisedException("Not allowed to create this record"));
 
         return recordRepository.save(new Record(Type.create(recordRequest.getType()),
                 Subtype.create(recordRequest.getSubtype()),
@@ -109,7 +101,7 @@ public class RecordService {
     }
 
     @PreAuthorize("hasRole('THERAPIST')")
-    public Record createRecordWithSignature(RecordRequest recordRequest, String fileName, String signature) {
+    public Record createRecordWithSignature(User therapist, RecordRequest recordRequest, String fileName, String signature) {
 
         //check if user exist
         User user = userRepository.findByNric(recordRequest.getPatientIC())
@@ -118,6 +110,9 @@ public class RecordService {
         if (!user.getRoles().contains(Role.ROLE_PATIENT)){
             throw new BadRequestException("User_" + user.getNric() + " is not a patient!");
         }
+
+        Treatment treatment = treatmentRepository.findByTherapistAndPatient(therapist, user)
+                .orElseThrow(() -> new UnauthorisedException("Not allowed to create this record"));
 
         return recordRepository.save(new Record(Type.create(recordRequest.getType()),
                 Subtype.create(recordRequest.getSubtype()),

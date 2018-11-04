@@ -85,8 +85,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .hasRole("ADMINISTRATOR")
                     .antMatchers("/api/records/patient/")
                         .hasRole("PATIENT")
-                    .antMatchers("/api/records/therapist/**")
-                        .hasRole("THERAPIST")
                     .antMatchers("/api/records/create/**")
                         .hasRole("THERAPIST")
                     .antMatchers("/api/permissions/permit/")
@@ -126,7 +124,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/api/researcher/getAnonymousData")
                         .hasRole("RESEARCHER")
                     .antMatchers("/api/file/download/*")
-                        .hasAnyRole("RESEARCHER","THERAPIST")
+                        .hasAnyRole("THERAPIST", "PATIENT")
                     .anyRequest()
                         .authenticated();
 

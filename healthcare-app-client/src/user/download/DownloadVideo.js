@@ -67,10 +67,10 @@ class DownloadVideo extends Component {
   showOutput(filename) {
       video = document.querySelector('video');
         window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-        window.requestFileSystem(window.TEMPORARY, 200 * 1024 * 1024, // 200MB
+        window.requestFileSystem(window.TEMPORARY, 15 * 1024 * 1024, // 15MB
           this.handleInitSuccess);
         document.querySelector('video').addEventListener('loadedmetadata', function() {
-          var fileName = this.currentSrc.replace(/^.*[\\/]/, '');
+          this.currentSrc.replace(/^.*[\\/]/, '');
   });
 }
 

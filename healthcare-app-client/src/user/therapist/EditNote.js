@@ -1,18 +1,14 @@
+/* eslint-disable */
 import React, { Component } from 'react';
-import {
-    Link,
-    withRouter
-} from 'react-router-dom';
 import { matchPath } from 'react-router';
 import { getPatientProfile, getCurrentUser, updateNote, getAllTherapistNotes } from '../../util/APIUtils';
 import { NOTE_CONTENT_MAX_LENGTH } from '../../constants';
-import { Layout, Icon, Button, Input, Form, notification } from 'antd';
-import LoadingIndicator  from '../../common/LoadingIndicator';
+import { Layout, Button, Input, Form, notification } from 'antd';
 import './EditNote.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
 
 const FormItem = Form.Item;
+const { Content } = Layout;
+const { TextArea } = Input;
 
 class Therapist_editnote extends Component {
     constructor(props) {
@@ -209,8 +205,6 @@ class Therapist_editnote extends Component {
     }
 
     render() {
-        const { Header, Content } = Layout;
-        const { TextArea } = Input;
 
         return (
           <div className="patient-data">

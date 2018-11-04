@@ -30,11 +30,6 @@ class AppHeader extends Component {
                   <Icon type="bar-chart" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -71,11 +66,6 @@ class AppHeader extends Component {
                   <Icon type="reconciliation" theme="outlined" className="nav-icon" />
                 </Link>
               </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -87,11 +77,6 @@ class AppHeader extends Component {
               <Menu.Item key="/mypatients">
                 <Link to="/mypatients">
                   <Icon type="medicine-box" />
-                </Link>
-              </Menu.Item>,
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
                 </Link>
               </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
@@ -125,11 +110,6 @@ class AppHeader extends Component {
             ];
           } else {
             menuItems = [
-              <Menu.Item key="/">
-                <Link to="/">
-                  <Icon type="home" className="nav-icon" />
-                </Link>
-              </Menu.Item>,
               <Menu.Item key="/profile" className="profile-menu">
                 <ProfileDropdownMenu
                   currentUser={this.props.currentUser}
@@ -189,7 +169,7 @@ function ProfileDropdownMenu(props) {
     overlay={dropdownMenu}
     trigger={['click']}
     getPopupContainer = { () => document.getElementsByClassName('profile-menu')[0]}>
-    <a className="ant-dropdown-link">
+    <a href="/" className="ant-dropdown-link">
     <Icon type="user" className="nav-icon" style={{marginRight: 0}} /> <Icon type="down" />
     </a>
     </Dropdown>

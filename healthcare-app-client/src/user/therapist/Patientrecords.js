@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import {
-    Link,
-    withRouter
+    Link
 } from 'react-router-dom';
 import { matchPath } from 'react-router';
-import { getPatients, getPatientPermittedRecords, getPatientProfile,
+import { getPatientPermittedRecords, getPatientProfile,
          getAllTherapistNotes, getCurrentUser, setNotePermission, checkNotePermission } from '../../util/APIUtils';
-import { Layout, Table, Icon, Button, Checkbox, notification } from 'antd';
+import { Layout, Table, Button, Checkbox, notification } from 'antd';
 import update from 'immutability-helper';
-import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Patientrecords.css';
-import NotFound from '../../common/NotFound';
-import ServerError from '../../common/ServerError';
+
+const { Content } = Layout;
 
 class Therapist_patientrecords extends Component {
     constructor(props) {
@@ -89,16 +87,16 @@ class Therapist_patientrecords extends Component {
               othernotes: otherdata
           });
 
-          if (mydata.length == 0) {
+          if (mydata.length === 0) {
               this.setState({
                   permissionadded: true
               });
           }
 
-          for (var i = 0; i < mydata.length; i++) {
-              const currentid = mydata[i].noteID;
+          for (var j = 0; j < mydata.length; j++) {
+              const currentid = mydata[j].noteID;
 
-              const index = i;
+              const index = j;
               const final_count = mydata.length - 1;
 
               checkNotePermission(currentid)
@@ -111,7 +109,7 @@ class Therapist_patientrecords extends Component {
                   }
 
 
-                  if (index == final_count) {
+                  if (index === final_count) {
                     this.setState({
                         permissionadded: true
                     });
@@ -248,7 +246,6 @@ class Therapist_patientrecords extends Component {
     }
     // Change the columns? Add links to the docs?
     render() {
-        const { Header, Content } = Layout;
 
         const patcolumns = [{
           title: 'Record ID',
@@ -274,13 +271,13 @@ class Therapist_patientrecords extends Component {
           render: text => {
             var url = text.split("/")
             url = url[url.length-1]
-            if (url.includes(".mp4"))
+            if (url.endsWith(".mp4"))
               text = "/downloadVideo/" + url
-            else if (url.includes(".jpg") || url.includes(".png"))
+            else if (url.endsWith(".jpg") || url.endsWith(".png"))
               text = "/downloadImage/" + url
-            else if (url.includes(".txt"))
+            else if (url.endsWith(".txt"))
               text = "/downloadFile/" + url
-            else if (url.includes(".csv"))
+            else if (url.endsWith(".csv"))
               text = "/downloadCSV/" + url
 
             return <a href={text}>{url}</a>
@@ -348,18 +345,18 @@ class Therapist_patientrecords extends Component {
                         <Button type="primary" icon="upload" size="default">Upload record</Button>
                       </Link>
                     </div>
-                    <Table dataSource={this.state.patrecords} columns={patcolumns} />
+                    <Table dataSource={this.state.patrecords} columns={patcolumns} rowKey="recordID" />
                     <div className="title">
                       Other Therapists' Notes
                     </div>
-                    <Table dataSource={this.state.othernotes} columns={othernotescolumns} />
+                    <Table dataSource={this.state.othernotes} columns={othernotescolumns} rowKey="noteID" />
                     <div className="title">
                       My Notes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                       <Link to={ this.props.history.location.pathname + "/newnote" }>
                         <Button type="primary" icon="file-add" size="default">New note</Button>
                       </Link>
                     </div>
-                    <Table dataSource={this.state.mynotes} columns={mynotescolumns} />
+                    <Table dataSource={this.state.mynotes} columns={mynotescolumns} rowKey="noteID" />
                   </Content>
                 </Layout>
               ): null

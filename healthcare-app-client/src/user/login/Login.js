@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { login, getServerSignature, verifyTagSignature } from '../../util/APIUtils';
 import './Login.css';
-import { AUTH_TOKEN, NRIC_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from '../../constants';
-import { convertBase64StrToUint8Array, convertUint8ArrayToStr, wait, splitByMaxLength,
+import { AUTH_TOKEN, NRIC_LENGTH } from '../../constants';
+import { convertBase64StrToUint8Array, wait, splitByMaxLength,
 dis, concatenate, getTagSigAndMsg, writeUid, readUid, disconUid } from '../../util/MFAUtils';
 import { Form, Input, Button, Icon, Select, notification, Spin } from 'antd';
-import { sign, hash } from 'tweetnacl';
 
 const FormItem = Form.Item;
 const Option = Select.Option;

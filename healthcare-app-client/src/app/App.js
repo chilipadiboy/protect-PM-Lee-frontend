@@ -10,8 +10,6 @@ import { getCurrentUser, logout } from '../util/APIUtils';
 import { AUTH_TOKEN } from '../constants';
 
 import Login from '../user/login/Login';
-import CreateRecord from '../user/records/CreateRecord';
-import AllRecords from '../user/records/AllRecords';
 import DownloadVideo from '../user/download/DownloadVideo';
 import DownloadImage from '../user/download/DownloadImage';
 import DownloadFile from '../user/download/DownloadFile';
@@ -33,14 +31,12 @@ import Researcher_generate_data from '../user/researcher/Generatedata';
 import External_add_user from '../user/external_partner/Adduser';
 import External_upload_database from '../user/external_partner/Uploaddatabase';
 import LoadingIndicator from '../common/LoadingIndicator';
-import PrivateRoute from '../common/PrivateRoute';
 import PatientRoute from '../common/PatientRoute';
 import TherapistRoute from '../common/TherapistRoute';
 import ResearcherRoute from '../common/ResearcherRoute';
 import AdministratorRoute from '../common/AdministratorRoute';
 import ExternalPartnerRoute from '../common/ExternalPartnerRoute';
 import NotFound from '../common/NotFound';
-import Chart from '../util/CSVtoGraph'
 
 import { Layout, notification } from 'antd';
 const { Content } = Layout;
@@ -153,7 +149,6 @@ class App extends Component {
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadImage/:filename" component={DownloadImage}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadFile/:filename" component={DownloadFile}></PatientRoute>
                     <PatientRoute authenticated={this.state.isAuthenticated} role={this.state.currentUser.role} path="/downloadCSV/:filename" component={DownloadCSV}></PatientRoute>
-                    <Route path="/chart" component={Chart}></Route>
                     <Route component={NotFound}></Route>
                   </Switch>
                 </div>

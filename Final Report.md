@@ -66,8 +66,9 @@ This subsystem provides the web interface that will be used by `Therapists`, `Pa
 1. Edit his notes
 
 ### Administrators Capabilities:
+1. List and view profiles of all users in the system
 1. Add/delete users except himself to/from the system
-1. Assign/unassign `Therapists` to `Patients` (Giving the `Therapist` permission to upload the `Patient`'s `Record`)
+1. Assign/unassign `Therapists` to `Patients` (thereby allowing/disallowing the `Therapist` to upload the `Patient`'s `Record`)
 1. Display logs of all transactions in the system
 
 ---

@@ -15,4 +15,5 @@ public interface TreatmentRepository extends JpaRepository<Treatment, TreatmentI
     Page<Treatment> findByTherapist(User therapist, Pageable pageable);
     Page<Treatment> findByPatient(User patient, Pageable pageable);
     Treatment findByTreatmentId(TreatmentId treatmentId);
+    Optional<Treatment> findByTherapistAndPatient(User therapist, User patient);
 }
