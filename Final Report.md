@@ -135,6 +135,16 @@ We will be validating the files containing health record data uploaded using the
 1. No other users can create a `Patient`'s record except for the `Administrator`.
     1. The functionalities of an `Administrator` ensures that only a `Therapist` who is granted permission to access a `Patient`'s records can create and view his records.
 
+1. The k-anonymity may be susceptible to exclusion attacks. Our system allows filtering of records by:
+    1. Age (6 values)
+    1. Gender (2 values)
+    1. Location (8 values)
+    1. Subtype (25 values)
+
+    As such, there are 6 * 2 * 8 * 25 = 2400 possible permutations. To achieve 2-anonymity, we need minimally 2400 * 2 = 4800 records, which in the real world we will expect much more records than this. However, this is not true in our case.
+
+    In the event that there's less than 2 records for a particular permutation, the server will not return any results to the client. Therefore, a malicious user is able to filter out which permutation does not exist.
+
 ## Other things to note:
 
 1. When uploading a new `Blood Pressure Reading Record`, the therapist should retrieve the existing readings, append the new values, then upload the record. There are a few considerations in mind before we decided on this decision:
